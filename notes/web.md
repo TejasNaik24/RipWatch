@@ -156,3 +156,30 @@ web/app/{globals.css, layout.tsx, page.tsx, compare/page.tsx, results/page.tsx, 
 **Not verified:** playback against a real fractional-fps clip with real masks (none yet); real Gemini baseline files (the demo scripts are written but not run).
 
 **Next:** once ML writes the real `*.baseline.json`, confirm its `model` field contains "gemini" so the friendly name and raw id show.
+
+## 2026-10-24 11:10 - Laptop-size layout fixes (written from the ML teammate's laptop)
+**Note:** this entry was written from the ML teammate's laptop; same arrangement as before (web work in web/, web teammate not touching it). Not touched: `lib/data.ts`, `notes/contract.md`, anything in `web/public/data/`, and the frame-sync math in MaskedVideo.
+
+**Fixed (the six items)**
+1. **Command grid off-center.** The old grid was sized from the window height and centered, so a shorter window left empty side gutters. It now always fills the full content width: left edge and right edge equal the header's (checked at every size: grid 32 to W-32, header 32 to W-32). The side column is sized so the hero is exactly 16:9 whenever width is the limit (no letterbox bars), and it shrinks only when the window is too short. Hero and side-feed sizing live in `.rw-cmd-grid` in `app/globals.css`.
+2. **Side feed tiles.** The CAM id is `whitespace-nowrap`; the full location name wraps onto a second line if needed, with no ellipsis. Caption row is 48px; the status pill no longer wraps.
+3. **Alert card.** No fixed widths, no truncate; the message wraps, the Confidence and Active-for cells and the button keep their content width, gaps are smaller. It fits its content in every state (alert, acknowledged, clear with the long message, "View CAM 0x").
+4. **Event log.** Messages are now short fixed labels ("Rip detected 90%", "Area clear", "Acknowledged"), never truncated, and wrap rather than cut if the column is very narrow. Only whole rows are shown: rows that do not fit in the panel are hidden (measured with a ResizeObserver), so nothing is half cut off.
+5. **Results.** "How it was measured" and "Known limitations" moved to a full-width strip under the chart and headline card, so they size to their content; the chart takes whatever height is left, so the page fits without scrolling. Tested with a realistic 640-character `metrics.notes`, two models and no fake flag, at 1440x780.
+6. **Nav focus box.** A real mouse click did not show the box in Chrome here (`:focus-visible` was false), so I could not reproduce it directly; probably it depends on the browser or on earlier keyboard use on the page. Made it deterministic: `components/InputModality.tsx` marks `<html data-input="pointer|keyboard">` from the last input, and CSS hides the ring in pointer mode. Checked: Tab shows a 2px ring; after a mouse click right after Tab the outline is `none`.
+
+**Also fixed (not in the list, found while testing)**
+- **Clip stayed hidden after a fast or cached load.** With the mp4 cached, `loadeddata` fired before React hydrated, so the handler never ran: the video played but stayed `invisible`, "0 of 3 streaming" showed, and the masks followed the fallback clock instead of the video. The existing mount check in MaskedVideo now also accepts a video that is already loaded (`readyState >= HAVE_CURRENT_DATA`). This only sets the "video is ready" state; the `frameIndex(t, fps)` math is unchanged. Four cached reloads in a row now all show "1 of 3 streaming".
+- Line heights on a few big mono numbers and the hook title were `leading-none`, which my checker flagged as glyph boxes taller than the line box; changed to `leading-tight` / 1.15 (no visible change).
+
+**Verified**
+- eslint, tsc and `next build` pass.
+- A checker (page scroll; anything past the viewport; text wider or taller than its box; ellipsis; elements clipped by an overflow-hidden parent; children sticking out of their card) run on `/`, `/compare`, `/results`, `/pipeline`, `/hook` at 1920x1080, 1512x982 and 1440x900 reported no issues and no scrolling on any route. Also clean at the shorter windows 1512x800 and 1440x780 (browser-viewport heights are shorter than the screen on a MacBook).
+- Command at 1440x900 and 1440x780: no empty gutters, full location names, alert card complete in the alert, acknowledged and clear states, event log complete rows only.
+
+**Not verified**
+- Safari (macOS); only Chrome was tested. The focus fix does not depend on browser heuristics, but I have not seen it in Safari.
+- The real Command page with all three real clips (clip1/clip2 mp4s do not exist yet), so the side feeds still show "Awaiting footage" in tests.
+- Very narrow windows (under about 1300px wide) were not part of the brief and were not checked.
+
+**Next:** when real clips and masks arrive, look at Command and Compare once at 1440x900 (the recording size) before recording.

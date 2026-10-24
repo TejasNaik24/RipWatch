@@ -163,13 +163,17 @@ export default function MaskedVideo({
     };
   }, [clipId, source]);
 
-  // The error event can fire before hydration attaches onError, so check once on mount.
+  // The error and loadeddata events can both fire before hydration attaches their handlers
+  // (a fast or cached load), so check the element's state once on mount. Without the second
+  // check a clip that is already playing stays hidden and the masks never follow it.
   useEffect(() => {
     const v = videoRef.current;
     if (!v) return;
     const id = setTimeout(() => {
       if (v.error || (v.networkState === HTMLMediaElement.NETWORK_NO_SOURCE && v.readyState === 0)) {
         setVideoFailed(true);
+      } else if (v.readyState >= HTMLMediaElement.HAVE_CURRENT_DATA) {
+        setVideoOk(true);
       }
     }, 0);
     return () => clearTimeout(id);

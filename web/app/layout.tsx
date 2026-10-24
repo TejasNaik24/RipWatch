@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { IBM_Plex_Mono, Public_Sans } from "next/font/google";
+import InputModality from "@/components/InputModality";
 import TopBar from "@/components/TopBar";
 import "./globals.css";
 
@@ -25,6 +26,7 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
   return (
     <html lang="en" className={`${publicSans.variable} ${plexMono.variable} antialiased`}>
       <body className="flex min-h-dvh flex-col">
+        <InputModality />
         <TopBar />
         {children}
       </body>

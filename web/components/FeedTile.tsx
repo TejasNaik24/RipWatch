@@ -39,14 +39,15 @@ export default function FeedTile({
 
   return (
     <div style={style} className="flex min-h-0 min-w-0 flex-col">
-      <div className="group relative w-full">
+      {/* Hero: fills its grid cell (the video letterboxes). Side feeds: exactly 16:9. */}
+      <div className={`group relative w-full ${hero ? "min-h-0 flex-1" : ""}`}>
         <MaskedVideo
           clipId={clip.id}
           source="ripwatch"
           threshold={threshold}
           onFrame={onFrame}
           onVideoState={(ok) => onVideoState(clip.id, ok)}
-          className="aspect-video w-full rounded-xl"
+          className={`w-full rounded-xl ${hero ? "h-full" : "aspect-video"}`}
         />
         {/* Frame: quiet hairline normally, red only while this camera sees a rip. */}
         <span
@@ -83,10 +84,11 @@ export default function FeedTile({
         )}
       </div>
       {!hero && (
-        <div className="flex h-11 shrink-0 items-center justify-between gap-3 px-1">
-          <div className="flex min-w-0 items-baseline gap-2">
-            <span className="font-mono text-[13px] text-ink-2">{clip.camera}</span>
-            <span className="truncate text-sm text-ink">{clip.location}</span>
+        // The camera id never wraps; the full location name does, if the tile is narrow.
+        <div className="flex h-12 shrink-0 items-center justify-between gap-3 px-1">
+          <div className="flex min-w-0 items-center gap-2">
+            <span className="shrink-0 whitespace-nowrap font-mono text-[13px] text-ink-2">{clip.camera}</span>
+            <span className="min-w-0 text-[13px] leading-tight text-ink">{clip.location}</span>
           </div>
           <StatusPill active={alerting} pulsing={pulsing} size="sm" />
         </div>

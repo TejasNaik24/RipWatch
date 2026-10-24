@@ -6,9 +6,11 @@ import { Elapsed } from "./LiveClock";
 
 function Cell({ label, children, alert }: { label: string; children: ReactNode; alert?: boolean }) {
   return (
-    <div className="min-w-30">
-      <dt className="text-[13px] text-ink-3">{label}</dt>
-      <dd className={`mt-1 font-mono text-[28px] leading-none ${alert ? "text-rip" : "text-ink"}`}>{children}</dd>
+    <div className="shrink-0">
+      <dt className="whitespace-nowrap text-[13px] text-ink-3">{label}</dt>
+      <dd className={`mt-1 whitespace-nowrap font-mono text-[28px] leading-tight ${alert ? "text-rip" : "text-ink"}`}>
+        {children}
+      </dd>
     </div>
   );
 }
@@ -59,8 +61,8 @@ export default function AlertCard({
       } ${active && !acked ? "rw-alert-pulse" : ""}`}
     >
       {active && <span className="absolute inset-y-0 left-0 w-1 bg-rip" />}
-      <div key={active ? "alert" : "clear"} className="rw-rise flex flex-1 items-center gap-10 px-7">
-        <div className="flex min-w-0 flex-1 items-center gap-5">
+      <div key={active ? "alert" : "clear"} className="rw-rise flex min-w-0 flex-1 items-center gap-6 px-6 py-3">
+        <div className="flex min-w-0 flex-1 items-center gap-4">
           <span
             className={`grid h-14 w-14 shrink-0 place-items-center rounded-full ${
               active ? "bg-rip/15 text-rip" : "bg-sea/10 text-sea"
@@ -75,11 +77,11 @@ export default function AlertCard({
             <div className="mt-1 text-[28px] font-semibold leading-tight tracking-[-0.01em]">
               {active ? "Rip current detected" : "Clear"}
             </div>
-            <p className="mt-1 truncate text-sm text-ink-2">{message}</p>
+            <p className="mt-1 text-sm leading-snug text-ink-2">{message}</p>
           </div>
         </div>
 
-        <dl className="flex shrink-0 items-center gap-8">
+        <dl className="flex shrink-0 items-center gap-6">
           <Cell label="Confidence" alert={active}>
             {active ? `${Math.round((status?.conf ?? 0) * 100)}%` : "–"}
           </Cell>
@@ -88,21 +90,21 @@ export default function AlertCard({
           </Cell>
         </dl>
 
-        <div className="flex w-42 shrink-0 justify-end">
+        <div className="flex shrink-0 justify-end">
           {active ? (
             acked ? (
-              <span className="inline-flex items-center gap-2 text-sm text-ink-2">
+              <span className="inline-flex items-center gap-2 whitespace-nowrap text-sm text-ink-2">
                 <IconCheck size={18} />
                 Acknowledged
               </span>
             ) : (
-              <button type="button" onClick={onAcknowledge} className="rw-btn rw-btn-light h-11 px-5 text-[15px]">
+              <button type="button" onClick={onAcknowledge} className="rw-btn rw-btn-light h-11 whitespace-nowrap px-5 text-[15px]">
                 Acknowledge
               </button>
             )
           ) : (
             others.length > 0 && (
-              <button type="button" onClick={() => onView(others[0].id)} className="rw-btn h-11 px-5 text-[15px]">
+              <button type="button" onClick={() => onView(others[0].id)} className="rw-btn h-11 whitespace-nowrap px-5 text-[15px]">
                 View {others[0].camera}
               </button>
             )

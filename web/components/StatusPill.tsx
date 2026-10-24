@@ -13,7 +13,7 @@ export default function StatusPill({
   pulsing?: boolean;
   size?: "sm" | "md";
 }) {
-  const base = `inline-flex shrink-0 items-center gap-1.5 rounded-full border font-medium ${
+  const base = `inline-flex shrink-0 items-center gap-1.5 whitespace-nowrap rounded-full border font-medium ${
     size === "sm" ? "h-6 px-2 text-xs" : "h-7 px-2.5 text-[13px]"
   }`;
   const icon = size === "sm" ? 13 : 14;

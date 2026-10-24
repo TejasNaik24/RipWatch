@@ -42,7 +42,7 @@ export default function Dashboard() {
       addLog(
         clipId,
         s.active ? "alert" : "clear",
-        s.active ? `Rip current detected (${Math.round(s.conf * 100)}%)` : "Area clear",
+        s.active ? `Rip detected ${Math.round(s.conf * 100)}%` : "Area clear",
       );
     },
     [addLog],
@@ -54,7 +54,7 @@ export default function Dashboard() {
 
   const acknowledge = (clipId: string) => {
     setAcked((m) => ({ ...m, [clipId]: true }));
-    addLog(clipId, "ack", "Alert acknowledged");
+    addLog(clipId, "ack", "Acknowledged");
   };
 
   // 1-3 put that camera in the main view.

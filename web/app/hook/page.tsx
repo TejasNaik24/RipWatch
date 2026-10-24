@@ -46,7 +46,7 @@ export default function HookPage() {
         />
         <div className="pointer-events-none absolute inset-x-0 bottom-0 h-[48%] bg-linear-to-t from-black/80 via-black/30 to-transparent" />
         <div className="pointer-events-none absolute inset-x-0 bottom-0 px-16 pb-24 text-center">
-          <h1 className="text-[88px] font-semibold leading-none tracking-[-0.03em] text-white [text-shadow:0_2px_32px_rgba(0,0,0,0.45)]">
+          <h1 className="text-[88px] font-semibold leading-[1.15] tracking-[-0.03em] text-white [text-shadow:0_2px_32px_rgba(0,0,0,0.45)]">
             Where would you swim?
           </h1>
         </div>

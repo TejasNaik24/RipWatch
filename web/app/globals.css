@@ -64,6 +64,10 @@ body {
   outline: 2px solid var(--sea);
   outline-offset: 2px;
 }
+/* After a mouse click, no ring (see components/InputModality.tsx). Keyboard focus still shows it. */
+html[data-input="pointer"] :focus-visible {
+  outline: none;
+}
 
 @layer components {
   .rw-btn {
@@ -160,31 +164,36 @@ body {
 }
 
 /* ---------------------------------------------------------------- Command: feed grid
- * The hero's height is exactly two strip tiles (video + caption) plus the gap, so the
- * columns line up. Sizes come from the container, so the grid shrinks from the height
- * on shorter screens instead of overflowing. At 1920x1080: hero ~1288x724, strip ~548 wide.
+ * Fills the full content width, so its edges always line up with the header above it.
+ * The right column (two side feeds + event log) is sized so the hero is exactly 16:9 and
+ * as tall as the two side feeds together:
+ *     hero width  = 100cqw - rw - g
+ *     hero height = 2 * (rw * 9/16 + cap) + g          (hero width = height * 16/9)
+ *   => rw = (100cqw - g - (2 * cap + g) * 16/9) / 3
+ * When the window is short, rw is capped so the side feeds plus the bottom row still fit the
+ * height; the hero is then wider than 16:9 and its video letterboxes inside the cell.
  */
 .rw-command {
   container-type: size;
 }
 .rw-cmd-grid {
-  --g: 20px;
-  --cap: 44px;
-  --hh: min(
-    calc(100cqw * 0.375 - var(--g) / 24 + var(--cap) * 2 / 3),
-    calc(100cqh - var(--g) - 150px)
+  --g: 20px;      /* gap */
+  --cap: 48px;    /* caption row under a side feed */
+  --bar: 148px;   /* least height the bottom row (alert card, event log) needs */
+  --rw: max(
+    300px,
+    min(
+      calc((100cqw - var(--g) - (2 * var(--cap) + var(--g)) * 16 / 9) / 3),
+      calc((100cqh - 2 * var(--g) - var(--bar) - 2 * var(--cap)) * 8 / 9)
+    )
   );
-  --hw: calc(var(--hh) * 16 / 9);
-  --rw: calc((var(--hh) - 2 * var(--cap) - var(--g)) * 8 / 9);
+  --rail-h: calc(var(--rw) * 9 / 16 + var(--cap));
   display: grid;
-  grid-template-columns: var(--hw) var(--rw);
-  grid-template-rows:
-    calc((var(--hh) - var(--g)) / 2)
-    calc((var(--hh) - var(--g)) / 2)
-    minmax(0, 1fr);
-  gap: var(--g);
-  justify-content: center;
+  width: 100%;
   height: 100%;
+  grid-template-columns: minmax(0, 1fr) var(--rw);
+  grid-template-rows: var(--rail-h) var(--rail-h) minmax(0, 1fr);
+  gap: var(--g);
 }
 
 /* ---------------------------------------------------------------- Motion */
