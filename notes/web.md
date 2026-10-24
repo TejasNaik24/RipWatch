@@ -266,3 +266,15 @@ web/app/{globals.css, layout.tsx, page.tsx, compare/page.tsx, results/page.tsx, 
 - 80%+: a USLA-data study (NHESS 2019) found 81.9% of surf beach rescues; it rests on voluntary lifeguard-agency reporting.
 
 **Not verified:** Safari; the waterline's look after video compression (it is faint by design; opacities are in `StoryStage.tsx` if it needs to be stronger); windows narrower than about 1300px.
+
+## 2026-10-24 12:05 - /story wording: estimated 300,000, "At least 17" (written from the ML teammate's laptop)
+**Note:** written from the ML teammate's laptop; same arrangement as before. Only `web/components/story/*`, `web/app/story/story.css` and `docs/video-script.md` changed.
+
+**Changed**
+- WHO card now reads "300,000" with the label "estimated drowning deaths worldwide in 2021" (no "+"), matching WHO's own "estimated 300,000" for 2021.
+- Lake Erie card now reads "At least 17": "At least" is a small lead-in (new `preSmall` option in `CountSpec`, `.rw-story-pre`), and the 17 still counts up from 0. Source line unchanged: "According to the Great Lakes Surf Rescue Project".
+- `docs/video-script.md`: card table, Story card notes, Problem narration ("an estimated 300,000", "at least 17 drownings"), Sources, plus a voice-over note to say "about 1 in 5" on the third card.
+
+**Verified:** eslint, tsc and `next build` pass. At 1440x900: both cards free of off-screen or clipped text, no page scroll; the count on card 5 sampled 0, 3, 10, 14, 16, 17. Other sizes not rerun (all story sizes derive from the stage, and all seven cards passed at 1920x1080, 1512x982 and 1440x900 before this change).
+
+**Still to check before recording:** the Lake Erie 17 against the Great Lakes Surf Rescue Project's tracker.

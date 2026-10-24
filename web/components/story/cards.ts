@@ -7,6 +7,8 @@ export const TEAMMATE_NAME = "[Teammate name]";
 /** A number that counts up once each time its card appears. Shown as `pre + number + post`. */
 export interface CountSpec {
   pre?: string;
+  /** Show `pre` small, as a lead-in to the number ("At least"), instead of at full size. */
+  preSmall?: boolean;
   from: number;
   to: number;
   post?: string;
@@ -24,8 +26,8 @@ export const CARDS: Card[] = [
   { kind: "title", title: "RipWatch", subline: "Seeing the danger swimmers can’t." },
   {
     kind: "stat",
-    count: { from: 0, to: 300000, post: "+", group: true },
-    label: "drowning deaths worldwide in 2021",
+    count: { from: 0, to: 300000, group: true },
+    label: "estimated drowning deaths worldwide in 2021",
     source: "Source: World Health Organization",
   },
   {
@@ -44,7 +46,7 @@ export const CARDS: Card[] = [
   {
     kind: "stat",
     eyebrow: "Closer to home",
-    count: { from: 0, to: 17 },
+    count: { pre: "At least ", preSmall: true, from: 0, to: 17 },
     label: "drownings in Lake Erie in 2025",
     source: "According to the Great Lakes Surf Rescue Project",
   },

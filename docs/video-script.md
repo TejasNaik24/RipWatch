@@ -24,18 +24,18 @@ A full-screen, keyboard-driven sequence for recording the opening and close. It 
 | # | Card | Used in |
 |---|---|---|
 | 1 | Title: "RipWatch", "Seeing the danger swimmers can't." | Opening, optional, before the hook |
-| 2 | 300,000+ drowning deaths worldwide in 2021 (World Health Organization) | Problem, beat 1 |
+| 2 | 300,000 estimated drowning deaths worldwide in 2021 (World Health Organization) | Problem, beat 1 |
 | 3 | 80%+ of rescues by US surf beach lifeguards involve rip currents (United States Lifesaving Association) | Problem, beat 2 |
 | 4 | 1 in 5 beachgoers could spot a real rip current in person (Muriwai Beach field study, *Natural Hazards and Earth System Sciences*, 2021) | Problem, beat 3 |
-| 5 | 17 drownings in Lake Erie in 2025 (according to the Great Lakes Surf Rescue Project) | Problem, beat 4 |
+| 5 | At least 17 drownings in Lake Erie in 2025 (according to the Great Lakes Surf Rescue Project) | Problem, beat 4 |
 | 6 | Bridge: "Rip currents look calm. That's what makes them deadly." | End of Problem |
 | 7 | Closing: "Rip currents are invisible. Now they don't have to be." + "RipWatch · HackOHI/O 2026" + team names | Close |
 
 **Notes:**
-- Only the four statistics above appear on the cards, with the sources listed under Sources. Say the same numbers in the voice-over: card 4 says "1 in 5", so say "about 1 in 5" (the study's figure is 22%).
+- Only the four statistics above appear on the cards, with the sources listed under Sources. Say the same numbers in the voice-over. Card 4 says "1 in 5": **say "about 1 in 5"** (the study's figure is 22%).
 - Card 3 is "surf beach lifeguards", not all lifeguards. The USLA-based figure rests on voluntary lifeguard-agency reporting.
-- Card 5 is an advocacy group's count; keep "according to the Great Lakes Surf Rescue Project" in the voice-over. Re-check the 17 on their tracker before recording (the full-year 2025 total could not be confirmed from news coverage alone).
-- Card 2: WHO's own estimate for 2021 is "about 300,000"; the card says "300,000+". Fine to keep if the 2024 report's "more than 300,000" wording is what you cite.
+- Card 5 reads "At least 17" (the number counts up to 17). It is an advocacy group's count; keep "according to the Great Lakes Surf Rescue Project" in the voice-over. Re-check the 17 on their tracker before recording (the full-year 2025 total could not be confirmed from news coverage alone).
+- Card 2 says "300,000" with the label "estimated drowning deaths", matching WHO's own "estimated 300,000" for 2021. Say "an estimated 300,000" in the voice-over.
 - Card 7 shows the placeholder `[Teammate name]` until `TEAMMATE_NAME` in `web/components/story/cards.ts` is filled in.
 - The word "deadly" on card 6 is the one red element (`.text-rip` in `StoryStage.tsx`).
 
@@ -61,17 +61,18 @@ A full-screen, keyboard-driven sequence for recording the opening and close. It 
 **Screen:** `/story`, one card per beat (see Story cards below). Press `Right Arrow` or `Space` once per beat: the drowning figure, the rip current rescue figure, the "1 in 5" line, the Lake Erie line. Each card shows its short source under the number. Optionally cut to beach footage between cards.
 
 **Narration:**
-> Drowning killed more than 300,000 people worldwide in 2021.
+> Drowning killed an estimated 300,000 people worldwide in 2021.
 >
 > In the United States, rip currents cause an estimated 100 or more deaths a year, and more than 80% of rescues by surf beach lifeguards.
 >
 > And they are hard to see. In a field study at a New Zealand beach, only 22% of beachgoers could pick out a real rip current. They look like the safest water on the beach.
 >
-> This is not only an ocean problem. Lake Erie saw 17 drownings in 2025, according to the Great Lakes Surf Rescue Project.
+> This is not only an ocean problem. Lake Erie saw at least 17 drownings in 2025, according to the Great Lakes Surf Rescue Project.
 >
 > Lifeguards cannot watch every stretch of water at every moment.
 
 **Notes:**
+- Voice-over for the third card: say "about 1 in 5 beachgoers could spot a real rip" (the card says "1 in 5"; the study's exact figure is 22%).
 - The WHO figure is all drowning, not only rip currents. Do not say rip currents killed 300,000.
 - The Lake Erie figure is all drownings counted by an advocacy group, not an official or rip-only count. Keep the "according to" attribution on screen and in the voice-over.
 - Card sources: WHO 2024; USLA; NHESS 2021; Great Lakes Surf Rescue Project.
@@ -167,8 +168,8 @@ A full-screen, keyboard-driven sequence for recording the opening and close. It 
 
 Only these statistics may appear in the video. Add the link for each before recording if it is not here.
 
-1. World Health Organization, *Global Status Report on Drowning Prevention* (December 2024): more than 300,000 drowning deaths worldwide in 2021.
+1. World Health Organization, *Global Status Report on Drowning Prevention* (December 2024): an estimated 300,000 drowning deaths worldwide in 2021.
 2. United States Lifesaving Association, Rip Currents, usla.org/page/ripcurrents: rip currents cause an estimated 100+ deaths a year in the US and more than 80% of rescues by surf beach lifeguards.
 3. Field study at Muriwai Beach, New Zealand, *Natural Hazards and Earth System Sciences* (2021): only 22% of beachgoers could identify a real rip current in person.
-4. Great Lakes Surf Rescue Project: 17 drownings in Lake Erie in 2025. An advocacy group's count; always attribute it ("according to the Great Lakes Surf Rescue Project").
+4. Great Lakes Surf Rescue Project: at least 17 drownings in Lake Erie in 2025. An advocacy group's count; always attribute it ("according to the Great Lakes Surf Rescue Project").
 5. RipVIS dataset paper (CVPR 2025): 184 videos, 212,328 frames, footage from 10 countries.
