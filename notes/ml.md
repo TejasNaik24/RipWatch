@@ -214,3 +214,27 @@ Commit `web/public/data/masks/*.json` and `ml/results/baseline_video/*.jsonl`. N
 **Next:** run the pick commands in `docs/clip-candidates/README.md` once `best.pt` exists, then check the masks on /compare. If 129's rip is too small to read at tile size, switch clip2 to 144.
 
 **Blockers:** None.
+
+## 2026-10-24 (--max-width downscale for demo clips)
+**Written from the web teammate's laptop.** ML work only: `ml/` and `notes/ml.md`, nothing in `web/`.
+
+**Built:** `--max-width` in `ml/scripts/video_clip.py`, so both `infer_video.py` and `baseline_video.py` get it.
+- **Default 1920:** a source wider than that is re-encoded with `scale=<max-width>:-2:flags=lanczos` (same aspect, even height), in the same ffmpeg pass as the trim. With no `--start/--end`, a too-wide source is now re-encoded instead of copied. `--max-width 0` keeps the source size.
+- **Masks match the clip:** they are still computed from the output clip, so the JSON `width`/`height` and polygon coordinates are in the downscaled size (1920x1080 for a 4K source). The web scales by the JSON size, so nothing changes there. "Original video size" in the contract now means the clip as served, not the RipVIS source.
+- **Cache keys:** `max_width` is part of the clip reuse key and the Gemini cache fingerprint. Changing it re-encodes the clip and re-asks Gemini (the frames it sees change).
+- **Commands:** the pick commands in `docs/clip-candidates/README.md` and the "Making demo clips" commands work unchanged. A 4K pick like RipVIS-129 now comes out at 1920x1080 automatically.
+
+**Verified:** 11 new checks on the synthetic video, all passing with the earlier 44 (55 total):
+- 640 to 320 wide keeps fps and frame count, and trim alignment holds.
+- JSON size and polygons are in clip coordinates.
+- No-trim downscale re-encodes, and rerunning with the same args reuses the clip.
+- Changing `--max-width` invalidates the clip, and `0` or a width above the source is a plain copy.
+- The fingerprint changes with `--max-width`, and negative values are rejected.
+
+Not run on a real 4K RipVIS video.
+
+**Files touched:** `ml/scripts/video_clip.py`, `ml/scripts/infer_video.py` (docstring), `notes/ml.md`
+
+**Next:** run the pick commands once `best.pt` exists. Check that the 1080p clips play smoothly with three feeds on the dashboard.
+
+**Blockers:** None.
