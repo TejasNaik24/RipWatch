@@ -1,8 +1,8 @@
 // Copy for /story, the title and stat sequence recorded for the video's opening and close.
 // Only the statistics listed here may appear. Sources are shown on screen under each stat.
 
-/** Placeholder until the teammate's name is filled in. */
-export const TEAMMATE_NAME = "[Teammate name]";
+/** Second name on the closing card (first is Tejas Naik). */
+export const TEAMMATE_NAME = "Sid Guddanti";
 
 /** A number that counts up once each time its card appears. Shown as `pre + number + post`. */
 export interface CountSpec {

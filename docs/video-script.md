@@ -36,7 +36,7 @@ A full-screen, keyboard-driven sequence for recording the opening and close. It 
 - Card 3 is "surf beach lifeguards", not all lifeguards. The USLA-based figure rests on voluntary lifeguard-agency reporting.
 - Card 5 is a statement, not a statistic, with no number. Its source line is "Fox 8 Cleveland (WJW)", for the 2013 incident described in Sources; keep the "according to Fox 8 Cleveland" attribution in the voice-over.
 - Card 2 says "300,000" with the label "estimated drowning deaths", matching WHO's own "estimated 300,000" for 2021. Say "an estimated 300,000" in the voice-over.
-- Card 7 shows the placeholder `[Teammate name]` until `TEAMMATE_NAME` in `web/components/story/cards.ts` is filled in.
+- Card 7 credits "Tejas Naik · Sid Guddanti" (`TEAMMATE_NAME` in `web/components/story/cards.ts`).
 - The word "deadly" on card 6 is the one red element (`.text-rip` in `StoryStage.tsx`).
 
 ---

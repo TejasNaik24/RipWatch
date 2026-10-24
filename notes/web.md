@@ -408,3 +408,6 @@ web/app/{globals.css, layout.tsx, page.tsx, compare/page.tsx, results/page.tsx, 
 **Not verified:** a real phone (touch behaviour, safe-area insets, address-bar resizing); landscape; widths between 768 and 1023 other than 768; Safari. `/hook` still needs a keyboard (M to reveal the mask, Space to pause); it is a recording page.
 
 **Files touched:** `web/app/globals.css`, `app/story/story.css`, `app/{compare,results,pipeline,hook}/page.tsx`, `web/components/{TopBar,Dashboard,FeedTile,AlertCard,EventLog,ThresholdControl}.tsx`, `web/components/story/StoryStage.tsx`, `notes/web.md`. **Blockers:** None.
+
+## 2026-10-24 17:15 - Story credit filled in
+`TEAMMATE_NAME` in `web/components/story/cards.ts` is now "Sid Guddanti", so the closing card reads "Tejas Naik · Sid Guddanti". The matching line in `docs/video-script.md` is updated (docs edited on the user's request). `README.md` Team still has the "[your name]" placeholder; not touched. eslint and tsc pass; not checked in the browser. **Files touched:** `web/components/story/cards.ts`, `docs/video-script.md`, `notes/web.md`. **Blockers:** None.
