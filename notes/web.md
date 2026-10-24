@@ -302,3 +302,12 @@ web/app/{globals.css, layout.tsx, page.tsx, compare/page.tsx, results/page.tsx, 
 
 **Files touched:** `web/lib/clips.ts`, `notes/web.md`
 **Next:** record the demo at 1440x900 and confirm the threshold wording in the video script (it does not mention a threshold). **Blockers:** None.
+
+## 2026-10-24 15:00 - Threshold 0.30 confirmed as one global default
+**Rule:** `DEFAULT_THRESHOLD = 0.30` in `web/lib/clips.ts` applies to every page (Command, Compare, Hook) and every clip. There is no per-clip value, because per-clip tuning would look like cherry-picking. `MaskedVideo`'s own fallback prop default is now `DEFAULT_THRESHOLD` too (it was a stray 0.5; all callers already passed the shared value).
+
+**Reasoning:** RipWatch's evaluation threshold is 0.25, chosen on the dev set. The confidence shown in the app is the smoothed heatmap mean from `infer_video.py`, which runs lower than the raw model score, so 0.30 keeps the display consistent with how the model was evaluated. The previous 0.5 was a placeholder from the fake data.
+
+**Verified (built-in browser, 1440x900, real clips and masks, 20 s of 100 ms samples on Command):** CAM 01 showed "Rip detected" in 198 of 198 samples, CAM 02 in 198 of 198, CAM 03 stayed "Clear" in 198 of 198. (The pill holds for 0.7 s after the last hit, and clip2's frame-level coverage at 0.30 is 87%, so "all samples" means alert most of the time, not every frame.) eslint and tsc pass.
+
+**Files touched:** `web/components/MaskedVideo.tsx`, `notes/web.md`. **Blockers:** None.

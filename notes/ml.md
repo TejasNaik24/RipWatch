@@ -406,3 +406,11 @@ Gemini's rate is the share of frames showing a box, with each answer held until 
 
 **Files touched:** `web/public/data/masks/*.json` (6 files), `notes/ml.md`.
 **Next:** look at Compare and Command with the real masks; fix the threshold if clip2 flickers. **Blockers:** None.
+
+## 2026-10-24 15:00 (docs: clip2 is RipVIS-144; Gemini raw responses committed)
+**Written from the web teammate's laptop.**
+- `docs/clip-candidates/README.md`: final picks are clip1 = RipVIS-053 (0-15 s) and clip2 = RipVIS-144 (0-13 s). RipVIS-129 is kept as the documented failure case: the ground truth shows a rip, RipWatch gave no detections on any frame (smoothed, conf 0.25; raw conf never above 0.27 at conf 0.05 on single frames). Pick commands now use 144, and the stale "4K is not downscaled" note is fixed.
+- Committed the Gemini raw responses `ml/results/baseline_video/{clip1_obvious,clip2_sneaky,clip3_norip}.jsonl` (the evidence behind the compare page; text only, no key in them). Weights, videos and renders stay uncommitted.
+- Web default alert threshold is 0.30 for everything (see `notes/web.md`).
+
+**Files touched:** `docs/clip-candidates/README.md`, `ml/results/baseline_video/*.jsonl`, `notes/ml.md`. **Blockers:** None.

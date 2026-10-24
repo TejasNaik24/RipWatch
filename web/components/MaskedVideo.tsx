@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useState, type MutableRefObject } from "react";
-import { clipVideoUrl } from "@/lib/clips";
+import { DEFAULT_THRESHOLD, clipVideoUrl } from "@/lib/clips";
 import { detectionsAt, loadMasks } from "@/lib/data";
 import { frameIndex } from "@/lib/frames";
 import type { Detection, MaskFile, MaskSource } from "@/lib/types";
@@ -109,7 +109,7 @@ export default function MaskedVideo({
   clipId,
   source,
   showMask = true,
-  threshold = 0.5,
+  threshold = DEFAULT_THRESHOLD,
   maskOpacity = 1,
   playing = true,
   restartKey = 0,
