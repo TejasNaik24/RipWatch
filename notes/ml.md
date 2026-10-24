@@ -414,3 +414,13 @@ Gemini's rate is the share of frames showing a box, with each answer held until 
 - Web default alert threshold is 0.30 for everything (see `notes/web.md`).
 
 **Files touched:** `docs/clip-candidates/README.md`, `ml/results/baseline_video/*.jsonl`, `notes/ml.md`. **Blockers:** None.
+
+## 2026-10-24 19:40 (film media slots: ocean.mp4 and 16 thumbnails)
+**Written from the web teammate's laptop.** Touches `film/media/` only (git-ignored), by the user's request.
+- `film/media/ocean.mp4`: copy of `web/public/data/clips/clip1_obvious.mp4` (raw RipVIS-053, 0-15 s, H.264, 1280x720, 4.5 MB, no overlay). It is below the 1920x1080 the media README asks for; the scene stretches it with `object-fit: cover` and it looks fine on screen. No ffmpeg on this laptop, so it was not rescaled.
+- `film/media/thumbs/01.jpg`-`16.jpg` (400x225): the middle frame of 16 different RipVIS test videos (12 rip, 4 no-rip; drone, cliff and beach-level views). Videos with captions or watermarks (007, 059) were skipped. Named `01.jpg`, not `thumb_01.jpg`, because `08-build.html` loads `media/thumbs/NN.jpg`.
+- `film/media/miss.png` was **not** present on this laptop, despite the task saying it exists (scene 10 falls back to `docs/clip-candidates/clip2_sneaky_1_RipVIS-129.jpg`). Not created.
+- Checked in Chrome: scene 02 plays the clip and darkens on "But…"; scene 08 shows the real frames in the stream. Note: on a cold first load of 02 the placeholder showed once (the 1500 ms `readyState === 0` check fired before the video loaded); a reload fixed it. Worth a warm-up reload before recording.
+- `git check-ignore` confirms `ocean.mp4` and `thumbs/` are ignored; nothing from RipVIS is staged.
+
+**Next:** none. **Blockers:** `miss.png` missing.
