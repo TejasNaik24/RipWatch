@@ -44,5 +44,15 @@ export function useRipStatus(onChange?: (s: RipStatus, prev: RipStatus) => void)
     }
   }, []);
 
-  return [status, onFrame] as const;
+  /** Drops the status at once (no 0.7 s hold), e.g. when the video it came from is gone. */
+  const reset = useCallback(() => {
+    const prev = cur.current;
+    if (!prev.active) return;
+    const next = { active: false, conf: 0 };
+    cur.current = next;
+    setStatus(next);
+    cb.current?.(next, prev);
+  }, []);
+
+  return [status, onFrame, reset] as const;
 }

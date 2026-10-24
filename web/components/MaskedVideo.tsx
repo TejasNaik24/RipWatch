@@ -142,7 +142,7 @@ export default function MaskedVideo({
 
   useEffect(() => {
     dirty.current = true;
-  }, [threshold, showMask, tone]);
+  }, [threshold, showMask, tone, videoOk]);
 
   useEffect(() => {
     if (videoOk) videoStateCb.current?.(true);
@@ -236,6 +236,17 @@ export default function MaskedVideo({
         t = synthT.current;
       }
       if (timeRef) timeRef.current = t;
+
+      // No loaded video, no detections: masks are only drawn and reported over real footage, so an
+      // empty "Awaiting footage" panel can never show an alert. The clock above keeps running so a
+      // late-loading clip joins at the right time.
+      if (!st.videoOk) {
+        if (dirty.current || lastIdx !== -1) ctx.clearRect(0, 0, file.width, file.height);
+        dirty.current = false;
+        lastIdx = -1;
+        raf = requestAnimationFrame(tick);
+        return;
+      }
 
       const idx = frameIndex(t, file.fps);
       if (idx !== lastIdx || dirty.current) {

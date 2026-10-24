@@ -311,3 +311,25 @@ web/app/{globals.css, layout.tsx, page.tsx, compare/page.tsx, results/page.tsx, 
 **Verified (built-in browser, 1440x900, real clips and masks, 20 s of 100 ms samples on Command):** CAM 01 showed "Rip detected" in 198 of 198 samples, CAM 02 in 198 of 198, CAM 03 stayed "Clear" in 198 of 198. (The pill holds for 0.7 s after the last hit, and clip2's frame-level coverage at 0.30 is 87%, so "all samples" means alert most of the time, not every frame.) eslint and tsc pass.
 
 **Files touched:** `web/components/MaskedVideo.tsx`, `notes/web.md`. **Blockers:** None.
+
+## 2026-10-24 15:20 - No video, no detections: masks, alerts and counts only over loaded footage
+**Bug:** with a clip's mp4 missing or failing, the app still drew its mask polygons and raised alerts over the empty "Awaiting footage" panel, which read as hardcoded detections.
+
+**Fix**
+- `MaskedVideo`: the draw loop does nothing but clear the canvas and skips `onFrame` while the video element is not loaded (`videoOk`, set from `loadeddata` / the mount check, cleared by `error`). The clock still runs, so a late-loading clip joins at the right time. A loaded video that is paused still shows its frozen frame with its mask; only "no loaded video" blanks everything.
+- `StatusPill` gets `noSignal`: neutral gray "No signal" with the camera-off icon, never red, whatever the status says.
+- `useRipStatus` returns a third value, `reset()`, which drops the status at once (no 0.7 s hold).
+- `FeedTile` (Command) and the Compare `Side` track `signal` from `onVideoState`; a lost or missing video calls `reset()`, the pill shows "No signal", and the red frame needs `signal`.
+- `Dashboard`: "active alerts" counts only cameras with video; the event log ignores a camera without video (the clear that follows a signal loss is not logged either); the alert card for the main camera shows a neutral "No signal" state ("Awaiting footage from this camera...") with no Acknowledge button.
+- `/hook` has no status pill; with no video it shows the empty panel and never paints a mask, even with M pressed.
+
+**Verified (built-in browser, 1440x900, against the running dev server, with `clip2_sneaky.mp4` temporarily renamed, then restored):**
+- `/`: "2 of 3 streaming"; CAM 02 tile shows "Awaiting footage" and a gray "No signal" pill with no mask; CAM 01 still alerts and logs; the alert count and event log list only CAM 01. With CAM 02 as the main feed (key 2): empty panel, "No signal" pill, neutral "No signal" card.
+- `/compare`, CAM 02: both panes empty, both pills "No signal", canvases have zero painted pixels, no red frame.
+- `/hook`, key 2 then M: empty panel, zero painted pixels.
+- With the file restored: 3 of 3 streaming, CAM 01 and CAM 02 alerts and masks back (about 98k and 151k painted pixels), CAM 03 clear, no "No signal".
+- eslint, tsc and `next build` pass.
+
+**Not verified:** a clip that fails after it had loaded (code path is the same `error` handler, not exercised); Safari. The browser pane sometimes throttles animation frames, which made the first measurement after a reload read zero for a few seconds; a screenshot 3 s after load showed the alert.
+
+**Files touched:** `web/components/MaskedVideo.tsx`, `StatusPill.tsx`, `FeedTile.tsx`, `AlertCard.tsx`, `Dashboard.tsx`, `web/app/compare/page.tsx`, `web/lib/useRipStatus.ts`, `notes/web.md`. **Blockers:** None.

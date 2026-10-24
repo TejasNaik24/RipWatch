@@ -21,6 +21,7 @@ export default function Dashboard() {
   const [log, setLog] = useState<LogEntry[]>([]);
   const [watchingSince, setWatchingSince] = useState<number | null>(null);
   const seq = useRef(0);
+  const videoNow = useRef<Record<string, boolean>>({});
 
   useEffect(() => {
     const id = setTimeout(() => setWatchingSince(Date.now()), 0);
@@ -39,6 +40,8 @@ export default function Dashboard() {
       if (s.active === prev.active) return;
       if (s.active) setSince((m) => ({ ...m, [clipId]: Date.now() }));
       else setAcked((m) => ({ ...m, [clipId]: false }));
+      // A camera without video has no events: nothing to log when its status is cleared on signal loss.
+      if (!videoNow.current[clipId]) return;
       addLog(
         clipId,
         s.active ? "alert" : "clear",
@@ -49,6 +52,7 @@ export default function Dashboard() {
   );
 
   const onVideoState = useCallback((clipId: string, ok: boolean) => {
+    videoNow.current[clipId] = ok;
     setVideo((m) => (m[clipId] === ok ? m : { ...m, [clipId]: ok }));
   }, []);
 
@@ -70,7 +74,7 @@ export default function Dashboard() {
 
   const hero = CLIPS.find((c) => c.id === heroId) ?? CLIPS[0];
   const rail = CLIPS.filter((c) => c.id !== hero.id);
-  const alerting = CLIPS.filter((c) => statuses[c.id]?.active);
+  const alerting = CLIPS.filter((c) => video[c.id] && statuses[c.id]?.active);
   const streaming = CLIPS.filter((c) => video[c.id]).length;
 
   return (
@@ -125,7 +129,8 @@ export default function Dashboard() {
             <AlertCard
               style={{ gridColumn: 1, gridRow: 3 }}
               clip={hero}
-              status={statuses[hero.id]}
+              status={video[hero.id] ? statuses[hero.id] : undefined}
+              noSignal={!video[hero.id]}
               acked={!!acked[hero.id]}
               since={since[hero.id] ?? null}
               watchingSince={watchingSince}

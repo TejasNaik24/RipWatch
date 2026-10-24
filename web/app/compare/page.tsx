@@ -27,7 +27,8 @@ function Side({
   timeRef?: MutableRefObject<number>;
   followTimeRef?: MutableRefObject<number>;
 }) {
-  const [status, onFrame] = useRipStatus();
+  const [status, onFrame, reset] = useRipStatus();
+  const [signal, setSignal] = useState(false);
   const [file, setFile] = useState<MaskFile | null>(null);
   const [waited, setWaited] = useState(false);
   const ripwatch = source === "ripwatch";
@@ -56,7 +57,7 @@ function Side({
           {/* Always takes up its line, so both panes stay level whether or not a raw id is shown. */}
           <div className="h-4.5 truncate font-mono text-xs text-ink-3">{ready && rawId ? rawId : " "}</div>
         </div>
-        <StatusPill active={status.active} tone={ripwatch ? "alert" : "neutral"} />
+        <StatusPill active={status.active} tone={ripwatch ? "alert" : "neutral"} noSignal={!signal} />
       </div>
       <div className="relative">
         <MaskedVideo
@@ -70,11 +71,15 @@ function Side({
           followTimeRef={followTimeRef}
           onFrame={onFrame}
           onLoad={setFile}
+          onVideoState={(ok) => {
+            setSignal(ok);
+            if (!ok) reset();
+          }}
           className="aspect-video w-full rounded-xl"
         />
         <span
           className={`pointer-events-none absolute inset-0 rounded-xl border ${
-            ripwatch && status.active ? "border-2 border-rip" : "border-line-2"
+            ripwatch && signal && status.active ? "border-2 border-rip" : "border-line-2"
           }`}
         />
       </div>

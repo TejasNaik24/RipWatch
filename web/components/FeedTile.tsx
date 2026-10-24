@@ -1,6 +1,6 @@
 "use client";
 
-import type { CSSProperties } from "react";
+import { useState, type CSSProperties } from "react";
 import type { ClipMeta } from "@/lib/clips";
 import { useRipStatus, type RipStatus } from "@/lib/useRipStatus";
 import LiveClock from "./LiveClock";
@@ -33,8 +33,10 @@ export default function FeedTile({
   onVideoState: (clipId: string, ok: boolean) => void;
   style?: CSSProperties;
 }) {
-  const [status, onFrame] = useRipStatus((s, prev) => onStatus(clip.id, s, prev));
-  const alerting = status.active;
+  const [status, onFrame, reset] = useRipStatus((s, prev) => onStatus(clip.id, s, prev));
+  // Only a loaded video can raise an alert; without one the tile reads "No signal".
+  const [signal, setSignal] = useState(false);
+  const alerting = signal && status.active;
   const pulsing = alerting && !acked;
 
   return (
@@ -46,7 +48,11 @@ export default function FeedTile({
           source="ripwatch"
           threshold={threshold}
           onFrame={onFrame}
-          onVideoState={(ok) => onVideoState(clip.id, ok)}
+          onVideoState={(ok) => {
+            setSignal(ok);
+            onVideoState(clip.id, ok); // before reset(), so the Dashboard knows not to log the drop
+            if (!ok) reset();
+          }}
           className={`w-full rounded-xl ${hero ? "h-full" : "aspect-video"}`}
         />
         {/* Frame: quiet hairline normally, red only while this camera sees a rip. */}
@@ -68,7 +74,7 @@ export default function FeedTile({
               )}
             </div>
             <div className="pointer-events-none absolute right-4 top-4">
-              <StatusPill active={alerting} pulsing={pulsing} />
+              <StatusPill active={alerting} pulsing={pulsing} noSignal={!signal} />
             </div>
             <div className="pointer-events-none absolute bottom-4 left-4 rounded-md bg-black/55 px-2.5 py-1 backdrop-blur-sm">
               <LiveClock className="text-[13px] text-ink/90" />
@@ -90,7 +96,7 @@ export default function FeedTile({
             <span className="shrink-0 whitespace-nowrap font-mono text-[13px] text-ink-2">{clip.camera}</span>
             <span className="min-w-0 text-[13px] leading-tight text-ink">{clip.location}</span>
           </div>
-          <StatusPill active={alerting} pulsing={pulsing} size="sm" />
+          <StatusPill active={alerting} pulsing={pulsing} size="sm" noSignal={!signal} />
         </div>
       )}
     </div>

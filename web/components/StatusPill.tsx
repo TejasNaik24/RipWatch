@@ -1,4 +1,4 @@
-import { IconAlert, IconClear } from "./Icons";
+import { IconAlert, IconCameraOff, IconClear } from "./Icons";
 
 // Color is always paired with a shape: a triangle for a rip, a circle for clear.
 // tone="neutral" is for detections that are not RipWatch's (the baseline), so they never read as red.
@@ -7,16 +7,27 @@ export default function StatusPill({
   tone = "alert",
   pulsing = false,
   size = "md",
+  noSignal = false,
 }: {
   active: boolean;
   tone?: "alert" | "neutral";
   pulsing?: boolean;
   size?: "sm" | "md";
+  /** No loaded video behind this pill: neutral "No signal", whatever `active` says. */
+  noSignal?: boolean;
 }) {
   const base = `inline-flex shrink-0 items-center gap-1.5 whitespace-nowrap rounded-full border font-medium ${
     size === "sm" ? "h-6 px-2 text-xs" : "h-7 px-2.5 text-[13px]"
   }`;
   const icon = size === "sm" ? 13 : 14;
+  if (noSignal) {
+    return (
+      <span className={`${base} border-line-3 bg-white/6 text-ink-2`}>
+        <IconCameraOff size={icon} />
+        No signal
+      </span>
+    );
+  }
   if (!active) {
     return (
       <span className={`${base} border-sea/35 bg-sea/10 text-sea`}>

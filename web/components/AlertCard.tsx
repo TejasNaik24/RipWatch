@@ -1,7 +1,7 @@
 import type { CSSProperties, ReactNode } from "react";
 import type { ClipMeta } from "@/lib/clips";
 import type { RipStatus } from "@/lib/useRipStatus";
-import { IconAlert, IconCheck, IconClear } from "./Icons";
+import { IconAlert, IconCameraOff, IconCheck, IconClear } from "./Icons";
 import { Elapsed } from "./LiveClock";
 
 function Cell({ label, children, alert }: { label: string; children: ReactNode; alert?: boolean }) {
@@ -23,6 +23,7 @@ function Cell({ label, children, alert }: { label: string; children: ReactNode; 
 export default function AlertCard({
   clip,
   status,
+  noSignal = false,
   acked,
   since,
   watchingSince,
@@ -33,6 +34,8 @@ export default function AlertCard({
 }: {
   clip: ClipMeta;
   status?: RipStatus;
+  /** The main camera has no loaded video: neutral "No signal" card, never an alert. */
+  noSignal?: boolean;
   acked: boolean;
   since: number | null;
   watchingSince: number | null;
@@ -41,8 +44,10 @@ export default function AlertCard({
   onView: (clipId: string) => void;
   style?: CSSProperties;
 }) {
-  const active = !!status?.active;
-  const message = active
+  const active = !noSignal && !!status?.active;
+  const message = noSignal
+    ? "Awaiting footage from this camera. Nothing is being analysed until video loads."
+    : active
     ? acked
       ? "Acknowledged. Keep the zone flagged until this feed clears."
       : "Send a lifeguard to check the water and flag the zone."
@@ -61,21 +66,21 @@ export default function AlertCard({
       } ${active && !acked ? "rw-alert-pulse" : ""}`}
     >
       {active && <span className="absolute inset-y-0 left-0 w-1 bg-rip" />}
-      <div key={active ? "alert" : "clear"} className="rw-rise flex min-w-0 flex-1 items-center gap-6 px-6 py-3">
+      <div key={noSignal ? "nosignal" : active ? "alert" : "clear"} className="rw-rise flex min-w-0 flex-1 items-center gap-6 px-6 py-3">
         <div className="flex min-w-0 flex-1 items-center gap-4">
           <span
             className={`grid h-14 w-14 shrink-0 place-items-center rounded-full ${
-              active ? "bg-rip/15 text-rip" : "bg-sea/10 text-sea"
+              active ? "bg-rip/15 text-rip" : noSignal ? "bg-white/6 text-ink-2" : "bg-sea/10 text-sea"
             }`}
           >
-            {active ? <IconAlert size={28} /> : <IconClear size={28} />}
+            {active ? <IconAlert size={28} /> : noSignal ? <IconCameraOff size={28} /> : <IconClear size={28} />}
           </span>
           <div className="min-w-0">
             <div className="text-[13px] text-ink-2">
               <span className="font-mono">{clip.camera}</span> · {clip.location}
             </div>
             <div className="mt-1 text-[28px] font-semibold leading-tight tracking-[-0.01em]">
-              {active ? "Rip current detected" : "Clear"}
+              {active ? "Rip current detected" : noSignal ? "No signal" : "Clear"}
             </div>
             <p className="mt-1 text-sm leading-snug text-ink-2">{message}</p>
           </div>
