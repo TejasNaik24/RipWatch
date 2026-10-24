@@ -238,3 +238,29 @@ Not run on a real 4K RipVIS video.
 **Next:** run the pick commands once `best.pt` exists. Check that the 1080p clips play smoothly with three feeds on the dashboard.
 
 **Blockers:** None.
+
+## 2026-10-24 (masks always match the served clip)
+**Written from the web teammate's laptop.** ML work only: `ml/` and `notes/ml.md`, nothing in `web/`.
+
+**Built:**
+- **Data path (unchanged):** `infer_video.py` and `baseline_video.py` already ran on the file `prepare_clip` writes to `web/public/data/clips/{clipId}.mp4` (trimmed and downscaled). Width, height, frame count, polygons, and the frames sent to Gemini all come from that file. That path is unchanged.
+- **New guard:** `video_clip.write_masks` now locates the served clip itself from `--data-dir` and the clip ID (it is not passed in by the caller). It decodes it and refuses to write the JSON (exit 1, existing file untouched) if any of these hold:
+  - width/height differ from the clip
+  - the frame count differs
+  - `i` is not 0..n-1
+  - any polygon or box point falls outside the clip
+  So a future change that runs on the source video instead fails loudly rather than writing misaligned masks.
+- **Tests now in the repo:** `ml/tests/test_demo_clips.py` with stubs in `ml/tests/stubs/` (previously only on my laptop). Run with `python ml/tests/test_demo_clips.py`. Needs only numpy, opencv and imageio-ffmpeg, with no model, GPU or API key. It writes to a temp folder and never to `web/public/data/` or `ml/results/`.
+- **New test for this change**, trimmed and downscaled to an odd size (640x360 to 400x226):
+  - Both JSONs' width/height and frame count equal the decoded served clip.
+  - RipWatch polygons overlap the blob as it appears in the served file with IoU 0.99.
+  - Gemini boxes are scaled to the served clip's size.
+  - The guard rejects source-sized JSON, a wrong frame count and out-of-bounds points.
+  - A regression check makes `prepare_clip` hand back the source video. Both scripts now exit 1 and write nothing. Before the guard located the clip itself, the RipWatch case silently wrote 640x360 masks; I caught that with this check and fixed it.
+- 65 checks pass.
+
+**Files touched:** `ml/scripts/video_clip.py`, `ml/scripts/infer_video.py`, `ml/tests/test_demo_clips.py`, `ml/tests/stubs/`, `notes/ml.md`
+
+**Next:** run the pick commands once `best.pt` exists.
+
+**Blockers:** None.
