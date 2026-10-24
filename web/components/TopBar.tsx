@@ -8,6 +8,7 @@ const LINKS = [
   { href: "/", label: "Command" },
   { href: "/compare", label: "Compare" },
   { href: "/results", label: "Results" },
+  { href: "/pipeline", label: "Pipeline" },
 ];
 
 export default function TopBar() {

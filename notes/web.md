@@ -45,3 +45,30 @@ Lint, tsc and build pass. Checked all four routes at 1920x1080 in the browser wi
 
 **Blockers**
 - Need real mp4s in web/public/data/clips/ (ML).
+
+## 2026-10-24 - Real clip test, /pipeline, video script
+**Written from the ML teammate's laptop** (they did web work for this task while the web person was on Kaggle). CLAUDE.md folder ownership was waived for this task only, on the user's instruction.
+
+**Built**
+- Real clip test. Downloaded RipVIS val video `RipVIS-NR-004.mp4` from Hugging Face (`Irikos/RipVIS`, `val/videos/`) and saved it as `web/public/data/clips/clip3_norip.mp4`. No JSON in `web/public/data/` was edited.
+- ffprobe of that file, to check against the mask JSON later: **1920x1080**, h264, **30000/1001 fps (29.97)**, **19.386 s**, 581 frames, square pixels. The fake `clip3_norip` masks say 1280x720 at 30 fps over 90 frames, so they do not match. That is expected for fake data. Real masks should use `width: 1920`, `height: 1080`, and fps 30000/1001 (a rounded 30 drifts about 0.6 frame over the clip), with a frame count that matches the video.
+- Checked clip3 in the browser: plays on `/` (CAM 03, CLEAR), `/compare` (both panes, in sync within ~0.05 s, CLEAR) and `/hook` (key 3, pillarboxed correctly, no mask drawn). Correct 16:9 aspect, no console errors. No playback bugs found, so no player changes. The 404 on `/hook` is `clip1_obvious.mp4`, because hook starts on clip 1 and that mp4 does not exist yet.
+- `/pipeline` (web/app/pipeline/page.tsx): animated five-stage diagram (Beach camera, Video frames, RipWatch model (fine-tuned YOLO11-seg), Temporal smoothing, Lifeguard alert) plus a dataset line underneath. Pure CSS animation (keyframes at the bottom of globals.css), respects reduced motion. Added a Pipeline link in TopBar.
+- `docs/video-script.md`: 3:00 script with timestamps, narration and the route to record for each section. Every statistic is `[TODO: verified number]`.
+- `.gitignore`: added `web/public/data/clips/*.mp4`. The repo is public and the RipVIS license is non-commercial, so the dataset video is not committed. Anyone cloning must add their own clip mp4s.
+
+**Files touched**
+web/app/pipeline/page.tsx, web/app/globals.css, web/components/TopBar.tsx, docs/video-script.md, .gitignore, notes/web.md, web/public/data/clips/clip3_norip.mp4 (local only, ignored).
+
+**Verified**
+eslint and tsc pass. Loaded `/pipeline` after a clean dev-server restart: sweep and packets animate in order and loop, no console errors, no overflow at 1920 wide. A dev server that was already running served stale HTML/CSS after the TopBar edit (hydration error, no animation); `rm -rf .next` and a restart fixed it. Not run: `next build`.
+
+**Needs checking before recording**
+- The `/pipeline` dataset line ("184 expert-annotated videos, 10 countries") is wording supplied by the user. The dataset card confirms 184 videos (150 with annotated rips) but not the country count or "expert-annotated". It lives in `DATASET_LINE` in `web/app/pipeline/page.tsx`.
+
+**Next**
+- Replace the fake masks and `metrics.json` with real ones (ML), then re-check mask alignment on the real clips.
+- Fill the TODOs listed at the end of `docs/video-script.md`.
+
+**Blockers**
+- Real clip1 and clip2 videos and all real masks (ML).

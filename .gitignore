@@ -7,3 +7,4 @@ ml/data/
 __pycache__
 .DS_Store
 .remember/
+web/public/data/clips/*.mp4

@@ -58,3 +58,31 @@ body {
     linear-gradient(90deg, rgba(255, 255, 255, 0.035) 1px, transparent 1px);
   background-size: 48px 48px;
 }
+
+/* /pipeline: one light sweeps through the stages, a packet travels each connector. */
+@keyframes rw-node-glow {
+  0%, 20%, 100% { box-shadow: none; transform: none; }
+  3%, 17% {
+    box-shadow: 0 0 0 1px rgba(91, 141, 239, 0.6), 0 0 36px rgba(91, 141, 239, 0.28);
+    transform: translateY(-4px);
+  }
+}
+
+@keyframes rw-packet-run {
+  0%, 22%, 100% { left: 0; opacity: 0; }
+  2% { opacity: 1; }
+  18% { left: calc(100% - 14px); opacity: 1; }
+  20% { left: calc(100% - 14px); opacity: 0; }
+}
+
+@keyframes rw-dash-move {
+  to { stroke-dashoffset: -28; }
+}
+
+.rw-node { animation: rw-node-glow 8s ease-in-out infinite; }
+.rw-packet { animation: rw-packet-run 8s linear infinite; opacity: 0; }
+.rw-dash { animation: rw-dash-move 1.2s linear infinite; }
+
+@media (prefers-reduced-motion: reduce) {
+  .rw-node, .rw-packet, .rw-dash { animation: none; }
+}
