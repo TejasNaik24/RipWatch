@@ -38,6 +38,15 @@ Changing this file requires a note in your own log and a flag to the user.
 { "models": [ { "name": "Zero-shot VLM", "f2": 0.0, "precision": 0.0, "recall": 0.0 } ], "heldOutFrames": 0, "notes": "" }
 ```
 
+`name`, `f2`, `precision`, `recall` are **box level** (IoU >= 0.5) and keep that meaning.
+
+Optional extension (2026-10-24, backward compatible): each model entry may also carry
+`"imageLevel": { "f2", "precision", "recall", "tp", "fp", "fn", "tn" }` ("is there a rip in this frame?") and
+`"boxLevel": { "f2", "precision", "recall", "tp", "fp", "fn" }` (the same numbers as the top-level fields, with counts),
+and the top level may carry `"ripFrames"` and `"noRipFrames"` (frames with and without a rip, summing to `heldOutFrames`).
+All new fields are optional. Readers that ignore them keep working; the web app falls back to the box-level layout when
+`imageLevel` is missing.
+
 ## 4. Clip IDs
 
 - `clip1_obvious`

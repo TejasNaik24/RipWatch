@@ -8,7 +8,7 @@ responses in ml/results/baseline_raw.jsonl, runs the YOLO weights on the same fr
 scores both with the same function:
   (a) image level: "is there a rip?"
   (b) box level: greedy matching at IoU >= 0.5 against the boxes around the labelled polygons
-Writes web/public/data/metrics.json (box level, per notes/contract.md) and ml/results/comparison.md.
+Writes web/public/data/metrics.json (box level at the top, image and box counts per model, per notes/contract.md) and ml/results/comparison.md.
 """
 from __future__ import annotations
 
@@ -154,14 +154,26 @@ def yolo_preds(frames: list[str], test_dir: Path, weights: str, conf: float, img
 
 # ---------------------------------------------------------------- outputs
 
-def write_metrics(results: dict[str, dict], n_frames: int, notes: str) -> None:
+def write_metrics(results: dict[str, dict], n_frames: int, notes: str, n_rip: int) -> None:
+    """Top-level f2/precision/recall stay box level (notes/contract.md); imageLevel and boxLevel add the counts."""
+    def level(m: dict, with_tn: bool) -> dict:
+        keys = ("f2", "precision", "recall")
+        out = {k: round(m[k], 4) for k in keys}
+        out.update({k: m[k] for k in ("tp", "fp", "fn")})
+        if with_tn:
+            out["tn"] = m["tn"]
+        return out
+
     out = {
         "models": [
             {"name": name, "f2": round(r["box"]["f2"], 4),
-             "precision": round(r["box"]["precision"], 4), "recall": round(r["box"]["recall"], 4)}
+             "precision": round(r["box"]["precision"], 4), "recall": round(r["box"]["recall"], 4),
+             "imageLevel": level(r["image"], True), "boxLevel": level(r["box"], False)}
             for name, r in results.items()
         ],
         "heldOutFrames": n_frames,
+        "ripFrames": n_rip,
+        "noRipFrames": n_frames - n_rip,
         "notes": notes,
     }
     common.METRICS_JSON.parent.mkdir(parents=True, exist_ok=True)
@@ -227,7 +239,7 @@ def main() -> None:
         f"as no detection. RipWatch: confidence >= {args.conf}, a threshold chosen from the dev-set F1 curve "
         f"(dev videos are carved out of train), never from test data."
     )
-    write_metrics(results, len(frames), notes)
+    write_metrics(results, len(frames), notes, n_rip)
     write_markdown(results, [
         f"- Frames: {len(frames)} from the official RipVIS val split ({n_rip} rip across {rip_videos} videos, "
         f"{len(frames) - n_rip} no-rip), list in `ml/results/eval_frames.txt`",
