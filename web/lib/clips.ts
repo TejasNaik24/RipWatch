@@ -23,7 +23,27 @@ export const SOURCE_LABEL: Record<MaskSource, string> = {
 };
 
 export const RIPWATCH_DISPLAY = "RipWatch (fine-tuned)";
-export const GEMINI_DISPLAY = "Gemini Flash (zero-shot)";
+/** Shown only when the baseline mask file has no "model" id, so no version is claimed. */
+export const GEMINI_DISPLAY = "Gemini (zero-shot)";
+
+/**
+ * Display name from a Gemini model id: "gemini-3.5-flash-lite" -> "Gemini 3.5 Flash Lite (zero-shot)".
+ * Keeps the first version number, drops later numeric or "latest" tokens (dates, revisions).
+ * Same rule as gemini_display_name in ml/scripts/eval_compare.py, so /compare and /results agree.
+ */
+export function geminiDisplayName(id: string): string {
+  const words: string[] = [];
+  let seenVersion = false;
+  for (const t of id.trim().replace(/^models\//, "").split("-").filter(Boolean)) {
+    if (/^\d+(\.\d+)*$/.test(t)) {
+      if (!seenVersion) words.push(t);
+      seenVersion = true;
+    } else if (t.toLowerCase() !== "latest") {
+      words.push(t.charAt(0).toUpperCase() + t.slice(1).toLowerCase());
+    }
+  }
+  return `${words.join(" ")} (zero-shot)`;
+}
 
 /** Pane title when a mask file has no "model" field (or could not load). */
 export const FALLBACK_MODEL_LABEL: Record<MaskSource, string> = {
@@ -40,7 +60,7 @@ export function modelDisplay(model: string | undefined, source: MaskSource): { t
   const id = model?.trim();
   if (!id) return { title: FALLBACK_MODEL_LABEL[source], rawId: null };
   if (/^ripwatch/i.test(id)) return { title: RIPWATCH_DISPLAY, rawId: id };
-  if (/gemini/i.test(id)) return { title: GEMINI_DISPLAY, rawId: id };
+  if (/gemini/i.test(id)) return { title: geminiDisplayName(id), rawId: id };
   return { title: id, rawId: null };
 }
 
