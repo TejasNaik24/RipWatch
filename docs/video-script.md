@@ -81,7 +81,7 @@ Record at 1920x1080. Run the app with `npm run dev` in `web/`. Real clips and ma
 >
 > It was trained on RipVIS, an open dataset of rip current video: 184 videos, 212,328 frames, filmed in 10 countries.
 >
-> *(Results.)* We measure it the way a lifeguard would care about. Missing a rip is worse than a false alarm, so we report F2, which weights recall above precision. On 200 held-out frames, drawing the box around the rip, RipWatch scores an F2 of 0.51, against 0.02 for the Gemini 3.5 Flash Lite baseline. RipWatch's precision is 0.64 and its recall is 0.48.
+> *(Results.)* We measure it the way a lifeguard would care about. Missing a rip is worse than a false alarm, so we report F2, which weights recall above precision. Out of 150 held-out frames with a rip current, Gemini 3.5 Flash Lite flagged 39. RipWatch flagged 108. Both had about 95% precision, so the difference is recall: 0.26 against 0.72. Image-level F2: 0.30 against 0.76. *(Optional, once, in passing:)* On the stricter test of drawing the box in the right place, F2 is 0.02 against 0.51.
 
 **Notes:**
 - RipVIS figures (184 videos, 212,328 frames, 10 countries) are from the RipVIS paper (CVPR 2025), see Sources. Check that the `/pipeline` dataset line matches them before recording.
@@ -130,7 +130,7 @@ Record at 1920x1080. Run the app with `npm run dev` in `web/`. Real clips and ma
 - [x] Lake Erie figure with source (Problem)
 - [ ] What the baseline does on the sneaky clip (Demo)
 - [x] RipVIS video, frame and country count, from the paper (How it works); `/pipeline` text still to be checked against it
-- [x] F2, precision, recall, held-out frame count from `ml/scripts/eval_compare.py` (How it works): filled with the box-level numbers from `ml/results/comparison.md`
+- [x] F2, precision, recall, held-out frame count from `ml/scripts/eval_compare.py` (How it works): filled with the image-level headline from `ml/results/comparison.md` (box level mentioned once at most)
 - [ ] A real failure case clip (Responsible AI)
 - [ ] Flash rip claim sourced or cut (Responsible AI)
 - [ ] Non-commercial license wording re-checked (Responsible AI)

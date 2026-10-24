@@ -44,23 +44,29 @@ YOLO11s-seg (Ultralytics), starting from COCO-pretrained weights and fine-tuned 
 
 ## Results
 
-Scored on the 200 held-out RipVIS val frames (150 with a rip across 30 videos, 50 without) by one scoring function ([ml/scripts/eval_compare.py](ml/scripts/eval_compare.py)). RipWatch uses confidence >= 0.25, chosen from the dev-set F1 curve, never from test data. Full table: [ml/results/comparison.md](ml/results/comparison.md).
+**Out of 150 held-out frames with a rip current, Gemini 3.5 Flash Lite flagged 39. RipWatch flagged 108.** Both had about 95% precision, so the difference is recall: 0.26 vs 0.72. Image-level F2: 0.30 vs 0.76.
 
-**Box level** (IoU >= 0.5), the number the demo reports:
+**Image level** ("is there a rip in this frame?"), 200 frames (150 rip, 50 no-rip):
 
-| Model | Precision | Recall | F2 |
-|---|---|---|---|
-| Gemini 3.5 Flash Lite (zero-shot) | 0.098 | 0.018 | 0.022 |
-| RipWatch (fine-tuned YOLO11s-seg) | 0.644 | 0.482 | 0.507 |
+| Model | TP | FP | FN | Precision | Recall | F2 |
+|---|---|---|---|---|---|---|
+| Gemini 3.5 Flash Lite (zero-shot) | 39 | 2 | 111 | 0.951 | 0.260 | 0.304 |
+| RipWatch (fine-tuned YOLO11s-seg) | 108 | 5 | 42 | 0.956 | 0.720 | 0.757 |
 
-**Image level** ("is there a rip in this frame?"):
+**Box level** (IoU >= 0.5), the stricter location metric:
 
-| Model | Precision | Recall | F2 |
-|---|---|---|---|
-| Gemini 3.5 Flash Lite (zero-shot) | 0.951 | 0.260 | 0.304 |
-| RipWatch (fine-tuned YOLO11s-seg) | 0.956 | 0.720 | 0.757 |
+| Model | TP | FP | FN | Precision | Recall | F2 |
+|---|---|---|---|---|---|---|
+| Gemini 3.5 Flash Lite (zero-shot) | 4 | 37 | 214 | 0.098 | 0.018 | 0.022 |
+| RipWatch (fine-tuned YOLO11s-seg) | 105 | 58 | 113 | 0.644 | 0.482 | 0.507 |
 
-Both models are about equally precise at image level, but Gemini misses most frames that contain a rip. At box level it draws boxes that rarely overlap the labelled rip, while RipWatch finds about half of them. One run, one fixed prompt for Gemini, one weights file and no repeated trials, so treat small differences with caution.
+Full table: [ml/results/comparison.md](ml/results/comparison.md). Both models are scored by the same function ([ml/scripts/eval_compare.py](ml/scripts/eval_compare.py)).
+
+Limitations of this comparison:
+- **Small sample.** 200 frames (150 rip, 50 no-rip) from held-out RipVIS validation videos. One run, no repeated trials.
+- **Weak baseline by design.** Gemini 3.5 Flash Lite is a lightweight model, used zero-shot with one fixed prompt, chosen because of free-tier limits. This says nothing about other Gemini models or other general-purpose models. It was also not built for precise localization, so the image-level result is the fairer comparison.
+- **False alarms.** RipWatch flagged a rip on 5 of the 50 no-rip frames (Gemini 3.5 Flash Lite: 2 of 50).
+- **Threshold.** RipWatch's 0.25 confidence threshold was chosen from the dev-set F1 curve (`MaskF1_curve.png` in the training output), not from test data.
 
 ## Known limitations
 

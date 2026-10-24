@@ -347,3 +347,14 @@ Image-level TN: Gemini 48, RipWatch 45. Gemini had 0 unparseable answers.
 **Files touched:** `README.md`, `docs/video-script.md`, `notes/ml.md`
 
 **Next:** the script's baseline-on-the-sneaky-clip, failure-case and flash-rip TODOs still need real clips. Check `/results` in the browser (the PLACEHOLDER badge should be gone). **Blockers:** None.
+
+## 2026-10-24 (results wording revised)
+**Written from the web teammate's laptop.** Docs only. Supersedes the framing in the previous entry.
+
+**Changed:** at the user's direction, the headline is image level, not box level.
+- `docs/video-script.md`: "Out of 150 held-out frames with a rip current, Gemini 3.5 Flash Lite flagged 39. RipWatch flagged 108. Both had about 95% precision, so the difference is recall: 0.26 against 0.72. Image-level F2: 0.30 against 0.76." Box-level F2 (0.02 vs 0.51) is one optional passing line.
+- `README.md` Results: same headline, image-level table first, box-level table as the stricter location metric, and a limitations list (200-frame sample, lightweight zero-shot baseline chosen for free-tier limits, RipWatch false alarms on 5 of 50 no-rip frames, 0.25 threshold from the dev-set F1 curve `MaskF1_curve.png`, not test data). Models are always named exactly.
+
+**Files touched:** `README.md`, `docs/video-script.md`, `notes/ml.md`
+
+**Not verified:** the `MaskF1_curve.png` claim (the curve is not in this repo); it is stated as given. **Blockers:** None.
