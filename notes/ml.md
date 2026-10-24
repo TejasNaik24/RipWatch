@@ -120,3 +120,66 @@ Notebook settings: Internet on. Add-ons, Secrets: add `GEMINI_API_KEY` and attac
 # 8. Bundle the outputs to download, then commit them from the laptop (Kaggle has no push credentials)
 !tar czf /kaggle/working/ripwatch_results.tgz ml/results web/public/data/metrics.json
 ```
+
+## 2026-10-24 (demo clip scripts: infer_video.py, baseline_video.py)
+**Written from the web teammate's laptop.** This was ML work for this task only: I edited `ml/` and `notes/ml.md` and nothing in `web/`. No files in `web/public/data/` were written, since nothing was run on real data.
+
+**Built:** two scripts that turn a beach video into the demo files in `notes/contract.md`. Not run on real data, no model was loaded and no API was called. Tested only on a synthetic 640x360 video at 30000/1001 fps (moving red blob, frame index stamped in pixels), with stubbed `ultralytics` and `google.genai` and outputs in a temp folder. All 44 checks passed.
+- `ml/scripts/video_clip.py` (shared, so neither script duplicates the other):
+  - `--video --clip-id --start --end`, plus `--data-dir` (default `web/public/data`) and `--ffmpeg`.
+  - With `--start/--end` it re-encodes a frame-accurate trim (H.264, yuv420p, CFR, faststart, no audio) to `clips/{clipId}.mp4`, with timestamps restarting at 0. Without them it copies the file as-is.
+  - Masks are always computed from that output clip, so mask frame i = clip frame i.
+  - fps is read unrounded (30000/1001 stays 29.97002997002997) and the frame count comes from decoding.
+  - A local sidecar in `ml/data/demo/` (git-ignored) skips re-encoding when source and trim are unchanged, so both scripts share one clip.
+  - ffmpeg comes from `imageio-ffmpeg` (new in `requirements.txt`), so the laptop and Kaggle cut the same frames from the same source.
+- `ml/scripts/infer_video.py`:
+  - YOLO11-seg runs on every frame (`--conf 0.25 --imgsz 640`, plus `--device`; CPU or GPU).
+  - Smoothing is on by default: per-pixel heatmap at 320 px long side, EMA (`--ema-alpha 0.3`), hysteresis (`--on-thresh 0.45`, `--off-thresh 0.25`), then 3x3 close and OpenCV contours. Contours are simplified (`--simplify 0.004` of perimeter), regions under `--min-area 0.002` of the frame are dropped, and coordinates are scaled to full-res ints. conf = mean heatmap value in the region.
+  - `--no-smooth` writes the raw model polygons (same simplification, no temporal state). `"smoothed"` in the JSON says which mode ran.
+  - `--render out.mp4` bakes the overlay into an H.264 mp4 at the exact fps.
+  - Output is `masks/{clipId}.ripwatch.json` with `"model": "ripwatch-yolo11s-seg"` and no `fake` key.
+- `ml/scripts/baseline_video.py`:
+  - Imports `baseline_vlm` and reuses `PROMPT`/`PROMPT_VERSION`, `DEFAULT_MODEL`, `call_gemini` (429/5xx backoff, `QuotaExhausted`) and `parse_response` (box conversion). `--delay 6` and `--max-retries 8` match it.
+  - Sends one frame every `--every 1.0` s and holds each answer's boxes until the next sample. Unparseable answers count as no detection.
+  - Raw responses are cached in `ml/results/baseline_video/{clipId}.jsonl`, keyed by model, prompt version and a clip fingerprint. A rerun makes no repeat calls, and a rate-limit stop exits 2 and resumes on rerun.
+  - The JSON is written only when every sample has an answer. `"model"` is the Gemini model name.
+
+**Decisions to check**
+- Gemini gives no score, so every baseline box has `conf: 1.0` (the contract requires `conf`). The web threshold slider therefore never hides baseline boxes.
+- Smoothed conf is a mean heatmap value, so it reads lower than the model's raw conf: about 0.55 on the synthetic test where raw conf was 0.8 with every 4th frame dropped. The web `DEFAULT_THRESHOLD` is 0.5, so faint regions may be hidden on screen. Check real output and tune either `--on-thresh`/`--ema-alpha` here or the web threshold.
+- Clip mp4s are git-ignored (RipVIS license). Commit only the mask JSON. Whoever records the video must regenerate the clip locally with the exact same `--video/--start/--end` (the reuse check and the bundled ffmpeg keep it frame-identical).
+- `fps` is now fractional. Web side (not changed here): `floor(t * fps)` can land one frame early from float error at exact frame boundaries, so a small epsilon there is worth adding.
+
+**Files touched:** `ml/scripts/video_clip.py`, `ml/scripts/infer_video.py`, `ml/scripts/baseline_video.py`, `ml/requirements.txt`, `notes/ml.md`
+
+**Next:** pick the source video and time range for clip1 and clip2, run the commands below with the real `best.pt`, look at the masks in `/compare`, then commit the mask JSON and the baseline jsonl.
+
+**Blockers:** None. Unverified until run on real data: Ultralytics `masks.xy`/`boxes.conf` on the installed version, CPU speed on the laptop, and the smoothing defaults on real rip footage.
+
+### Making demo clips
+Run from the repo root. Each command writes `web/public/data/clips/{clipId}.mp4` (local only) and the mask JSON. `<rip video>`, `<sneaky video>` and the times are placeholders until the clips are picked. clip3 is `RipVIS-NR-004.mp4` (19.4 s), used whole.
+
+Laptop (CPU):
+```bash
+pip install -r ml/requirements.txt
+# RipWatch masks (smoothed)
+python ml/scripts/infer_video.py --weights best.pt --video <rip video> --clip-id clip1_obvious --start <s> --end <s> --device cpu
+python ml/scripts/infer_video.py --weights best.pt --video <sneaky video> --clip-id clip2_sneaky --start <s> --end <s> --device cpu
+python ml/scripts/infer_video.py --weights best.pt --video RipVIS-NR-004.mp4 --clip-id clip3_norip --device cpu
+# Gemini baseline (same --video/--start/--end as above, so it reuses the same clip). Needs GEMINI_API_KEY in ml/.env
+python ml/scripts/baseline_video.py --video <rip video> --clip-id clip1_obvious --start <s> --end <s>
+python ml/scripts/baseline_video.py --video <sneaky video> --clip-id clip2_sneaky --start <s> --end <s>
+python ml/scripts/baseline_video.py --video RipVIS-NR-004.mp4 --clip-id clip3_norip
+```
+Optional:
+```bash
+# raw, unsmoothed masks for the smoothing comparison (overwrites the smoothed JSON; rerun without --no-smooth after)
+python ml/scripts/infer_video.py --weights best.pt --video <sneaky video> --clip-id clip2_sneaky --start <s> --end <s> --no-smooth
+# mp4 with the overlay baked in, as a backup for the video edit
+python ml/scripts/infer_video.py --weights best.pt --video <rip video> --clip-id clip1_obvious --start <s> --end <s> --render ml/data/demo/clip1_overlay.mp4
+```
+Kaggle (GPU): the same commands with `!python ...` and `--device 0` instead of `--device cpu`, after `!pip install -q -r ml/requirements.txt`. Then download the outputs and commit them from a laptop:
+```
+!tar czf /kaggle/working/demo_masks.tgz web/public/data/masks ml/results/baseline_video
+```
+Commit `web/public/data/masks/*.json` and `ml/results/baseline_video/*.jsonl`. Never commit the mp4s (git-ignored).
