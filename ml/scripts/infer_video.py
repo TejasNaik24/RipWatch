@@ -210,8 +210,6 @@ def main() -> None:
             last = now
     if renderer:
         renderer.close()
-    if len(frames) != n:
-        print(f"WARNING: decoded {len(frames)} frames during inference but counted {n} when probing")
 
     doc = {"clipId": args.clip_id, "model": MODEL_NAME, "smoothed": smoother is not None,
            "fps": fps, "width": w, "height": h, "frames": frames}

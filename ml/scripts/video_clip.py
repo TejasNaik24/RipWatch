@@ -125,7 +125,7 @@ def prepare_clip(args) -> Path:
     if args.max_width < 0:
         sys.exit("ERROR: --max-width must be >= 0")
 
-    out = (args.data_dir / "clips" / f"{args.clip_id}.mp4").resolve()
+    out = served_clip(args.data_dir, args.clip_id).resolve()
     out.parent.mkdir(parents=True, exist_ok=True)
     st = src.stat()
     key = {"source": str(src), "size": st.st_size, "mtime_ns": st.st_mtime_ns,
@@ -184,8 +184,35 @@ def fingerprint(args, n_frames: int, fps: float) -> str:
 
 # ---------------------------------------------------------------- output
 
+def check_matches_clip(doc: dict, clip: Path) -> None:
+    """Refuse to write masks that do not describe the served clip: same size, same frame count, every
+    coordinate inside that size. Guards against computing on the source video instead of the clip."""
+    cw, ch, _, n = probe(clip)
+    problems = []
+    if (doc["width"], doc["height"]) != (cw, ch):
+        problems.append(f"JSON is {doc['width']}x{doc['height']} but {clip.name} is {cw}x{ch}")
+    if len(doc["frames"]) != n:
+        problems.append(f"JSON has {len(doc['frames'])} frames but {clip.name} has {n}")
+    if [f["i"] for f in doc["frames"]] != list(range(len(doc["frames"]))):
+        problems.append("frame indices are not 0..n-1")
+    for f in doc["frames"]:
+        for d in f["detections"]:
+            pts = d.get("polygon") or [d["box"][:2], d["box"][2:]]
+            if any(not (0 <= x <= cw and 0 <= y <= ch) for x, y in pts):
+                problems.append(f"frame {f['i']} has coordinates outside {cw}x{ch}")
+                break
+    if problems:
+        sys.exit("ERROR: masks do not match the clip, not written: " + "; ".join(problems))
+
+
+def served_clip(data_dir: Path, clip_id: str) -> Path:
+    return data_dir / "clips" / f"{clip_id}.mp4"
+
+
 def write_masks(data_dir: Path, clip_id: str, source: str, doc: dict) -> Path:
-    """masks/{clipId}.{source}.json in contract key order. Never writes a "fake" key."""
+    """masks/{clipId}.{source}.json in contract key order. Never writes a "fake" key.
+    Checked against the served clip file itself (found from data_dir and clip_id, not passed in)."""
+    check_matches_clip(doc, served_clip(data_dir, clip_id))
     ordered = {k: doc[k] for k in CONTRACT_KEYS if k in doc}
     ordered.update({k: v for k, v in doc.items() if k not in ordered and k != "fake"})
     path = data_dir / "masks" / f"{clip_id}.{source}.json"
