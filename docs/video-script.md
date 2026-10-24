@@ -81,7 +81,7 @@ Record at 1920x1080. Run the app with `npm run dev` in `web/`. Real clips and ma
 >
 > It was trained on RipVIS, an open dataset of rip current video: 184 videos, 212,328 frames, filmed in 10 countries.
 >
-> *(Results.)* We measure it the way a lifeguard would care about. Missing a rip is worse than a false alarm, so we report F2, which weights recall above precision. On held-out video, RipWatch scores [TODO: verified number: RipWatch F2], against [TODO: verified number: baseline F2] for the baseline. Precision [TODO: verified number], recall [TODO: verified number], over [TODO: verified number: held-out frame count] frames.
+> *(Results.)* We measure it the way a lifeguard would care about. Missing a rip is worse than a false alarm, so we report F2, which weights recall above precision. On 200 held-out frames, drawing the box around the rip, RipWatch scores an F2 of 0.51, against 0.02 for the Gemini 3.5 Flash Lite baseline. RipWatch's precision is 0.64 and its recall is 0.48.
 
 **Notes:**
 - RipVIS figures (184 videos, 212,328 frames, 10 countries) are from the RipVIS paper (CVPR 2025), see Sources. Check that the `/pipeline` dataset line matches them before recording.
@@ -130,7 +130,7 @@ Record at 1920x1080. Run the app with `npm run dev` in `web/`. Real clips and ma
 - [x] Lake Erie figure with source (Problem)
 - [ ] What the baseline does on the sneaky clip (Demo)
 - [x] RipVIS video, frame and country count, from the paper (How it works); `/pipeline` text still to be checked against it
-- [ ] F2, precision, recall, held-out frame count from `ml/scripts/eval_compare.py` (How it works)
+- [x] F2, precision, recall, held-out frame count from `ml/scripts/eval_compare.py` (How it works): filled with the box-level numbers from `ml/results/comparison.md`
 - [ ] A real failure case clip (Responsible AI)
 - [ ] Flash rip claim sourced or cut (Responsible AI)
 - [ ] Non-commercial license wording re-checked (Responsible AI)

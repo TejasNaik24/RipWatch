@@ -336,3 +336,14 @@ Image-level TN: Gemini 48, RipWatch 45. Gemini had 0 unparseable answers.
 **Files touched:** `ml/scripts/common.py`, `ml/scripts/eval_compare.py`, `ml/results/{eval_frames.txt,baseline_raw.jsonl,comparison.md}`, `web/public/data/metrics.json`, `notes/ml.md`.
 
 **Next:** put the numbers in the README Results section and the video script (both still `[TODO]`). Check `/results` and `/compare` in the browser against the real metrics. **Blockers:** None.
+
+## 2026-10-24 (real results into README and video script)
+**Written from the web teammate's laptop.** Docs only.
+
+**Built:**
+- `README.md` Results: box-level and image-level precision/recall/F2 for both models on the 200 held-out frames, copied from `ml/results/comparison.md`, with the conf 0.25 note and a one-run caveat.
+- `docs/video-script.md` results line: "On 200 held-out frames, drawing the box around the rip, RipWatch scores an F2 of 0.51, against 0.02 for the Gemini 3.5 Flash Lite baseline. Precision 0.64, recall 0.48." The script uses box-level numbers because `metrics.json` and `/results` do. Checklist item ticked.
+
+**Files touched:** `README.md`, `docs/video-script.md`, `notes/ml.md`
+
+**Next:** the script's baseline-on-the-sneaky-clip, failure-case and flash-rip TODOs still need real clips. Check `/results` in the browser (the PLACEHOLDER badge should be gone). **Blockers:** None.

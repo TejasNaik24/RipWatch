@@ -44,7 +44,23 @@ YOLO11s-seg (Ultralytics), starting from COCO-pretrained weights and fine-tuned 
 
 ## Results
 
-[TODO: RipWatch vs. Gemini 3.5 Flash Lite F2, precision and recall on the 200 held-out frames, once the real run is done.]
+Scored on the 200 held-out RipVIS val frames (150 with a rip across 30 videos, 50 without) by one scoring function ([ml/scripts/eval_compare.py](ml/scripts/eval_compare.py)). RipWatch uses confidence >= 0.25, chosen from the dev-set F1 curve, never from test data. Full table: [ml/results/comparison.md](ml/results/comparison.md).
+
+**Box level** (IoU >= 0.5), the number the demo reports:
+
+| Model | Precision | Recall | F2 |
+|---|---|---|---|
+| Gemini 3.5 Flash Lite (zero-shot) | 0.098 | 0.018 | 0.022 |
+| RipWatch (fine-tuned YOLO11s-seg) | 0.644 | 0.482 | 0.507 |
+
+**Image level** ("is there a rip in this frame?"):
+
+| Model | Precision | Recall | F2 |
+|---|---|---|---|
+| Gemini 3.5 Flash Lite (zero-shot) | 0.951 | 0.260 | 0.304 |
+| RipWatch (fine-tuned YOLO11s-seg) | 0.956 | 0.720 | 0.757 |
+
+Both models are about equally precise at image level, but Gemini misses most frames that contain a rip. At box level it draws boxes that rarely overlap the labelled rip, while RipWatch finds about half of them. One run, one fixed prompt for Gemini, one weights file and no repeated trials, so treat small differences with caution.
 
 ## Known limitations
 
