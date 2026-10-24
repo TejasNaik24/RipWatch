@@ -196,6 +196,31 @@ html[data-input="pointer"] :focus-visible {
   gap: var(--g);
 }
 
+/* Below 1024px the Command grid becomes one column: main feed, side feeds, alert card, event log.
+ * Everything here is inside this media query, so layouts from 1024px up are untouched. */
+@media (width < 64rem) {
+  .rw-command {
+    container-type: normal;
+    flex: none;
+    height: auto;
+  }
+  .rw-cmd-grid {
+    display: flex;
+    flex-direction: column;
+    height: auto;
+  }
+  .rw-cmd-grid > [data-hero="true"] {
+    order: -1;
+  }
+  .rw-btn,
+  .rw-seg-item {
+    height: 44px;
+  }
+  .rw-seg {
+    flex-wrap: wrap;
+  }
+}
+
 /* ---------------------------------------------------------------- Motion */
 @keyframes rw-alert-ring {
   0% { box-shadow: 0 0 0 0 rgba(255, 59, 59, 0.5); }

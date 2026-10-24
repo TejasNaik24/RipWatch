@@ -160,7 +160,20 @@ export default function StoryStage() {
   }, [pos.n, pos.prev]);
 
   return (
-    <main className="rw-story" aria-label="RipWatch story">
+    <main
+      className="rw-story"
+      aria-label="RipWatch story"
+      // Phones and portrait tablets have no keyboard: tap the left third to go back, anywhere else for next.
+      // Wider screens keep the keyboard-only behavior, so clicking never moves the sequence there.
+      onClick={(e) => {
+        if (!window.matchMedia("(width < 64rem)").matches) return;
+        const back = e.clientX < window.innerWidth / 3;
+        setPos((s) => {
+          const next = Math.min(Math.max(s.index + (back ? -1 : 1), 0), LAST);
+          return next === s.index ? s : { index: next, prev: s.index, n: s.n + 1 };
+        });
+      }}
+    >
       <Waterline />
       {pos.prev !== null && (
         <div key={`out-${pos.n}`} className="rw-story-layer rw-story-out" aria-hidden>

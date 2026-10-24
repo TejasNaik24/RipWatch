@@ -72,8 +72,8 @@ export default function ResultsPage() {
 
   return (
     <PageTransition>
-      <main className="flex h-[calc(100dvh-56px)] min-h-0 flex-col gap-5 px-8 pb-6 pt-5">
-        <div className="flex shrink-0 items-end justify-between">
+      <main className="flex h-[calc(100dvh-56px)] min-h-0 flex-col gap-5 px-8 pb-6 pt-5 max-lg:h-auto max-lg:px-4">
+        <div className="flex shrink-0 items-end justify-between max-lg:flex-wrap max-lg:gap-3">
           <div>
             <h1 className="text-2xl font-semibold leading-tight tracking-[-0.01em]">Model comparison</h1>
             <p className="mt-1 text-sm text-ink-2">
@@ -96,8 +96,8 @@ export default function ResultsPage() {
         {metrics && ours && (
           <>
             {/* The chart takes whatever height the strip below leaves, so the page never scrolls. */}
-            <div className="grid min-h-0 flex-1 grid-cols-[minmax(0,1fr)_minmax(420px,34%)] gap-5">
-              <section className="rw-panel flex min-h-0 min-w-0 flex-col px-6 pb-4 pt-5">
+            <div className="grid min-h-0 flex-1 grid-cols-[minmax(0,1fr)_minmax(420px,34%)] gap-5 max-lg:flex-none max-lg:grid-cols-1">
+              <section className="rw-panel flex min-h-0 min-w-0 flex-col px-6 pb-4 pt-5 max-lg:order-2 max-lg:px-3">
                 <div className="flex shrink-0 flex-wrap items-center justify-between gap-x-6 gap-y-1">
                   <h2 className="text-base font-semibold">
                     {imageMode ? "Did the model find the rip? Scores by metric" : "Scores by metric"}
@@ -111,13 +111,13 @@ export default function ResultsPage() {
                     ))}
                   </ul>
                 </div>
-                <div className="mt-2 min-h-0 flex-1">
+                <div className="mt-2 min-h-0 flex-1 max-lg:h-80 max-lg:flex-none">
                   <ResultsChart metrics={metrics} level={imageMode ? "image" : "box"} />
                 </div>
               </section>
 
               {imageMode && baseline ? (
-                <div className="flex min-h-0 flex-col gap-5">
+                <div className="flex min-h-0 flex-col gap-5 max-lg:order-1">
                   <section className="rw-panel flex min-h-0 flex-1 flex-col justify-center gap-4 p-6">
                     <h2 className="text-sm text-ink-2">
                       Rips found in <span className="font-mono text-ink">{ripFrames ?? ours.imageLevel!.tp + ours.imageLevel!.fn}</span>{" "}
@@ -141,7 +141,8 @@ export default function ResultsPage() {
                   </section>
                   <section className="rw-panel shrink-0 px-6 py-4">
                     <h2 className="text-sm font-semibold">Stricter test: rip location (box IoU ≥ 0.5)</h2>
-                    <table className="mt-2 w-full text-[13px]">
+                    <div className="max-lg:overflow-x-auto">
+                    <table className="mt-2 w-full text-[13px] max-lg:min-w-[380px]">
                       <thead>
                         <tr className="text-ink-3">
                           <th className="py-1 text-left font-normal">Model</th>
@@ -161,10 +162,11 @@ export default function ResultsPage() {
                         ))}
                       </tbody>
                     </table>
+                    </div>
                   </section>
                 </div>
               ) : (
-              <section className="rw-panel flex min-h-0 flex-col justify-center p-6">
+              <section className="rw-panel flex min-h-0 flex-col justify-center p-6 max-lg:order-1">
                 <h2 className="text-sm text-ink-2">{ours.name}, F2</h2>
                 <div className="mt-3 flex flex-wrap items-end gap-x-5 gap-y-2">
                   <span className="font-mono text-[56px] font-medium leading-tight tracking-[-0.04em] text-sea">
@@ -193,7 +195,7 @@ export default function ResultsPage() {
               )}
             </div>
 
-            <div className="grid shrink-0 grid-cols-[minmax(0,2fr)_minmax(0,3fr)] gap-5">
+            <div className="grid shrink-0 grid-cols-[minmax(0,2fr)_minmax(0,3fr)] gap-5 max-lg:grid-cols-1">
               <section className="rw-panel px-6 py-5">
                 <h2 className="text-sm font-semibold">How it was measured</h2>
                 {imageMode && baseline && ripFrames !== undefined && noRipFrames !== undefined ? (
@@ -213,7 +215,7 @@ export default function ResultsPage() {
               </section>
               <section className="rw-panel px-6 py-5">
                 <h2 className="text-sm font-semibold">Known limitations</h2>
-                <ul className="mt-2 columns-2 gap-x-8">
+                <ul className="mt-2 columns-2 gap-x-8 max-lg:columns-1">
                   {LIMITATIONS.map((t) => (
                     <li key={t} className="mb-2 flex break-inside-avoid gap-2.5 text-[13px] leading-relaxed text-ink-2">
                       <IconInfo size={15} className="mt-[3px] shrink-0 text-ink-3" />

@@ -66,7 +66,7 @@ export default function AlertCard({
       } ${active && !acked ? "rw-alert-pulse" : ""}`}
     >
       {active && <span className="absolute inset-y-0 left-0 w-1 bg-rip" />}
-      <div key={noSignal ? "nosignal" : active ? "alert" : "clear"} className="rw-rise flex min-w-0 flex-1 items-center gap-6 px-6 py-3">
+      <div key={noSignal ? "nosignal" : active ? "alert" : "clear"} className="rw-rise flex min-w-0 flex-1 items-center gap-6 px-6 py-3 max-lg:flex-col max-lg:items-stretch max-lg:gap-4 max-lg:px-4 max-lg:py-4">
         <div className="flex min-w-0 flex-1 items-center gap-4">
           <span
             className={`grid h-14 w-14 shrink-0 place-items-center rounded-full ${
@@ -86,7 +86,7 @@ export default function AlertCard({
           </div>
         </div>
 
-        <dl className="flex shrink-0 items-center gap-6">
+        <dl className="flex shrink-0 items-center gap-6 max-lg:flex-wrap">
           <Cell label="Confidence" alert={active}>
             {active ? `${Math.round((status?.conf ?? 0) * 100)}%` : "–"}
           </Cell>
@@ -95,7 +95,7 @@ export default function AlertCard({
           </Cell>
         </dl>
 
-        <div className="flex shrink-0 justify-end">
+        <div className="flex shrink-0 justify-end max-lg:justify-start">
           {active ? (
             acked ? (
               <span className="inline-flex items-center gap-2 whitespace-nowrap text-sm text-ink-2">
@@ -103,13 +103,13 @@ export default function AlertCard({
                 Acknowledged
               </span>
             ) : (
-              <button type="button" onClick={onAcknowledge} className="rw-btn rw-btn-light h-11 whitespace-nowrap px-5 text-[15px]">
+              <button type="button" onClick={onAcknowledge} className="rw-btn rw-btn-light h-11 whitespace-nowrap px-5 text-[15px] max-lg:w-full">
                 Acknowledge
               </button>
             )
           ) : (
             others.length > 0 && (
-              <button type="button" onClick={() => onView(others[0].id)} className="rw-btn h-11 whitespace-nowrap px-5 text-[15px]">
+              <button type="button" onClick={() => onView(others[0].id)} className="rw-btn h-11 whitespace-nowrap px-5 text-[15px] max-lg:w-full">
                 View {others[0].camera}
               </button>
             )

@@ -47,7 +47,7 @@ export default function EventLog({
   }, [entries]);
 
   return (
-    <section style={style} className="rw-panel flex min-h-0 min-w-0 flex-col overflow-hidden">
+    <section style={style} className="rw-panel flex min-h-0 min-w-0 flex-col overflow-hidden max-lg:min-h-48">
       <header className="flex shrink-0 items-baseline justify-between px-4 pb-1 pt-3">
         <h2 className="text-sm font-semibold">Event log</h2>
         <span className="text-xs text-ink-3">Newest first</span>

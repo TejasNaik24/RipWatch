@@ -40,9 +40,9 @@ export default function FeedTile({
   const pulsing = alerting && !acked;
 
   return (
-    <div style={style} className="flex min-h-0 min-w-0 flex-col">
+    <div style={style} data-hero={hero} className="flex min-h-0 min-w-0 flex-col">
       {/* Hero: fills its grid cell (the video letterboxes). Side feeds: exactly 16:9. */}
-      <div className={`group relative w-full ${hero ? "min-h-0 flex-1" : ""}`}>
+      <div className={`group relative w-full ${hero ? "min-h-0 flex-1 max-lg:flex-none" : ""}`}>
         <MaskedVideo
           clipId={clip.id}
           source="ripwatch"
@@ -53,7 +53,7 @@ export default function FeedTile({
             onVideoState(clip.id, ok); // before reset(), so the Dashboard knows not to log the drop
             if (!ok) reset();
           }}
-          className={`w-full rounded-xl ${hero ? "h-full" : "aspect-video"}`}
+          className={`w-full rounded-xl ${hero ? "h-full max-lg:aspect-video max-lg:h-auto" : "aspect-video"}`}
         />
         {/* Frame: quiet hairline normally, red only while this camera sees a rip. */}
         <span
@@ -63,20 +63,20 @@ export default function FeedTile({
         />
         {hero ? (
           <>
-            <div className="pointer-events-none absolute left-4 top-4 flex items-center gap-2.5 rounded-md bg-black/55 px-3 py-1.5 text-sm backdrop-blur-sm">
+            <div className="pointer-events-none absolute left-4 top-4 flex items-center gap-2.5 rounded-md bg-black/55 px-3 py-1.5 text-sm backdrop-blur-sm max-lg:left-2 max-lg:top-2 max-lg:gap-2 max-lg:px-2">
               <span className="font-mono text-[13px] text-ink">{clip.camera}</span>
               <span className="text-ink/90">{clip.location}</span>
               {hasVideo && (
-                <span className="ml-1 flex items-center gap-1.5 text-[13px] text-ink-2">
+                <span className="ml-1 flex items-center gap-1.5 text-[13px] text-ink-2 max-sm:hidden">
                   <span className="h-1.5 w-1.5 rounded-full bg-ink/80" />
                   Live
                 </span>
               )}
             </div>
-            <div className="pointer-events-none absolute right-4 top-4">
+            <div className="pointer-events-none absolute right-4 top-4 max-lg:right-2 max-lg:top-2">
               <StatusPill active={alerting} pulsing={pulsing} noSignal={!signal} />
             </div>
-            <div className="pointer-events-none absolute bottom-4 left-4 rounded-md bg-black/55 px-2.5 py-1 backdrop-blur-sm">
+            <div className="pointer-events-none absolute bottom-4 left-4 rounded-md bg-black/55 px-2.5 py-1 backdrop-blur-sm max-lg:bottom-2 max-lg:left-2">
               <LiveClock className="text-[13px] text-ink/90" />
             </div>
           </>

@@ -79,11 +79,11 @@ export default function Dashboard() {
 
   return (
     <PageTransition>
-      <main className="flex h-[calc(100dvh-56px)] flex-col gap-5 px-8 pb-6 pt-5">
-        <div className="flex h-10 shrink-0 items-center justify-between">
-          <div className="flex items-center gap-6">
+      <main className="flex h-[calc(100dvh-56px)] flex-col gap-5 px-8 pb-6 pt-5 max-lg:h-auto max-lg:px-4">
+        <div className="flex h-10 shrink-0 items-center justify-between max-lg:h-auto max-lg:flex-wrap max-lg:gap-y-3">
+          <div className="flex items-center gap-6 max-lg:flex-wrap max-lg:gap-x-4 max-lg:gap-y-2">
             <h1 className="text-xl font-semibold tracking-[-0.01em]">Beach cameras</h1>
-            <div className="flex items-center gap-4 text-sm text-ink-2">
+            <div className="flex items-center gap-4 text-sm text-ink-2 max-lg:flex-wrap max-lg:gap-y-1">
               <span>
                 <span className="font-mono text-ink">{streaming}</span> of{" "}
                 <span className="font-mono text-ink">{CLIPS.length}</span> streaming

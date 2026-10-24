@@ -44,11 +44,11 @@ function Side({
 
   return (
     <section className="flex min-w-0 flex-1 flex-col gap-3">
-      <div className="flex h-19 items-end justify-between gap-4 px-1">
+      <div className="flex h-19 items-end justify-between gap-4 px-1 max-lg:h-auto">
         <div className="min-w-0">
           <div className="text-[13px] text-ink-3">{SOURCE_LABEL[source]}</div>
           <h2
-            className={`mt-0.5 truncate text-xl font-semibold tracking-[-0.01em] transition-opacity duration-200 ${
+            className={`mt-0.5 truncate text-xl font-semibold tracking-[-0.01em] transition-opacity duration-200 max-lg:overflow-visible max-lg:whitespace-normal ${
               ready ? "opacity-100" : "opacity-0"
             }`}
           >
@@ -112,9 +112,9 @@ export default function ComparePage() {
 
   return (
     <PageTransition>
-      <main className="flex h-[calc(100dvh-56px)] flex-col gap-5 px-8 pb-8 pt-5">
-        <div className="flex h-10 shrink-0 items-center justify-between">
-          <div className="flex items-center gap-6">
+      <main className="flex h-[calc(100dvh-56px)] flex-col gap-5 px-8 pb-8 pt-5 max-lg:h-auto max-lg:px-4 max-lg:pb-6">
+        <div className="flex h-10 shrink-0 items-center justify-between max-lg:h-auto max-lg:flex-wrap max-lg:gap-y-3">
+          <div className="flex items-center gap-6 max-lg:flex-wrap max-lg:gap-y-3">
             <h1 className="text-xl font-semibold tracking-[-0.01em]">Compare models</h1>
             <div className="rw-seg" role="group" aria-label="Camera">
               {CLIPS.map((c) => (
@@ -126,7 +126,7 @@ export default function ComparePage() {
                   className="rw-seg-item"
                 >
                   <span className="font-mono text-[13px]">{c.camera}</span>
-                  <span className="ml-2">{c.location}</span>
+                  <span className="ml-2 max-sm:hidden">{c.location}</span>
                 </button>
               ))}
             </div>
@@ -135,7 +135,7 @@ export default function ComparePage() {
         </div>
 
         <div className="flex min-h-0 flex-1 flex-col justify-center gap-6">
-          <div className="flex gap-6" key={clipId}>
+          <div className="flex gap-6 max-lg:flex-col" key={clipId}>
             <Side
               clipId={clipId}
               source="baseline"
@@ -154,8 +154,8 @@ export default function ComparePage() {
             />
           </div>
 
-          <div className="rw-panel flex h-16 shrink-0 items-center justify-between px-5">
-            <div className="flex items-center gap-3">
+          <div className="rw-panel flex h-16 shrink-0 items-center justify-between px-5 max-lg:h-auto max-lg:flex-col max-lg:items-stretch max-lg:gap-4 max-lg:px-4 max-lg:py-4">
+            <div className="flex items-center gap-3 max-lg:flex-wrap">
               <button type="button" onClick={() => setPlaying((p) => !p)} className="rw-btn rw-btn-primary w-28">
                 {playing ? <IconPause size={16} /> : <IconPlay size={16} />}
                 {playing ? "Pause" : "Play"}
@@ -164,11 +164,11 @@ export default function ComparePage() {
                 <IconRestart size={16} />
                 Restart
               </button>
-              <span className="ml-3 flex items-center gap-2 text-sm text-ink-3">
+              <span className="ml-3 flex items-center gap-2 text-sm text-ink-3 max-lg:ml-0">
                 Shared clock <ClockReadout clock={clock} />
               </span>
             </div>
-            <div className="flex items-center gap-6 text-sm text-ink-2">
+            <div className="flex items-center gap-6 text-sm text-ink-2 max-lg:flex-wrap max-lg:gap-x-4 max-lg:gap-y-2">
               <span className="flex items-center gap-2">
                 <span className="h-3.5 w-5 rounded-xs border border-det bg-det/10" />
                 Baseline boxes

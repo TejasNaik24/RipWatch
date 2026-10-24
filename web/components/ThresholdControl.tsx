@@ -8,7 +8,7 @@ export default function ThresholdControl({
   onChange: (v: number) => void;
 }) {
   return (
-    <label className="flex items-center gap-3 text-sm text-ink-2">
+    <label className="flex items-center gap-3 text-sm text-ink-2 max-lg:w-full">
       Alert threshold
       <input
         type="range"
@@ -17,7 +17,7 @@ export default function ThresholdControl({
         step={0.05}
         value={value}
         onChange={(e) => onChange(Number(e.target.value))}
-        className="h-1 w-40 cursor-pointer accent-sea"
+        className="h-1 w-40 cursor-pointer accent-sea max-lg:h-10 max-lg:min-w-0 max-lg:flex-1"
       />
       <span className="w-10 text-right font-mono text-ink">{Math.round(value * 100)}%</span>
     </label>

@@ -34,7 +34,7 @@ function Connector({ index }: { index: number }) {
   // The packet leaves just as stage `index` lights up.
   const delay = `${index * STEP_SECONDS + STEP_SECONDS * 0.5}s`;
   return (
-    <div className="relative flex items-center" aria-hidden>
+    <div className="relative flex items-center max-lg:hidden" aria-hidden>
       <svg className="h-4 w-full overflow-visible" viewBox="0 0 100 16" preserveAspectRatio="none">
         <line
           x1="0"
@@ -63,18 +63,30 @@ function Connector({ index }: { index: number }) {
   );
 }
 
+/** Below 1024px the stages stack, so the connector between them points down. Hidden from 1024px up. */
+function DownArrow() {
+  return (
+    <div className="flex h-12 items-center justify-center lg:hidden" aria-hidden>
+      <svg width="20" height="36" viewBox="0 0 20 36" fill="none" stroke="rgba(190,210,235,0.35)" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+        <path d="M10 2v28" strokeDasharray="5 5" />
+        <path d="M4 25l6 8 6-8" />
+      </svg>
+    </div>
+  );
+}
+
 export default function PipelinePage() {
   return (
     <PageTransition>
-      <main className="flex h-[calc(100dvh-56px)] flex-col items-center justify-center gap-16 px-12 py-10">
+      <main className="flex h-[calc(100dvh-56px)] flex-col items-center justify-center gap-16 px-12 py-10 max-lg:h-auto max-lg:gap-8 max-lg:px-4 max-lg:py-8">
         <header className="text-center">
           <div className="text-sm font-medium text-sea">How it works</div>
-          <h1 className="mt-3 text-[40px] font-semibold leading-tight tracking-[-0.02em]">
+          <h1 className="mt-3 text-[40px] max-lg:text-[28px] font-semibold leading-tight tracking-[-0.02em]">
             From beach camera to lifeguard alert
           </h1>
         </header>
 
-        <section className="grid w-full max-w-[1720px] grid-cols-[1fr_64px_1fr_64px_1fr_64px_1fr_64px_1fr] items-stretch">
+        <section className="grid w-full max-w-[1720px] grid-cols-[1fr_64px_1fr_64px_1fr_64px_1fr_64px_1fr] items-stretch max-lg:max-w-md max-lg:grid-cols-1">
           {STAGES.flatMap((s, i) => {
             const node = (
               <div
@@ -98,13 +110,15 @@ export default function PipelinePage() {
                 <p className="mt-2 text-[15px] leading-snug text-ink-2">{s.sub}</p>
               </div>
             );
-            return i < STAGES.length - 1 ? [node, <Connector key={`c${i}`} index={i} />] : [node];
+            return i < STAGES.length - 1
+              ? [node, <Connector key={`c${i}`} index={i} />, <DownArrow key={`d${i}`} />]
+              : [node];
           })}
         </section>
 
-        <footer className="flex items-center gap-3 rounded-full border border-line-2 bg-panel px-6 py-3">
+        <footer className="flex items-center gap-3 rounded-full border border-line-2 bg-panel px-6 py-3 max-lg:rounded-2xl max-lg:px-4">
           <IconFrames size={18} className="text-ink-3" />
-          <span className="text-lg text-ink-2">{DATASET_LINE}</span>
+          <span className="text-lg text-ink-2 max-lg:text-base">{DATASET_LINE}</span>
         </footer>
       </main>
     </PageTransition>

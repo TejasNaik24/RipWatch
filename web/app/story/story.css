@@ -154,3 +154,46 @@
     animation: none;
   }
 }
+
+/*
+ * Below 1024px wide (phones, portrait tablets): the stage is narrow, so type sized from cqw alone
+ * gets tiny. Sizes here have readable floors and fit the narrow width; 1024px and up is untouched.
+ */
+@media (width < 64rem) {
+  .rw-story-layer {
+    padding: 0 6cqw;
+  }
+  .rw-story-mark {
+    width: 56px;
+    height: 56px;
+  }
+  .rw-story-title {
+    font-size: min(17cqw, 20cqh);
+  }
+  .rw-story-subline {
+    font-size: max(16px, min(4.6cqw, 5.2cqh));
+  }
+  .rw-story-eyebrow {
+    font-size: max(14px, min(3.4cqw, 3cqh));
+  }
+  .rw-story-number {
+    font-size: min(18cqw, 24cqh);
+  }
+  .rw-story-label {
+    font-size: max(18px, min(5.6cqw, 5.8cqh));
+  }
+  .rw-story-source {
+    max-width: 88cqw;
+    font-size: max(13px, min(3.2cqw, 2.6cqh));
+  }
+  .rw-story-line {
+    max-width: 90cqw;
+    font-size: max(24px, min(8cqw, 10cqh));
+  }
+  .rw-story-credit-main {
+    font-size: max(16px, min(4cqw, 3.8cqh));
+  }
+  .rw-story-credit-team {
+    font-size: max(14px, min(3.4cqw, 3.2cqh));
+  }
+}

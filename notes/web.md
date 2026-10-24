@@ -385,3 +385,26 @@ web/app/{globals.css, layout.tsx, page.tsx, compare/page.tsx, results/page.tsx, 
 **Changed:** card 5 in `web/components/story/cards.ts`: subline "Rip currents have taken lives on Lake Erie." (was "...a recurring factor in Lake Erie drownings."), source "Fox 8 Cleveland (WJW)" (was Great Lakes Surf Rescue Project). `docs/video-script.md`: card table row, card-5 note and the TODO item updated to match (TODO ticked).
 
 **Verified:** eslint, tsc and `next build` pass. At 1440x900 the card shows the new text with no off-screen or clipped text and no page scroll. No other card changed.
+
+## 2026-10-24 15:45 - Mobile layouts below 1024px (desktop unchanged)
+**Rule followed:** every change is a `max-lg:` Tailwind variant, `max-sm:`/`lg:hidden` helper, or sits inside `@media (width < 64rem)` (globals.css, story.css). Nothing applies at 1024px and up.
+
+**Built (below 1024px)**
+- **Nav (`TopBar`):** the link row and the date/time hide; a 44px menu button opens a dropdown with the four links (48px rows). It closes on navigation (it is open for one path only).
+- **`/`:** one column: main feed (16:9), the other feeds, the alert card, then the event log. `.rw-command`/`.rw-cmd-grid` switch to a flex column (hero first via `data-hero`); hero overlays tighten (the "Live" tag hides under 640px). The alert card stacks (full-width Acknowledge button), the threshold slider takes the full width and is 40px tall, the event log has a minimum height.
+- **`/compare`:** panes stack (baseline on top, RipWatch below), model titles wrap instead of truncating, controls wrap, the camera switcher shows only the camera ids under 640px.
+- **`/results`:** headline card first, then the stricter-test card (its table scrolls sideways inside the card), the chart (320px tall) and the text cards in one column.
+- **`/pipeline`:** the five steps stack with dashed down arrows between them (the sideways connector is hidden); footer wraps.
+- **`/story`:** type sizes get readable floors and fit the narrow stage. Phones have no keyboard, so below 1024px a tap advances a card (left third goes back). At 1024px and up clicks do nothing, as before.
+- **`/hook`:** the headline scales with the viewport width.
+- Buttons and segmented items are 44px tall below 1024px (36px/32px before, at desktop sizes still).
+
+**Desktop identity (the hard rule)**
+- Method: built the commit before these changes (`git archive HEAD` into a scratch folder, `next build`/`next start`) and the new tree, loaded both at 1440x900 with animations frozen and videos paused, and diffed every visible element's position, size, display, font size, color, opacity and visibility.
+- Result: `/`, `/compare`, `/results`, `/pipeline`, `/story` and `/hook` all identical, 0 differences. The only structural change at desktop is one wrapper `<div>` around the Results stricter-test table, which has exactly the table's box. (Elements that are `display: none` at desktop, like the menu button, are excluded from the comparison by design.)
+
+**Verified (390x844 and 768x1024, production build, built-in browser):** no horizontal page scroll, nothing off-screen, no clipped text, no text under 12px, every button/link/input at least 40px, on `/`, `/compare`, `/results`, `/pipeline`; `/hook` headline fits at both sizes; all 7 story cards fit with no overflow; the menu opens and closes. eslint, tsc and `next build` pass.
+
+**Not verified:** a real phone (touch behaviour, safe-area insets, address-bar resizing); landscape; widths between 768 and 1023 other than 768; Safari. `/hook` still needs a keyboard (M to reveal the mask, Space to pause); it is a recording page.
+
+**Files touched:** `web/app/globals.css`, `app/story/story.css`, `app/{compare,results,pipeline,hook}/page.tsx`, `web/components/{TopBar,Dashboard,FeedTile,AlertCard,EventLog,ThresholdControl}.tsx`, `web/components/story/StoryStage.tsx`, `notes/web.md`. **Blockers:** None.
