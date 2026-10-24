@@ -311,3 +311,28 @@ Not run on a real 4K RipVIS video.
 **Not verified:** the model's quality (no inference or eval run); the weights are the "best" checkpoint from the Kaggle run as named by the user.
 
 **Next:** run `infer_video.py --weights ml/weights/best.pt` for the demo clips, then `eval_compare.py`. **Blockers:** None.
+
+## 2026-10-24 (real RipWatch vs Gemini comparison)
+**Written from the web teammate's laptop.**
+
+**Built:**
+- Moved `eval_frames.txt` and `baseline_raw.jsonl` from Downloads into `ml/results/`. Checked first: both plain text; 200 unique frames; 200 valid JSON lines on the same frames, all `gemini-3.5-flash-lite` / prompt `v1`, no errors.
+- `eval_frames.txt` already holds bare filenames (no `/kaggle/...` paths), so matching by name already worked. `common.read_eval_frames` now cuts any path to its name anyway.
+- Downloaded RipVIS val locally (`download_data.py --splits val --val-videos`, into git-ignored `ml/data/ripvis`) and built `ml/data/yolo/test` with `prepare_yolo.py --splits val`. All 200 frames found (150 rip, 50 no-rip), 30 rip videos.
+- `eval_compare.py`: `yolo_preds` now runs one image per `predict` call, keeps only normalized boxes, drops the Results object (and masks) each frame, and prints progress every 20 frames. The earlier all-at-once run was killed with exit 137 (out of memory). The new run finished in under 45 s. The notes string in `metrics.json` now says the 0.25 threshold came from the dev-set F1 curve, never from test data. That claim is the user's; the dev curve is not logged in this repo.
+- Ran `eval_compare.py --weights ml/weights/best.pt --baseline-model gemini-3.5-flash-lite --conf 0.25 --device cpu`. No API call (cached responses only). `web/public/data/metrics.json` now holds real numbers (the old fake file is replaced).
+
+**Results (200 held-out val frames):**
+
+| Level | Model | TP | FP | FN | P | R | F2 |
+|---|---|---|---|---|---|---|---|
+| Image | Gemini 3.5 Flash Lite | 39 | 2 | 111 | 0.951 | 0.260 | 0.304 |
+| Image | RipWatch | 108 | 5 | 42 | 0.956 | 0.720 | 0.757 |
+| Box (IoU 0.5) | Gemini 3.5 Flash Lite | 4 | 37 | 214 | 0.098 | 0.018 | 0.022 |
+| Box (IoU 0.5) | RipWatch | 105 | 58 | 113 | 0.644 | 0.482 | 0.507 |
+
+Image-level TN: Gemini 48, RipWatch 45. Gemini had 0 unparseable answers.
+
+**Files touched:** `ml/scripts/common.py`, `ml/scripts/eval_compare.py`, `ml/results/{eval_frames.txt,baseline_raw.jsonl,comparison.md}`, `web/public/data/metrics.json`, `notes/ml.md`.
+
+**Next:** put the numbers in the README Results section and the video script (both still `[TODO]`). Check `/results` and `/compare` in the browser against the real metrics. **Blockers:** None.
