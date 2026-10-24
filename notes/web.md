@@ -183,3 +183,30 @@ web/app/{globals.css, layout.tsx, page.tsx, compare/page.tsx, results/page.tsx, 
 - Very narrow windows (under about 1300px wide) were not part of the brief and were not checked.
 
 **Next:** when real clips and masks arrive, look at Command and Compare once at 1440x900 (the recording size) before recording.
+
+## 2026-10-24 - Baseline renamed to Gemini 3.5 Flash Lite
+**Folder note:** on the user's instruction this task also edited `ml/scripts/eval_compare.py` and `ml/scripts/baseline_vlm.py` (ML-owned), plus `README.md` and `docs/video-script.md`. Nothing in `web/public/data/` and no contract change.
+
+**Built**
+- The zero-shot baseline switches to Gemini 3.5 Flash Lite (free-tier quota). Every user-facing name now comes from the model id actually used, by one rule used in both languages:
+  - `gemini-3.5-flash-lite` → "Gemini 3.5 Flash Lite (zero-shot)".
+  - The first version number is kept; later numeric or `latest` tokens (dates, revisions) are dropped. For example, `gemini-2.5-flash-preview-05-20` → "Gemini 2.5 Flash Preview (zero-shot)".
+- **`ml/scripts/eval_compare.py`:** the hardcoded `GEMINI_NAME` is replaced by `gemini_display_name(--baseline-model)`. That name goes into `metrics.json` (so /results shows it) and the `comparison.md` heading.
+- **`ml/scripts/baseline_vlm.py`:** `DEFAULT_MODEL` is now `gemini-3.5-flash-lite` (was `gemini-3.8-flash`), so the README's plain `baseline_vlm.py` command runs the model the docs name. `eval_compare.py` and `baseline_video.py` take their default from it. Their cache is keyed by model, so any earlier 3.8-flash responses are not reused.
+- **`web/lib/clips.ts`:** `geminiDisplayName(id)` (same rule) builds the /compare pane title for any id containing "gemini"; the raw id still shows underneath. When the file has no `model` field, the fallback is now "Gemini (zero-shot)", with no version claimed.
+- **Docs:**
+  - `README.md` now names Gemini 3.5 Flash Lite (id included) in Evaluation, Results TODO and the run command, and says we used it because of free-tier limits.
+  - `docs/video-script.md` never said "Gemini Flash". Its metrics note now names the 3.5 Flash Lite baseline.
+
+**Verified**
+- Python and TypeScript give identical names for 7 ids (incl. uppercase, `models/` prefix, date and `-001`/`-latest` suffixes).
+- `write_metrics`/`write_markdown` with the default id writes "Gemini 3.5 Flash Lite (zero-shot)" to metrics.json and the comparison heading.
+- eslint, tsc, `next build` pass; `ml/tests/test_demo_clips.py` all pass.
+
+**Not verified:** /compare in the browser with a real baseline file (the fake one's model is not a Gemini id). No API was called.
+
+**Files touched:** `ml/scripts/eval_compare.py`, `ml/scripts/baseline_vlm.py`, `web/lib/clips.ts`, `README.md`, `docs/video-script.md`, `notes/web.md`
+
+**Next:** after the real baseline run, check /compare and /results show "Gemini 3.5 Flash Lite (zero-shot)".
+
+**Blockers:** None.
