@@ -183,3 +183,34 @@ Kaggle (GPU): the same commands with `!python ...` and `--device 0` instead of `
 !tar czf /kaggle/working/demo_masks.tgz web/public/data/masks ml/results/baseline_video
 ```
 Commit `web/public/data/masks/*.json` and `ml/results/baseline_video/*.jsonl`. Never commit the mp4s (git-ignored).
+
+## 2026-10-24 (demo clip shortlist from RipVIS val)
+**Written from the web teammate's laptop.** ML work for this task only: I edited `ml/`, `docs/` and `notes/ml.md`, nothing in `web/`.
+
+**Built:** `ml/scripts/find_clips.py`, run on this laptop. Shortlist and picks are in `docs/clip-candidates/README.md`, along with 8 contact sheets.
+- Downloads only `val/coco_annotations/val.json` and `RipVISv1.8.4_dataset_info.pdf` into `ml/data/ripvis/`, then only the shortlisted videos from `val/videos/` into `ml/data/videos/` (about 730 MB for 8 videos). All of it is git-ignored. It never touches train.
+- Excludes val 001, 007, 012, 014, 024 and 039. That leaves 24 val rip videos.
+- Per video, from the annotations: coverage, mean rip area / frame, area CV across rip frames, and instances per rip frame. fps, duration, resolution and source come from the PDF (parsed with `pypdf`, which is optional and not in `requirements.txt`; `pip install pypdf`). The PDF has no viewpoint field.
+- Ranking:
+  - clip1_obvious = coverage, large area, steadiness, single instance.
+  - clip2_sneaky = coverage, area in a 1.5-8% band, steadiness, single instance.
+  - Videos under 10 s are ineligible, and under 720p takes a 0.6 penalty.
+  - A video shortlisted for both roles stays where it ranks higher. 147 went to clip2 and 143 moved up for clip1.
+- Suggests a best window per candidate. Writes 6-frame contact sheets (plain on top, ground truth in red below) to `docs/clip-candidates/`. Full score tables go to `ml/data/clip_scores.md`.
+
+**Result (from looking at the sheets):**
+- **clip1_obvious: RipVIS-053, 0-15 s.** Fixed elevated camera over a beach with people, textbook calm gap between breakers, steadiest annotation (CV 0.04). 720p. Runner-up RipVIS-128 (4K drone, largest rip, 1-16 s).
+- **clip2_sneaky: RipVIS-129, 0-15 s.** Fixed hillside view of a postcard tropical bay, small (4.6% of the frame) rip that is easy to miss, static, 4K, 68 s long. Runner-up RipVIS-144 (0-13 s).
+
+**Decisions to check**
+- Coverage is 1.00 for every val rip video, so it does not separate candidates.
+- All 8 shortlisted clips are drone or elevated; no beach-level or phone view made it. Viewpoint was judged by eye after download.
+- Ground truth lines up on all 8 sheets, so frame numbers match for these videos.
+- Six candidates (including the clip2 pick) are 4K. `infer_video.py` keeps source resolution, so a 4K clip in the web dashboard may not play smoothly. A downscale option in the trim step is worth adding.
+- The contact sheets are small excerpts of RipVIS frames (CC BY-NC 4.0) committed to the public repo, with attribution in the README. The videos themselves stay git-ignored.
+
+**Files touched:** `ml/scripts/find_clips.py`, `docs/clip-candidates/*.jpg` (8), `docs/clip-candidates/README.md`, `notes/ml.md`
+
+**Next:** run the pick commands in `docs/clip-candidates/README.md` once `best.pt` exists, then check the masks on /compare. If 129's rip is too small to read at tile size, switch clip2 to 144.
+
+**Blockers:** None.
