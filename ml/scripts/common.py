@@ -53,7 +53,8 @@ def video_of(stem: str) -> tuple[str, str] | None:
 
 
 def read_eval_frames() -> list[str]:
-    return [ln.strip() for ln in EVAL_FRAMES.read_text().splitlines() if ln.strip()]
+    """Frame file names. Paths from another machine (/kaggle/working/yolo/test/...) are cut to the name."""
+    return [Path(ln.strip()).name for ln in EVAL_FRAMES.read_text().splitlines() if ln.strip()]
 
 
 def write_eval_frames(frames: list[str]) -> None:

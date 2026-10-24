@@ -126,20 +126,29 @@ def gemini_preds(frames: list[str], model: str, allow_missing: bool) -> tuple[di
     return preds, unparseable
 
 
-def yolo_preds(frames: list[str], test_dir: Path, weights: str, conf: float, imgsz: int, device: str) -> dict[str, Pred]:
+def yolo_preds(frames: list[str], test_dir: Path, weights: str, conf: float, imgsz: int, device: str,
+               progress_every: int = 20) -> dict[str, Pred]:
+    """One image per predict call. Only the normalized boxes (highest conf first) are kept; the Results
+    object, with its masks, is dropped before the next frame, so memory stays flat."""
+    import gc
+
     from ultralytics import YOLO
 
     model = YOLO(weights)
-    paths = [str(test_dir / "images" / f) for f in frames]
     preds: dict[str, Pred] = {}
-    for r in model.predict(source=paths, conf=conf, imgsz=imgsz, device=device, stream=True, verbose=False):
+    for n, f in enumerate(frames, 1):
+        path = test_dir / "images" / f
+        if not path.exists():
+            sys.exit(f"ERROR: image not found: {path}")
+        r = model.predict(source=str(path), conf=conf, imgsz=imgsz, device=device, verbose=False)[0]
         b = r.boxes
         order = b.conf.argsort(descending=True)
         boxes = [[float(c) for c in row] for row in b.xyxyn[order].tolist()]
-        preds[Path(r.path).name] = (bool(boxes), boxes)
-    lost = [f for f in frames if f not in preds]
-    if lost:
-        sys.exit(f"ERROR: YOLO returned no result for {len(lost)} frames, e.g. {lost[:3]}")
+        preds[f] = (bool(boxes), boxes)
+        del r, b, order
+        if n % progress_every == 0 or n == len(frames):
+            gc.collect()
+            print(f"  RipWatch inference: {n}/{len(frames)} frames", flush=True)
     return preds
 
 
@@ -215,7 +224,8 @@ def main() -> None:
         f"ground-truth box (the box around an annotated rip polygon) with IoU >= {IOU_THRESHOLD}, greedy "
         f"matching. F2 = 5PR/(4P+R) weights recall over precision, because missing a rip is worse than a "
         f"false alarm. Gemini: {args.baseline_model}, one fixed zero-shot prompt, unparseable answers count "
-        f"as no detection. RipWatch: confidence >= {args.conf}."
+        f"as no detection. RipWatch: confidence >= {args.conf}, a threshold chosen from the dev-set F1 curve "
+        f"(dev videos are carved out of train), never from test data."
     )
     write_metrics(results, len(frames), notes)
     write_markdown(results, [
