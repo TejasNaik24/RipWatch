@@ -1,25 +1,18 @@
 {
-  "fake": true,
   "models": [
     {
-      "name": "Zero-shot VLM",
-      "f2": 0.11,
-      "precision": 0.22,
-      "recall": 0.09
+      "name": "Gemini 3.5 Flash Lite (zero-shot)",
+      "f2": 0.0219,
+      "precision": 0.0976,
+      "recall": 0.0183
     },
     {
-      "name": "Baseline YOLO11s-seg",
-      "f2": 0.22,
-      "precision": 0.33,
-      "recall": 0.44
-    },
-    {
-      "name": "RipWatch YOLO11s-seg",
-      "f2": 0.99,
-      "precision": 0.99,
-      "recall": 0.99
+      "name": "RipWatch (fine-tuned YOLO11s-seg)",
+      "f2": 0.5072,
+      "precision": 0.6442,
+      "recall": 0.4817
     }
   ],
-  "heldOutFrames": 123,
-  "notes": "PLACEHOLDER NUMBERS - fake data, not real results"
+  "heldOutFrames": 200,
+  "notes": "Box-level scores on 200 held-out frames from the official RipVIS val split, never used in training: 150 rip frames spread across 30 rip videos and 50 no-rip frames, sampled with a fixed seed. A predicted box is correct if it overlaps an unmatched ground-truth box (the box around an annotated rip polygon) with IoU >= 0.5, greedy matching. F2 = 5PR/(4P+R) weights recall over precision, because missing a rip is worse than a false alarm. Gemini: gemini-3.5-flash-lite, one fixed zero-shot prompt, unparseable answers count as no detection. RipWatch: confidence >= 0.25, a threshold chosen from the dev-set F1 curve (dev videos are carved out of train), never from test data."
 }
