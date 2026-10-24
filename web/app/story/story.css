@@ -1,0 +1,165 @@
+/*
+ * /story: the video's title, stat and closing cards.
+ * Everything is sized from the stage (cqw/cqh), so the same cards fit 1920x1080, 1512x982 and
+ * 1440x900. It sits above the app's top bar (z-index) and has its own background, so nothing
+ * else shows in the frame. Colors come from the app's tokens in globals.css.
+ */
+.rw-story {
+  position: fixed;
+  inset: 0;
+  z-index: 50;
+  overflow: hidden;
+  container-type: size;
+  color: var(--ink);
+  background:
+    radial-gradient(1400px 520px at 50% -240px, rgba(79, 184, 172, 0.07), transparent 70%),
+    var(--bg);
+}
+
+.rw-story-layer {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 0 7cqw;
+  text-align: center;
+}
+
+/* Waterline: calm water behind the text; only transforms animate. */
+.rw-story-water {
+  position: absolute;
+  inset: auto 0 14cqh 0;
+  height: 14cqh;
+  pointer-events: none;
+}
+.rw-story-water svg {
+  position: absolute;
+  left: 0;
+  top: 0;
+  width: 200%;
+  height: 100%;
+  animation: rw-story-drift linear infinite;
+}
+@keyframes rw-story-drift {
+  to { transform: translateX(-50%); }
+}
+
+/* Entrances and exits */
+.rw-story-rise {
+  animation: rw-story-rise 700ms cubic-bezier(0.2, 0.8, 0.2, 1) both;
+  animation-delay: var(--d, 0ms);
+}
+@keyframes rw-story-rise {
+  from { opacity: 0; transform: translateY(14px); }
+  to { opacity: 1; transform: none; }
+}
+.rw-story-out {
+  pointer-events: none;
+  animation: rw-story-out 350ms ease-in both;
+}
+@keyframes rw-story-out {
+  to { opacity: 0; transform: translateY(-8px); }
+}
+
+/* Title card */
+.rw-story-mark {
+  display: grid;
+  place-items: center;
+  width: min(4.4cqw, 8cqh);
+  height: min(4.4cqw, 8cqh);
+  margin-bottom: 3.4cqh;
+  border: 1px solid rgba(79, 184, 172, 0.4);
+  border-radius: 9999px;
+  background: rgba(79, 184, 172, 0.1);
+  color: var(--sea);
+}
+.rw-story-mark svg {
+  width: 52%;
+  height: 52%;
+}
+.rw-story-title {
+  font-size: min(10cqw, 20cqh);
+  font-weight: 600;
+  line-height: 1;
+  letter-spacing: -0.035em;
+}
+.rw-story-subline {
+  margin-top: 3.6cqh;
+  font-size: min(2.6cqw, 5.2cqh);
+  color: var(--ink-2);
+}
+
+/* Stat cards */
+.rw-story-eyebrow {
+  margin-bottom: 2.4cqh;
+  font-size: min(1.5cqw, 3cqh);
+  font-weight: 500;
+  color: var(--sea);
+}
+.rw-story-number {
+  font-size: min(12cqw, 24cqh);
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+  line-height: 1.05;
+  letter-spacing: -0.04em;
+  white-space: nowrap;
+}
+.rw-story-label {
+  max-width: 24em;
+  margin-top: 2.2cqh;
+  font-size: min(2.9cqw, 5.8cqh);
+  line-height: 1.25;
+  text-wrap: balance;
+}
+.rw-story-source {
+  max-width: 82cqw;
+  margin-top: 5cqh;
+  font-size: min(1.3cqw, 2.6cqh);
+  line-height: 1.4;
+  color: var(--ink-2);
+  text-wrap: balance;
+}
+
+/* Bridge and closing cards */
+.rw-story-line {
+  max-width: 88cqw;
+  font-size: min(5cqw, 10cqh);
+  font-weight: 600;
+  line-height: 1.15;
+  letter-spacing: -0.025em;
+  text-wrap: balance;
+}
+.rw-story-line + .rw-story-line {
+  margin-top: 1.6cqh;
+}
+.rw-story-dim {
+  color: var(--ink-2);
+}
+.rw-story-credit {
+  margin-top: 9cqh;
+}
+.rw-story-credit-main {
+  font-size: min(1.9cqw, 3.8cqh);
+  font-weight: 500;
+}
+.rw-story-credit-team {
+  margin-top: 1cqh;
+  font-size: min(1.6cqw, 3.2cqh);
+  color: var(--ink-2);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .rw-story-rise,
+  .rw-story-out {
+    animation-delay: 0s !important;
+  }
+  .rw-story-out {
+    display: none;
+  }
+  .rw-story-water svg {
+    animation: none;
+  }
+}

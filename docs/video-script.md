@@ -7,11 +7,37 @@ Record at 1920x1080. Run the app with `npm run dev` in `web/`. Real clips and ma
 | Time | Section | Screen |
 |---|---|---|
 | 0:00-0:20 | Hook | `/hook` |
-| 0:20-0:45 | Problem | Footage plus text cards |
+| 0:20-0:45 | Problem | `/story` stat cards (keys below) |
 | 0:45-1:40 | Demo | `/`, `/compare`, `/` |
 | 1:40-2:15 | How it works | `/pipeline`, `/results` |
 | 2:15-2:45 | Responsible AI and limits | `/results` (Limits), failure clip |
-| 2:45-3:00 | Close | `/hook` |
+| 2:45-3:00 | Close | `/story` closing card (or `/hook`) |
+
+---
+
+## Story cards (`/story`)
+
+A full-screen, keyboard-driven sequence for recording the opening and close. It is not linked in the nav, has no on-screen controls, and covers the app's top bar, so only the card is in frame. Record at 1920x1080 (it also fits 1512x982 and 1440x900).
+
+**Keys:** `Right Arrow` or `Space` next card, `Left Arrow` back, `R` restart at the title card. It stops at the first and last card. Presses never block, so quick taps work; give each card its beat before moving on (numbers count up for about 1.5 s, second lines appear after about 1.5 s).
+
+| # | Card | Used in |
+|---|---|---|
+| 1 | Title: "RipWatch", "Seeing the danger swimmers can't." | Opening, optional, before the hook |
+| 2 | 300,000+ drowning deaths worldwide in 2021 (World Health Organization) | Problem, beat 1 |
+| 3 | 80%+ of rescues by US surf beach lifeguards involve rip currents (United States Lifesaving Association) | Problem, beat 2 |
+| 4 | 1 in 5 beachgoers could spot a real rip current in person (Muriwai Beach field study, *Natural Hazards and Earth System Sciences*, 2021) | Problem, beat 3 |
+| 5 | 17 drownings in Lake Erie in 2025 (according to the Great Lakes Surf Rescue Project) | Problem, beat 4 |
+| 6 | Bridge: "Rip currents look calm. That's what makes them deadly." | End of Problem |
+| 7 | Closing: "Rip currents are invisible. Now they don't have to be." + "RipWatch · HackOHI/O 2026" + team names | Close |
+
+**Notes:**
+- Only the four statistics above appear on the cards, with the sources listed under Sources. Say the same numbers in the voice-over: card 4 says "1 in 5", so say "about 1 in 5" (the study's figure is 22%).
+- Card 3 is "surf beach lifeguards", not all lifeguards. The USLA-based figure rests on voluntary lifeguard-agency reporting.
+- Card 5 is an advocacy group's count; keep "according to the Great Lakes Surf Rescue Project" in the voice-over. Re-check the 17 on their tracker before recording (the full-year 2025 total could not be confirmed from news coverage alone).
+- Card 2: WHO's own estimate for 2021 is "about 300,000"; the card says "300,000+". Fine to keep if the 2024 report's "more than 300,000" wording is what you cite.
+- Card 7 shows the placeholder `[Teammate name]` until `TEAMMATE_NAME` in `web/components/story/cards.ts` is filled in.
+- The word "deadly" on card 6 is the one red element (`.text-rip` in `StoryStage.tsx`).
 
 ---
 
@@ -32,7 +58,7 @@ Record at 1920x1080. Run the app with `npm run dev` in `web/`. Real clips and ma
 
 ## 0:20-0:45 Problem
 
-**Screen:** Open beach footage (the same clip, mask hidden). Add four text cards, one per beat: the drowning figure, the rip current figure, the "only 22%" line, the Lake Erie line. Keep the short source under each card (see Sources).
+**Screen:** `/story`, one card per beat (see Story cards below). Press `Right Arrow` or `Space` once per beat: the drowning figure, the rip current rescue figure, the "1 in 5" line, the Lake Erie line. Each card shows its short source under the number. Optionally cut to beach footage between cards.
 
 **Narration:**
 > Drowning killed more than 300,000 people worldwide in 2021.
@@ -111,7 +137,7 @@ Record at 1920x1080. Run the app with `npm run dev` in `web/`. Real clips and ma
 
 ## 2:45-3:00 Close
 
-**Screen:** `/hook` again, clip with the mask faded in over the rip. Hold on the final frame. Optionally end on the RipWatch wordmark.
+**Screen:** `/story` closing card (card 7: "Rip currents are invisible. Now they don't have to be.", then "RipWatch · HackOHI/O 2026" and the team names). Open `/story`, press `Right Arrow` six times (or `R` then six times) to reach it, and start recording when it appears. Alternative: `/hook` again with the mask faded in over the rip, ending on the RipWatch wordmark.
 
 **Narration:**
 > Rip currents are invisible.

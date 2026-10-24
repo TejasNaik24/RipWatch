@@ -231,3 +231,38 @@ web/app/{globals.css, layout.tsx, page.tsx, compare/page.tsx, results/page.tsx, 
 **Files touched:** `web/app/results/page.tsx`, `web/components/ResultsChart.tsx`, `web/lib/types.ts`, `notes/contract.md`, `ml/scripts/eval_compare.py`, `web/public/data/metrics.json`, `notes/web.md`
 
 **Next:** check Compare with real clips and masks before recording. **Blockers:** None.
+
+## 2026-10-24 11:45 - /story route for the video's title, stat and closing cards (written from the ML teammate's laptop)
+**Note:** this entry was written from the ML teammate's laptop; same arrangement as before (web work, web teammate not touching it). Only new files plus one section in `docs/video-script.md`; no existing page, `web/lib` or `web/public/data/` file was touched, and nothing was added to the nav.
+
+**Built**
+- `/story`: full-screen, keyboard-driven, seven cards. Right Arrow / Space next, Left Arrow back, R restart. Stops at both ends, ignores held keys and Cmd/Ctrl/Alt combos, prevents page scroll on Space and arrows, never blocks rapid taps.
+  1. Title: "RipWatch" / "Seeing the danger swimmers can't."
+  2. 300,000+ drowning deaths worldwide in 2021 (World Health Organization)
+  3. 80%+ of rescues by US surf beach lifeguards involve rip currents (United States Lifesaving Association)
+  4. 1 in 5 beachgoers could spot a real rip current in person (Muriwai Beach field study, Natural Hazards and Earth System Sciences, 2021)
+  5. 17 drownings in Lake Erie in 2025 (according to the Great Lakes Surf Rescue Project), with a small "Closer to home" line above (the Ohio angle, no branding)
+  6. Bridge: "Rip currents look calm. That's what makes them deadly." ("deadly" is the one red word)
+  7. Closing: "Rip currents are invisible. Now they don't have to be." then "RipWatch · HackOHI/O 2026" and "Tejas Naik · [Teammate name]"
+- Same design system: navy with the top wash, teal accent, a faint drifting "waterline" of three thin teal lines behind everything. Text is sized from the stage (`cqw`/`cqh`), so it scales across window sizes. The stage sits above the app's top bar (z-index 50, own background), so the nav never shows and `TopBar.tsx` is unchanged.
+- Motion: cards crossfade (old card fades and lifts 350ms, new rises 700ms, lines staggered). Numbers count up once each time a stat card appears (1.4s ease-out; "1 in 5" counts the 5 up from 1). Going back to a stat card replays it once. Reduced motion shows final values and no drift.
+- Big numbers use the UI face with tabular digits, not the mono face: in mono the comma took a full cell and read "300 , 000+".
+- `docs/video-script.md`: new "Story cards (`/story`)" section (keys, card table, where each card is recorded, caveats) and updated the Problem and Close screens to use it.
+
+**Files:** web/app/story/page.tsx, web/app/story/story.css, web/components/story/{StoryStage.tsx, CountUp.tsx, cards.ts}, docs/video-script.md, notes/web.md.
+
+**To fill in:** `TEAMMATE_NAME` in `web/components/story/cards.ts` (shows "[Teammate name]" on card 7).
+
+**Verified**
+- eslint, tsc and `next build` pass; `/story` is a static route and the other routes are unchanged.
+- At 1920x1080, 1512x982 and 1440x900: all seven cards checked for off-screen, clipped or wider-than-box text and page scroll: none; the top bar is fully covered on every card. Real key presses for the sequence; a scripted run checked the stop at both ends, Left, R, repeat/modifier keys ignored, Space default prevented, and four rapid taps leaving exactly one card.
+- Count-up sampled mid-animation (0, 54,274, 153,886 ... 300,000+); sources readable at 24px (1920) and above 18px at the smaller sizes.
+- Reduced motion (stubbed `matchMedia`): final value at 250ms. No console errors.
+
+**Check before recording the numbers**
+- 17 Lake Erie drownings in 2025: I found it in news coverage but could not confirm it is the group's full-year total. Re-check on the Great Lakes Surf Rescue Project's tracker.
+- 300,000+: WHO's own wording for 2021 is "about 300,000" (the 2024 report is cited as "more than 300,000" in the script).
+- 1 in 5: the study's figure is 22%; say "about 1 in 5" in the voice-over.
+- 80%+: a USLA-data study (NHESS 2019) found 81.9% of surf beach rescues; it rests on voluntary lifeguard-agency reporting.
+
+**Not verified:** Safari; the waterline's look after video compression (it is faint by design; opacities are in `StoryStage.tsx` if it needs to be stronger); windows narrower than about 1300px.
