@@ -286,3 +286,14 @@ Not run on a real 4K RipVIS video.
 **Next:** fill Results in the README and the metrics line in the script once the real evaluation has run. Put the user's name in Team.
 
 **Blockers:** None.
+
+## 2026-10-24 (video script: hook stat, metrics source)
+**Written from the web teammate's laptop.** Docs only.
+
+**Built:** `docs/video-script.md`:
+- The hook TODO now reads "Only about 1 in 5 beachgoers could spot a rip in person", with a note citing the Muriwai Beach study (22%, Sources 3).
+- The metrics note and the matching checklist item now say final numbers come from our `ml/scripts/eval_compare.py`, not `compute_pr_f1_f2.py`. This matches the README.
+
+**Files touched:** `docs/video-script.md`, `notes/ml.md`
+
+**Next:** fill the metrics once `eval_compare.py` has run. **Blockers:** None.

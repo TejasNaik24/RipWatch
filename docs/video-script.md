@@ -24,9 +24,9 @@ Record at 1920x1080. Run the app with `npm run dev` in `web/`. Real clips and ma
 >
 > *(Beat. Let the viewer look at the water. Press M.)*
 >
-> That smooth-looking patch is a rip current. [TODO: verified number: how often beachgoers pick the rip, or cut this clause and keep only the reveal]
+> That smooth-looking patch is a rip current. Only about 1 in 5 beachgoers could spot a rip in person.
 
-**Notes:** Hold two full seconds of silence on the question. The mask fade takes about 1.2 seconds. Do not narrate over the fade.
+**Notes:** "1 in 5" is the Muriwai Beach field study (22%, Sources 3). Hold two full seconds of silence on the question. The mask fade takes about 1.2 seconds. Do not narrate over the fade.
 
 ---
 
@@ -86,7 +86,7 @@ Record at 1920x1080. Run the app with `npm run dev` in `web/`. Real clips and ma
 **Notes:**
 - RipVIS figures (184 videos, 212,328 frames, 10 countries) are from the RipVIS paper (CVPR 2025), see Sources. Check that the `/pipeline` dataset line matches them before recording.
 - `/results` shows a PLACEHOLDER DATA badge while `metrics.json` has `"fake": true`. Do not record it until the badge is gone.
-- Metrics must come from the official `compute_pr_f1_f2.py` run on the held-out split, not from our own re-implementation.
+- Final numbers come from our `ml/scripts/eval_compare.py` (one scoring function for RipWatch and the Gemini baseline on the same 200 held-out frames, written to `web/public/data/metrics.json`), matching the README.
 
 ---
 
@@ -130,7 +130,7 @@ Record at 1920x1080. Run the app with `npm run dev` in `web/`. Real clips and ma
 - [x] Lake Erie figure with source (Problem)
 - [ ] What the baseline does on the sneaky clip (Demo)
 - [x] RipVIS video, frame and country count, from the paper (How it works); `/pipeline` text still to be checked against it
-- [ ] F2, precision, recall, held-out frame count from `compute_pr_f1_f2.py` (How it works)
+- [ ] F2, precision, recall, held-out frame count from `ml/scripts/eval_compare.py` (How it works)
 - [ ] A real failure case clip (Responsible AI)
 - [ ] Flash rip claim sourced or cut (Responsible AI)
 - [ ] Non-commercial license wording re-checked (Responsible AI)
