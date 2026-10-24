@@ -455,3 +455,9 @@ Checked `README.md` Team after pulling: it already reads "Tejas Naik" and "Sid G
 **Not verified**
 - One 225 ms frame was seen once in the "Darker water" beat; it did not repeat in a re-test (max 9.3 ms).
 - 1440x900 not re-screenshotted for the new beats (the stage scales as a unit).
+
+## 2026-10-24 20:10 — film: P / B recording keys and timing report (written from the web teammate's laptop)
+**Changed:** `film/assets/stage.js` (shared by all 10 scenes): **P** toggles `gsap.globalTimeline` pause (beats and loops; Space while paused resumes first); **B** reloads with `?skip=i-1&auto=1` and replays the previous beat from its start (beat 1 goes back to the empty first frame). No on-screen UI. `film/TIMING.md` (new): beat counts and durations per scene. `film/README.md`: keys documented.
+**Timing:** no scene's minimum length exceeds its budget (01 5.8/8, 02 4.6/10, 03 14.7/24, 04 12.1/20, 05 5.4/7, 06 10.1/12, 08 6.4/15, 09 7.6/17, 10 5.0/16, 11 6.2/12). Tightest: 06 and 05. Timing unchanged.
+**Verified (Chrome 1440x900, scene 03):** P froze beat progress at 0.27 for 1.5 s and resumed to the end; B moved `?skip=2` to `?skip=1&auto=1` and replayed that beat. `node --check` passes (no lint config in film/). **Not verified:** B/P in every scene individually (shared engine), 02's video keeps playing while paused.
+**Next/Blockers:** none.

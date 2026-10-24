@@ -10,8 +10,9 @@ Each scene is a fixed **1920×1080 stage scaled to fit the window** (letterbox b
 2. Open a scene, press `F11` / full screen, start the recorder.
 3. Press **Space** or **→** for the next beat.
 4. **R** restarts the scene (back to its empty first frame) if you need a retake.
+5. **P** pauses or resumes everything that is animating (beats and loops). **B** steps back one beat: the page reloads and replays the previous beat from its start (from beat 1 it goes back to the empty first frame). Neither shows anything on screen. Pressing Space while paused resumes first.
 
-Pressing a key while a beat is still playing finishes that beat; the next press starts the next beat. Held keys are ignored. Open a scene with `?skip=N` (for example `03-definition.html?skip=2`) to start with the first N beats already played, to pick up a take mid-scene.
+Pressing a key while a beat is still playing finishes that beat; the next press starts the next beat. Held keys are ignored. Timings per beat are in [`TIMING.md`](TIMING.md). Open a scene with `?skip=N` (for example `03-definition.html?skip=2`) to start with the first N beats already played, to pick up a take mid-scene.
 
 Internet access is needed once per page load (GSAP is loaded from cdnjs, pinned to 3.12.5 with an integrity hash). Fonts are embedded, so everything else works from `file://`.
 

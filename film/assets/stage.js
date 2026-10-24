@@ -6,6 +6,10 @@
  * Space or Right Arrow: play the next beat. If a beat is still playing, the press finishes it
  * instead (so nothing double-plays); the next press starts the next beat. R: back to the start.
  * Held keys are ignored. `?skip=N` in the URL starts with the first N beats already played.
+ * Recording aids (no on-screen UI): P pauses or resumes everything that is animating (GSAP's global
+ * timeline, so beat timelines and endless loops alike). B steps back one beat: the page reloads with
+ * the beats before the previous one already played (`?skip=i-1&auto=1`) and replays the previous beat
+ * from its start; from the first beat it goes back to the empty first frame.
  *
  * Rules for scenes: a beat returns a finite GSAP timeline. Endless loops (waves, pulses, streams)
  * are standalone tweens, created inside the beat function but NOT added to the returned timeline.
@@ -43,6 +47,7 @@
       if (reduce && tl) tl.progress(1, false);
     }
     function next() {
+      if (gsap.globalTimeline.paused()) gsap.globalTimeline.resume();
       // Finish a beat that is still playing before starting the next one.
       if (state.tl && state.tl.progress() < 1) {
         state.tl.progress(1, false);
@@ -61,6 +66,11 @@
         next();
       } else if (e.key === "r" || e.key === "R") {
         location.href = location.pathname;
+      } else if (e.key === "p" || e.key === "P") {
+        gsap.globalTimeline.paused(!gsap.globalTimeline.paused());
+      } else if (e.key === "b" || e.key === "B") {
+        // Replay the previous beat: i is the beat that last started, so the previous one is i - 1.
+        location.href = state.i >= 1 ? `${location.pathname}?skip=${state.i - 1}&auto=1` : location.pathname;
       }
     });
 
@@ -70,6 +80,7 @@
       play(state.i);
       if (state.tl) state.tl.progress(1, false);
     }
+    if (new URLSearchParams(location.search).get("auto") === "1") next();
   };
 
   // ------------------------------------------------------------------ helpers
