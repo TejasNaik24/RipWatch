@@ -138,3 +138,21 @@ web/app/{globals.css, layout.tsx, page.tsx, compare/page.tsx, results/page.tsx, 
 
 **Blockers**
 - Real clip1/clip2 mp4s and real model output (ML).
+
+## 2026-10-24 10:55 - Frame epsilon, baseline labels, Compare display names (written from the ML teammate's laptop)
+**Note:** this entry was written from the ML teammate's laptop; same arrangement as the redesign: I did web work in web/ and the web teammate was not touching it. Nothing in `web/public/data/`, `notes/contract.md` or `lib/data.ts` was changed.
+
+**Built**
+1. **Frame index epsilon.** New `lib/frames.ts` exports `frameIndex(t, fps) = floor(t * fps + 1e-3)`. `MaskedVideo.tsx` was the only place a frame index is computed and now calls it, so the sync logic is otherwise unchanged. Checked in Node at 30000/1001 fps: the old `floor(t * fps)` landed one frame early at 2,208 of 20,000 exact frame starts (about 11%); the new formula at 0, and mid-frame times still map to the right frame.
+2. **Baseline detections.** For `source === "baseline"`:
+   - the label reads "Gemini" with no percentage (RipWatch keeps "RIP nn%");
+   - the alert-threshold filter is skipped, because Gemini returns no score and every box carries conf 1.0. Checked in the browser: with the threshold at 95% the baseline box stays and RipWatch's fake 90% detection is filtered out. The status chip on the baseline side was already neutral ("Detection"), with no percentage.
+3. **Compare display names.** New `modelDisplay()` in `lib/clips.ts`: an id starting with "ripwatch" shows "RipWatch (fine-tuned)", an id containing "gemini" shows "Gemini Flash (zero-shot)" (both case-insensitive), with the raw id in small mono text underneath. Any other id is shown as is, with no second line (today's fake baseline file says `baseline-yolo11s-seg`, so it shows that until the real Gemini file arrives). A missing or blank `model`, or a mask file that fails to load, still falls back to the per-side titles after the same 1s wait. The pane header is now a fixed 76px with the raw-id line always reserved, so both panes stay level (checked: both videos start at the same y).
+
+**Files touched:** web/lib/frames.ts (new), web/components/MaskedVideo.tsx, web/lib/clips.ts, web/app/compare/page.tsx, notes/web.md
+
+**Verified:** eslint, tsc and `next build` pass. In the browser at 1920x1080: Compare with the baseline file's `model` rewritten in flight to "gemini-3.8-flash" showed "Gemini Flash (zero-shot)" over `gemini-3.8-flash` and "RipWatch (fine-tuned)" over `ripwatch-yolo11s-seg`; with mask requests blocked it showed the fallback titles with no raw ids; page height still exactly 1080; Command still shows "RIP 90%" / "RIP 55%" labels and the alert card; no console errors.
+
+**Not verified:** playback against a real fractional-fps clip with real masks (none yet); real Gemini baseline files (the demo scripts are written but not run).
+
+**Next:** once ML writes the real `*.baseline.json`, confirm its `model` field contains "gemini" so the friendly name and raw id show.

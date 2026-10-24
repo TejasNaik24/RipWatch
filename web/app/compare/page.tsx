@@ -6,7 +6,7 @@ import MaskedVideo from "@/components/MaskedVideo";
 import PageTransition from "@/components/PageTransition";
 import StatusPill from "@/components/StatusPill";
 import ThresholdControl from "@/components/ThresholdControl";
-import { CLIPS, DEFAULT_THRESHOLD, FALLBACK_MODEL_LABEL, SOURCE_LABEL } from "@/lib/clips";
+import { CLIPS, DEFAULT_THRESHOLD, SOURCE_LABEL, modelDisplay } from "@/lib/clips";
 import type { MaskFile, MaskSource } from "@/lib/types";
 import { useRipStatus } from "@/lib/useRipStatus";
 
@@ -38,20 +38,23 @@ function Side({
     const id = setTimeout(() => setWaited(true), 1000);
     return () => clearTimeout(id);
   }, []);
-  const title = file?.model?.trim() || (file || waited ? FALLBACK_MODEL_LABEL[source] : "");
+  const ready = !!file || waited;
+  const { title, rawId } = modelDisplay(file?.model, source);
 
   return (
     <section className="flex min-w-0 flex-1 flex-col gap-3">
-      <div className="flex h-14 items-end justify-between gap-4 px-1">
+      <div className="flex h-19 items-end justify-between gap-4 px-1">
         <div className="min-w-0">
           <div className="text-[13px] text-ink-3">{SOURCE_LABEL[source]}</div>
           <h2
             className={`mt-0.5 truncate text-xl font-semibold tracking-[-0.01em] transition-opacity duration-200 ${
-              title ? "opacity-100" : "opacity-0"
+              ready ? "opacity-100" : "opacity-0"
             }`}
           >
-            {title || " "}
+            {ready ? title : " "}
           </h2>
+          {/* Always takes up its line, so both panes stay level whether or not a raw id is shown. */}
+          <div className="h-4.5 truncate font-mono text-xs text-ink-3">{ready && rawId ? rawId : " "}</div>
         </div>
         <StatusPill active={status.active} tone={ripwatch ? "alert" : "neutral"} />
       </div>

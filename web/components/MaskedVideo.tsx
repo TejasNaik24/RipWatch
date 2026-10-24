@@ -3,6 +3,7 @@
 import { useEffect, useRef, useState, type MutableRefObject } from "react";
 import { clipVideoUrl } from "@/lib/clips";
 import { detectionsAt, loadMasks } from "@/lib/data";
+import { frameIndex } from "@/lib/frames";
 import type { Detection, MaskFile, MaskSource } from "@/lib/types";
 import { IconCameraOff } from "./Icons";
 
@@ -57,6 +58,7 @@ function drawDetections(
   dets: Detection[],
   scale: number,
   tone: Tone,
+  source: MaskSource,
 ) {
   const { fill: FILL, stroke: STROKE, labelBg, labelInk } = TONES[tone];
   ctx.clearRect(0, 0, file.width, file.height);
@@ -79,11 +81,12 @@ function drawDetections(
     ctx.strokeStyle = STROKE;
     ctx.stroke();
 
-    // Confidence label above the shape, kept inside the frame.
+    // Label above the shape, kept inside the frame. Gemini gives no score, so baseline boxes
+    // are labelled by name only; RipWatch shows its confidence.
     const b = bounds(d);
     const fs = 13 * scale;
     ctx.font = `600 ${fs}px ui-monospace, SFMono-Regular, Menlo, monospace`;
-    const text = `RIP ${Math.round(d.conf * 100)}%`;
+    const text = source === "baseline" ? "Gemini" : `RIP ${Math.round(d.conf * 100)}%`;
     const padX = 7 * scale;
     const h = fs + 8 * scale;
     const w = ctx.measureText(text).width + padX * 2;
@@ -230,13 +233,16 @@ export default function MaskedVideo({
       }
       if (timeRef) timeRef.current = t;
 
-      const idx = Math.floor(t * file.fps);
+      const idx = frameIndex(t, file.fps);
       if (idx !== lastIdx || dirty.current) {
         const changed = idx !== lastIdx;
         lastIdx = idx;
         dirty.current = false;
-        const dets = detectionsAt(file, idx).filter((d) => d.conf >= st.threshold);
-        if (st.showMask) drawDetections(ctx, file, dets, scale, st.tone);
+        // Gemini returns no score (every baseline box carries conf 1.0), so the alert threshold
+        // only applies to RipWatch's own detections.
+        const all = detectionsAt(file, idx);
+        const dets = source === "baseline" ? all : all.filter((d) => d.conf >= st.threshold);
+        if (st.showMask) drawDetections(ctx, file, dets, scale, st.tone, source);
         else ctx.clearRect(0, 0, file.width, file.height);
         if (changed) st.onFrame?.(dets);
       }
@@ -247,7 +253,7 @@ export default function MaskedVideo({
       cancelAnimationFrame(raf);
       ro.disconnect();
     };
-  }, [file, followTimeRef, timeRef]);
+  }, [file, followTimeRef, timeRef, source]);
 
   return (
     <div className={`relative overflow-hidden bg-[#05080c] @container ${className}`}>

@@ -22,11 +22,27 @@ export const SOURCE_LABEL: Record<MaskSource, string> = {
   ripwatch: "Fine-tuned",
 };
 
+export const RIPWATCH_DISPLAY = "RipWatch (fine-tuned)";
+export const GEMINI_DISPLAY = "Gemini Flash (zero-shot)";
+
 /** Pane title when a mask file has no "model" field (or could not load). */
 export const FALLBACK_MODEL_LABEL: Record<MaskSource, string> = {
-  baseline: "Gemini Flash (zero-shot)",
-  ripwatch: "RipWatch (fine-tuned)",
+  baseline: GEMINI_DISPLAY,
+  ripwatch: RIPWATCH_DISPLAY,
 };
+
+/**
+ * Friendly pane title for the "model" field of a mask file. Known ids get a display name and the
+ * raw id is returned too, to show underneath in small mono text. Any other id is shown as is.
+ * With no id (missing field, or the file did not load) the per-side fallback title is used.
+ */
+export function modelDisplay(model: string | undefined, source: MaskSource): { title: string; rawId: string | null } {
+  const id = model?.trim();
+  if (!id) return { title: FALLBACK_MODEL_LABEL[source], rawId: null };
+  if (/^ripwatch/i.test(id)) return { title: RIPWATCH_DISPLAY, rawId: id };
+  if (/gemini/i.test(id)) return { title: GEMINI_DISPLAY, rawId: id };
+  return { title: id, rawId: null };
+}
 
 export function clipVideoUrl(clipId: string) {
   return `/data/clips/${clipId}.mp4`;
