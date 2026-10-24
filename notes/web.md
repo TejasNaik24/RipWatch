@@ -210,3 +210,24 @@ web/app/{globals.css, layout.tsx, page.tsx, compare/page.tsx, results/page.tsx, 
 **Next:** after the real baseline run, check /compare and /results show "Gemini 3.5 Flash Lite (zero-shot)".
 
 **Blockers:** None.
+
+## 2026-10-24 14:35 - /results leads with image level (written from the web teammate's laptop; touches ml/ and the contract on purpose)
+**Contract change, explained:** `metrics.json` gained optional fields (see `notes/contract.md` section 3 and `notes/ml.md`): per model `imageLevel` and `boxLevel` (counts plus f2/precision/recall), top level `ripFrames` and `noRipFrames`. The old top-level `f2/precision/recall` stay box level. It is backward compatible, and `web/lib/types.ts` mirrors it with the new fields optional.
+
+**Built (`app/results/page.tsx`, `components/ResultsChart.tsx`, `lib/types.ts`)**
+- Headline card "Rips found in 150 held-out frames": RipWatch 108 vs Gemini 3.5 Flash Lite 39, with proportional bars. The sentence under it ("Both models are about 95% precise; the difference is how many rips they catch") is computed from the two image-level precisions and only appears when both are at least 0.90 and within 0.05; otherwise a neutral precision/recall line shows.
+- Main chart: image-level F2, precision, recall (RipWatch teal, baseline gray, same styling). `ResultsChart` takes `level`.
+- "Stricter test: rip location (box IoU >= 0.5)": compact table with box-level F2/precision/recall.
+- "How it was measured" is built from the JSON (frame counts, exact baseline name, RipWatch confidence parsed from `notes`).
+- Fallback: if any model lacks `imageLevel`, the old box-level layout renders unchanged (including the PLACEHOLDER badge for `fake: true`). The real file has no `fake` key, so no badge.
+
+**Verified**
+- eslint, tsc, `next build` pass; `ml/tests/test_demo_clips.py` ALL PASS.
+- `/results` at 1920x1080, 1512x982 and 1440x900 with the real file: no page scroll, nothing past the viewport, no text overflow, nothing sticking out of its card, no PLACEHOLDER text.
+- Fallback checked by rewriting the fetched metrics in flight (imageLevel removed, `fake: true`): old layout and badge rendered, no scrolling.
+
+**Not verified:** Safari; other window sizes; the headline/fallback wording with a three-model file (only RipWatch and the best baseline are shown in the headline card).
+
+**Files touched:** `web/app/results/page.tsx`, `web/components/ResultsChart.tsx`, `web/lib/types.ts`, `notes/contract.md`, `ml/scripts/eval_compare.py`, `web/public/data/metrics.json`, `notes/web.md`
+
+**Next:** check Compare with real clips and masks before recording. **Blockers:** None.
