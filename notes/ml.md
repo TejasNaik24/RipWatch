@@ -264,3 +264,25 @@ Not run on a real 4K RipVIS video.
 **Next:** run the pick commands once `best.pt` exists.
 
 **Blockers:** None.
+
+## 2026-10-24 (video script stats, README write-up)
+**Written from the web teammate's laptop.** Docs only: `docs/video-script.md`, root `README.md` and `notes/ml.md`. Nothing in `web/` or `ml/` code.
+
+**Built:**
+- `docs/video-script.md`, Problem section:
+  - The three `[TODO: verified number]` placeholders are replaced with the user-supplied figures: WHO 300,000+ drowning deaths in 2021; USLA 100+ US rip deaths a year and 80%+ of surf lifeguard rescues; Muriwai field study, 22% could identify a rip; Lake Erie 17 drownings in 2025 "according to the Great Lakes Surf Rescue Project".
+  - Notes say the WHO figure is all drowning (not rip-only) and the Lake Erie count is an advocacy group's.
+  - The RipVIS TODO in How it works now reads 184 videos, 212,328 frames, 10 countries (CVPR 2025), and the stale `/pipeline` note is updated.
+  - Added a Sources list at the bottom.
+  - Still TODO on purpose: metrics, what the baseline does on the sneaky clip, the failure case, the flash-rip clause, and the hook's "how often beachgoers pick the rip" (no sourced figure was given for it).
+- `README.md` rewritten as the hackathon write-up: one-liner, problem (only the stats above), pipeline, dataset and CC BY-NC 4.0 license, model, evaluation, Results `[TODO]`, Known limitations, how to run ml/ and web/, "Built at HackOHI/O 2026" (what was built vs. what already existed), Team (Tejas Naik plus a name placeholder).
+
+**Decisions to check**
+- Sources 1, 3, 4 and 5 have no links yet (only the USLA URL was given). The list says to add them before recording.
+- The README describes evaluation as our own shared scoring function (`eval_compare.py`), which is what the code does. The video script's note asks for metrics from the official `compute_pr_f1_f2.py`. If the final numbers come from that script instead, update both.
+
+**Files touched:** `docs/video-script.md`, `README.md`, `notes/ml.md`
+
+**Next:** fill Results in the README and the metrics line in the script once the real evaluation has run. Put the user's name in Team.
+
+**Blockers:** None.
