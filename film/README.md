@@ -21,7 +21,7 @@ Internet access is needed once per page load (GSAP is loaded from cdnjs, pinned 
 |---|---|---|
 | `01-hook.html` | White | 1. "Where / would / you / swim" rise in one by one, slightly zooming. 2. A cursor blinks, "?" types in |
 | `02-ocean.html` | White → navy | 1. The ocean video fades in, "Perhaps the ocean?". 2. "But…" as the palette turns dark. Needs `media/ocean.mp4` |
-| `03-definition.html` | Navy | 1. "What is a rip current?" with a drawn underline. 2. The definition slides up, source: National Weather Service. 3. Diagram: waves roll in, one channel flows out |
+| `03-definition.html` | Navy | 1. "What is a rip current?" with a drawn underline. 2. The definition slides up, source: National Weather Service. 3. Diagram: waves roll in, one channel flows out. 4. "How do you spot one?" (source: National Weather Service); the diagram dims behind it. 5-8. One clue per beat, each with a short label and a callout arrow: "A gap in the breaking waves", "Choppy, churning water", "Darker water", "Foam or debris drifting out to sea". 9. "These clues are subtle. Most people miss them." The clues are general NWS guidance, not a claim about which features RipWatch uses. About 7.4 s for beats 4-9 |
 | `04-stakes.html` | Navy | 1. 300,000 (WHO). 2. 80%+ (USLA). 3. 1 in 5 (Muriwai study, NHESS 2021). 4. Rip currents have taken lives on Lake Erie (Fox 8 Cleveland, WJW). Numbers count up |
 | `05-intro.html` | Navy | 1. The logo draws itself, the wordmark appears. 2. "A fine-tuned computer vision model that sees rip currents." |
 | `06-concept.html` | Navy | 1. Cameras pulse on an illustrated beach. 2. Viewfinder brackets, "RipWatch runs on the cameras beaches already have". 3. A red rip appears, an alert line reaches a tower, "Lifeguard alerted." |

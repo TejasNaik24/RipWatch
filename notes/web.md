@@ -440,3 +440,18 @@ Checked `README.md` Team after pulling: it already reads "Tejas Naik" and "Sid G
 - The sources shown in scene 04 are the ones given in the brief; the Lake Erie line cites Fox 8 Cleveland (WJW) as in the README.
 
 **Next:** drop in the media, record each scene at 1920x1080, and cut to the live app recording for 07.
+
+## 2026-10-24 — film/03-definition.html: "How do you spot one?" beats (written from the ML teammate's laptop)
+
+**Changed**
+- `film/03-definition.html` (still one file) now has 9 beats. New beats 4-9: title "How do you spot one?" with "Source: National Weather Service"; the existing wave diagram dims; four clues, one per beat, each with a label and a teal callout arrow ("A gap in the breaking waves", "Choppy, churning water", "Darker water", "Foam or debris drifting out to sea"); final line "These clues are subtle. Most people miss them."
+- Nothing on screen claims RipWatch uses these features.
+- `film/README.md` and `film/index.html` updated.
+
+**Verified (Chrome, 1920x1080)**
+- New beats run about 7.4 s total (title 1.7 s, clues about 1-1.1 s each, final 1.6 s). No text outside the stage, no JS errors, frames about 8.3 ms. Screenshots of the title beat and all four clues together checked.
+- Source line: debris and foam or sand plumes are described on NWS rip current pages (weather.gov/ilm/ripcurrents and the rip current science page).
+
+**Not verified**
+- One 225 ms frame was seen once in the "Darker water" beat; it did not repeat in a re-test (max 9.3 ms).
+- 1440x900 not re-screenshotted for the new beats (the stage scales as a unit).

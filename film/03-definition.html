@@ -15,6 +15,13 @@
   #src { top: 716px; }
   #ul { position: absolute; left: 0; top: 0; width: 1920px; height: 1080px; }
   #diagram { position: absolute; left: 0; top: 520px; width: 1920px; height: 560px; opacity: 0; }
+  /* "How do you spot one?" block, shown after the definition */
+  #title2 { top: 124px; font-size: 128px; }
+  #src2 { top: 318px; }
+  #ul2 { position: absolute; left: 0; top: 0; width: 1920px; height: 1080px; }
+  #final { position: absolute; left: 210px; top: 676px; width: 1500px; text-align: center; font-size: 76px; text-wrap: balance; }
+  .call { font: 500 38px var(--sans); fill: #e6edf3; stroke: #0e2630; stroke-width: 14px; paint-order: stroke; stroke-linejoin: round; }
+  .arr { stroke: #4fb8ac; stroke-width: 3.5; }
   .tag { font: 500 34px var(--sans); stroke: #0a0f15; stroke-width: 16px; paint-order: stroke; stroke-linejoin: round; }
 </style>
 </head>
@@ -29,6 +36,15 @@
     <p id="src" class="c source hidden">Source: National Weather Service</p>
   </div>
 
+  <div id="copy2">
+    <h1 id="title2" class="c title hidden">How do you spot one?</h1>
+    <svg id="ul2" viewBox="0 0 1920 1080" aria-hidden="true">
+      <path id="underline2" class="stroke" d="M790 282 H1130" stroke="#4fb8ac" stroke-width="7"/>
+    </svg>
+    <p id="src2" class="c source hidden">Source: National Weather Service</p>
+  </div>
+  <p id="final" class="line hidden">These clues are subtle. Most people miss them.</p>
+
   <!-- Top-down view: waves roll toward the shore, and one narrow channel flows back out. -->
   <svg id="diagram" viewBox="0 0 1920 560" aria-label="Waves coming in, one channel flowing out">
     <defs>
@@ -36,7 +52,17 @@
         <stop offset="0" stop-color="#ff3b3b" stop-opacity="0.22"/>
         <stop offset="1" stop-color="#ff3b3b" stop-opacity="0"/>
       </linearGradient>
+      <linearGradient id="waterTint" x1="0" y1="0" x2="0" y2="1">
+        <stop offset="0" stop-color="#0d222c"/>
+        <stop offset="1" stop-color="#10303a"/>
+      </linearGradient>
+      <radialGradient id="darkTint" cx="0.5" cy="0.5" r="0.5">
+        <stop offset="0" stop-color="#02070b" stop-opacity="0.92"/>
+        <stop offset="0.7" stop-color="#02070b" stop-opacity="0.55"/>
+        <stop offset="1" stop-color="#02070b" stop-opacity="0"/>
+      </radialGradient>
     </defs>
+    <rect id="water" x="0" y="0" width="1920" height="446" fill="url(#waterTint)" opacity="0"/>
     <rect id="sand" x="0" y="446" width="1920" height="114" fill="#10161f"/>
     <path id="shoreline" class="stroke" d="" stroke="#9daaba" stroke-opacity="0.55" stroke-width="3"/>
     <g id="waves"></g>
@@ -46,6 +72,27 @@
     <path id="head" class="stroke" d="M914 134 L960 80 L1006 134" stroke="#ff3b3b" stroke-width="12"/>
     <text id="lbW" class="tag hidden" x="330" y="262" fill="#4fb8ac" text-anchor="middle">Waves</text>
     <text id="lbR" class="tag hidden" x="1086" y="262" fill="#ff3b3b">Rip current</text>
+
+    <!-- Clues from the National Weather Service, one per beat. Teal and white only: these are
+         things to look for in the water, not the model. -->
+    <g id="clues" fill="none">
+      <!-- 1. a gap in the breaking waves -->
+      <path id="k1m" class="stroke" stroke="#e6edf3" stroke-width="4" d="M884 150 H1036 M884 136 V164 M1036 136 V164"/>
+      <path id="k1a" class="stroke arr" d="M808 152 L874 150 M858 138 L874 150 L858 162"/>
+      <text id="k1t" class="call hidden" x="796" y="164" text-anchor="end">A gap in the breaking waves</text>
+      <!-- 2. choppy, churning water -->
+      <g id="k2m" class="stroke" stroke="#cfe9e6" stroke-width="3.5"></g>
+      <path id="k2a" class="stroke arr" d="M1090 242 L1040 234 M1054 222 L1040 234 L1054 246"/>
+      <text id="k2t" class="call hidden" x="1104" y="256">Choppy, churning water</text>
+      <!-- 3. darker water -->
+      <ellipse id="k3p" cx="960" cy="378" rx="96" ry="84" fill="url(#darkTint)" opacity="0"/>
+      <path id="k3a" class="stroke arr" d="M808 392 L874 382 M858 370 L874 382 L856 394"/>
+      <text id="k3t" class="call hidden" x="796" y="406" text-anchor="end">Darker water</text>
+      <!-- 4. foam or debris drifting out to sea -->
+      <g id="k4m"></g>
+      <path id="k4a" class="stroke arr" d="M1090 92 L1032 94 M1046 82 L1032 94 L1046 106"/>
+      <text id="k4t" class="call hidden" x="1104" y="106">Foam or debris drifting out to sea</text>
+    </g>
   </svg>
 </div>
 
@@ -76,7 +123,36 @@
   const parts = [];
   for (let k = 0; k < 7; k++) parts.push(mk("circle", { r: 7, cx: 960 + (k % 3 - 1) * 26, cy: 0, fill: "#ff3b3b", opacity: 0 }, partG));
 
-  Film.prep(["#underline", "#arrow", "#head"]);
+  // ---- clue visuals
+  const chopG = document.getElementById("k2m");
+  const chops = [[198, 0], [226, 6], [254, 2]].map(([y, dx]) => {
+    let d = `M${894 + dx} ${y}`;
+    for (let i = 0; i < 8; i++) d += ` l9 ${i % 2 ? 9 : -9}`;
+    return mk("path", { d, class: "stroke" }, chopG);
+  });
+  const foamG = document.getElementById("k4m");
+  const foam = [];
+  for (let k = 0; k < 10; k++) {
+    const x = 912 + (k * 37) % 98, r = 4 + (k % 3) * 1.5;
+    foam.push(k % 3 === 2
+      ? mk("rect", { x, y: 0, width: 16, height: 5, rx: 2.5, fill: "#cfe9e6", opacity: 0, transform: `rotate(${(k * 23) % 60 - 30} ${x + 8} 2)` }, foamG)
+      : mk("circle", { cx: x, cy: 0, r, fill: "#dff3ef", opacity: 0 }, foamG));
+  }
+
+  Film.prep(["#underline", "#arrow", "#head", "#underline2", "#k1m", "#k1a", "#k2a", "#k3a", "#k4a", ...chops]);
+
+  // Choppy water jitters a little; foam and debris drift out to sea along the channel.
+  function startChop() {
+    chops.forEach((p, k) => gsap.to(p, { x: k % 2 ? -3 : 3, duration: 0.42 + k * 0.07, ease: "sine.inOut", repeat: -1, yoyo: true }));
+  }
+  function startFoam() {
+    foam.forEach((el, k) => {
+      gsap.fromTo(el, { y: 170 }, {
+        keyframes: { y: [170, 34], opacity: [0, 0.95, 0.95, 0], easeEach: "none" },
+        duration: 4.2, ease: "none", repeat: -1,
+      }).progress(k / foam.length);
+    });
+  }
 
   // Waves roll toward the shore forever; staggered so the sea looks steady from the first frame.
   function startWaves() {
@@ -125,6 +201,57 @@
         tl.call(startParticles, null, 3.0);
         tl.add(Film.rise("#lbW", { dy: 14 }), 2.2);
         tl.add(Film.rise("#lbR", { dy: 14 }), 3.0);
+        return tl;
+      },
+      // 4. A new question. The sea gets a tint so differences in the water can be seen, and the
+      //    red flow arrow recedes so it does not compete with the clues.
+      () => {
+        const tl = gsap.timeline();
+        tl.to("#copy", { opacity: 0, duration: 0.6 }, 0);
+        tl.add(Film.rise("#title2", { duration: 1.0 }), 0.3);
+        tl.add(Film.draw("#underline2", 0.8), 0.7);
+        tl.add(Film.rise("#src2", { duration: 0.7 }), 1.0);
+        tl.to("#water", { opacity: 1, duration: 1.0 }, 0);
+        tl.to(["#band", "#arrow", "#head", "#particles"], { opacity: 0.22, duration: 0.8 }, 0);
+        tl.to(["#lbW", "#lbR"], { opacity: 0, duration: 0.5 }, 0);
+        return tl;
+      },
+      // 5-8. One clue per beat: a marker in the water, a callout arrow, a short label.
+      () => {
+        const tl = gsap.timeline();
+        tl.add(Film.draw("#k1m", 0.6), 0);
+        tl.add(Film.draw("#k1a", 0.45), 0.35);
+        tl.add(Film.rise("#k1t", { dy: 10, duration: 0.55 }), 0.4);
+        return tl;
+      },
+      () => {
+        const tl = gsap.timeline();
+        chops.forEach((p, i) => tl.add(Film.draw(p, 0.5), i * 0.12));
+        tl.call(startChop, null, 0.5);
+        tl.add(Film.draw("#k2a", 0.45), 0.5);
+        tl.add(Film.rise("#k2t", { dy: 10, duration: 0.55 }), 0.55);
+        return tl;
+      },
+      () => {
+        const tl = gsap.timeline();
+        tl.to("#k3p", { opacity: 1, duration: 0.9 }, 0);
+        tl.add(Film.draw("#k3a", 0.45), 0.4);
+        tl.add(Film.rise("#k3t", { dy: 10, duration: 0.55 }), 0.45);
+        return tl;
+      },
+      () => {
+        const tl = gsap.timeline();
+        tl.call(startFoam, null, 0);
+        tl.add(Film.draw("#k4a", 0.45), 0.4);
+        tl.add(Film.rise("#k4t", { dy: 10, duration: 0.55 }), 0.45);
+        return tl;
+      },
+      // 9. The point: the clues are easy to miss.
+      () => {
+        const tl = gsap.timeline();
+        tl.to("#clues", { opacity: 0, duration: 0.6 }, 0);
+        tl.to("#diagram", { opacity: 0.28, duration: 0.9 }, 0);
+        tl.add(Film.rise("#final", { duration: 1.1 }), 0.5);
         return tl;
       },
     ],
