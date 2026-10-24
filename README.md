@@ -392,7 +392,7 @@ Pre-existing tools and data we used:
 ## Team
 
 - **Tejas Naik**
-- **[teammate name]**
+- **Sid Guddanti**
 
 ## Acknowledgments
 
