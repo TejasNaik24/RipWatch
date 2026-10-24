@@ -388,3 +388,21 @@ Image-level TN: Gemini 48, RipWatch 45. Gemini had 0 unparseable answers.
 **clip2 finding:** RipVIS-129 gets no RipWatch detections in the picked window. A raw single-frame probe at conf 0.05 (every 2 s over 0-60 s) never exceeded 0.27 and mostly gave 0. The same probe on RipVIS-144 (0-13 s, the listed runner-up) gave 0.36-0.68 on every sampled second; RipVIS-147 gave 0 and 146 at most 0.34. Suggested swap: clip2 = RipVIS-144, 0-13 s. Not switched without the user's OK.
 
 **Next:** user adds `ml/.env`; decide clip2; run `baseline_video.py` for the three clips; report Gemini hit rates; commit masks. **Blockers:** the API key; the clip2 decision.
+
+## 2026-10-24 14:55 (real demo clips: all six mask files, clip2 switched to RipVIS-144)
+**Written from the web teammate's laptop.**
+
+**Decision (user-approved):** clip2_sneaky is now **RipVIS-144, 0-13 s** (RipVIS-129 gave RipWatch no detections). `docs/clip-candidates/README.md` still lists 129 as the pick; update it if that table matters for the write-up.
+
+**Built:** `infer_video.py --conf 0.25` (smoothing on, renders in `ml/data/renders/`) and `baseline_video.py --model gemini-3.5-flash-lite --every 1.0` on all three clips. The six real mask JSONs are in `web/public/data/masks/` (replacing the fake ones; no `fake` key). Clips are local only. Gemini raw responses are in `ml/results/baseline_video/*.jsonl` (not committed on request).
+
+| Clip | Source | Resolution / fps | Length | RipWatch rip frames | Mean RipWatch conf | Gemini rip frames |
+|---|---|---|---|---|---|---|
+| clip1_obvious | 053, 0-15 s | 1280x720 / 29.97 | 15.02 s | 99.6% | 0.84 | 80.0% (12 of 15 sampled) |
+| clip2_sneaky | 144, 0-13 s | 1920x1080 / 59.94 | 13.01 s | 88.5% | 0.50 | 0.0% (0 of 14 sampled) |
+| clip3_norip | NR-004, full | 1920x1080 / 29.97 | 19.39 s | 0.0% | n/a | 10.2% (2 of 20 sampled: false alarms at 3 s and 16 s) |
+
+Gemini's rate is the share of frames showing a box, with each answer held until the next sampled frame (one frame per second). Mean conf is over RipWatch's detected frames. RipWatch's smoothed conf is a mean heatmap value, so it reads lower than raw conf: 0.50 on clip2 is near the web's 0.5 default threshold, and the web `DEFAULT_THRESHOLD` is 0.5: on clip2 only 42% of frames reach conf 0.5 (76% reach 0.4, 87% reach 0.3), so the dashboard would show the rip on well under half the frames at the default. Lower the web default or the `--on-thresh` (decision for the web teammate).
+
+**Files touched:** `web/public/data/masks/*.json` (6 files), `notes/ml.md`.
+**Next:** look at Compare and Command with the real masks; fix the threshold if clip2 flickers. **Blockers:** None.
