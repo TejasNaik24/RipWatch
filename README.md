@@ -37,8 +37,7 @@ Rip currents are narrow channels of water flowing away from the shore. They ofte
 - **Drowning is a global killer.** The World Health Organization estimates **300,000 drowning deaths worldwide in 2021**. ([WHO, drowning fact sheet](https://www.who.int/news-room/fact-sheets/detail/drowning))
 - **Rip currents dominate surf rescues.** According to the United States Lifesaving Association, rip currents are involved in **more than 80% of rescues by US surf beach lifeguards**. ([USLA, rip currents](https://www.usla.org/page/ripcurrents))
 - **People cannot see them.** In a field study at Muriwai Beach, New Zealand, only **about 1 in 5 beachgoers (22%)** could spot a real rip current in person. ([Natural Hazards and Earth System Sciences, 2021](https://nhess.copernicus.org/articles/21/115/2021/))
-- **It is not only an ocean problem.** Rip currents have taken lives on Lake Erie. ([Fox 8 Cleveland (WJW)](https://fox8.com/news/10-year-old-girl-hospitalized-after-edgewater-beach-rescue-has-died/))
-  <!-- TODO: fox8.com blocks automated access; open this link in a browser once to confirm it before submitting. -->
+- **It is not only an ocean problem.** Rip currents have taken lives on Lake Erie: in 2013, a Madison, Ohio middle school student drowned in the lake after being pulled out by a rip current. ([Fox 8 Cleveland (WJW)](https://www.yahoo.com/news/preventing-drownings-lake-erie-2025-200557140.html))
 
 Lifeguards cannot watch every stretch of water every second. RipWatch is a second pair of eyes on the camera feed.
 
@@ -184,7 +183,8 @@ flowchart TB
 | Input size | 640 px |
 | Hardware | Kaggle, 2× NVIDIA T4 (DDP) |
 | Schedule | Up to 40 epochs, early stopping after 10 epochs without improvement on dev |
-| Epochs actually trained, training time | **TODO** (not recorded in this repo) |
+| Training time | About 2.5 hours on 2× T4, including data download and preparation |
+| Epochs actually trained | **TODO** (`ml/results/train_s/results.csv` is not in this repo; count its rows once it is added) |
 | Held-out test, mask mAP50 | **0.615** (precision 0.69, recall 0.55; Ultralytics segmentation validation on the held-out test split) |
 | Operating threshold | **0.25** confidence, chosen from the dev-set F1 curve, never from test data |
 

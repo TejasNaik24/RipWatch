@@ -368,3 +368,13 @@ web/app/{globals.css, layout.tsx, page.tsx, compare/page.tsx, results/page.tsx, 
 - The screenshots (TODO).
 - The Fox 8 page itself.
 - The story Lake Erie card still cites the Great Lakes Surf Rescue Project while the README now cites Fox 8; not changed here.
+
+## 2026-10-24 16:10 - Lake Erie source and README training time (written from the ML teammate's laptop)
+**Note:** written from the ML teammate's laptop; same arrangement as before. Docs only.
+
+**Changed**
+- Lake Erie source: the Fox 8 Edgewater link is gone from `README.md` (and its hidden TODO comment). It now cites Fox 8 Cleveland (WJW), "Preventing drownings on Lake Erie in 2025" (April 1, 2025), syndicated at https://www.yahoo.com/news/preventing-drownings-lake-erie-2025-200557140.html. I fetched it: it is credited to WJW and says a Madison Middle School student drowned in Lake Erie in 2013 after being pulled out by a rip current on a private beach. The README says "a Madison, Ohio middle school student" and does not name the student.
+- `docs/video-script.md`: Lake Erie narration, card-5 note, notes, card sources, Sources entry 4 and the TODO list now cite Fox 8 Cleveland (WJW) for that one incident, with a "do not say recurring, do not give a number, do not name the student" note.
+- README training: "About 2.5 hours on 2x T4, including data download and preparation". `ml/results/train_s/results.csv` does not exist in the repo, so "epochs actually trained" stays a TODO with the file to count.
+
+**Open:** the `/story` Lake Erie card (`web/components/story/cards.ts`) still says source "Great Lakes Surf Rescue Project" and the subline "Rip currents are a recurring factor in Lake Erie drownings." The new source supports one incident, not "recurring". Not changed here (not asked); the script's TODO list flags it.
