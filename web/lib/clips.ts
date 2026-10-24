@@ -14,7 +14,12 @@ export const CLIPS: ClipMeta[] = [
   { id: "clip3_norip", camera: "CAM 03", location: "South Cove, Tower 7" },
 ];
 
-export const DEFAULT_THRESHOLD = 0.5;
+/**
+ * Alert threshold on RipWatch's smoothed conf (a mean heatmap value, so it reads lower than raw conf).
+ * On the real masks: clip1 sits at 0.54-0.87, clip2 at 0.26-0.69 (mean 0.50) and clip3 has no detections.
+ * At 0.5 clip2 shows the rip on 42% of frames with 31 on/off switches; at 0.3, 87% with 9.
+ */
+export const DEFAULT_THRESHOLD = 0.3;
 
 /** Role of each side in /compare. */
 export const SOURCE_LABEL: Record<MaskSource, string> = {

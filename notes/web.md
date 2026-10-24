@@ -290,3 +290,15 @@ web/app/{globals.css, layout.tsx, page.tsx, compare/page.tsx, results/page.tsx, 
 **Verified:** eslint, tsc and `next build` pass. Card 5 at 1920x1080 and 1440x900: no digits on the card, no off-screen or clipped text, no page scroll; card 6 unaffected.
 
 **Still to check before recording:** that "a recurring factor in Lake Erie drownings" matches the Great Lakes Surf Rescue Project's own published wording (it is listed as an open item in the script).
+
+## 2026-10-24 14:50 - Alert threshold default 0.5 -> 0.3 (real masks)
+**Why:** the real RipWatch masks carry the smoothed conf (a mean heatmap value, lower than raw conf; see notes/ml.md). Per-frame top conf: clip1 0.54-0.87 (mean 0.84), clip2 (RipVIS-144) 0.26-0.69 (mean 0.50), clip3 no detections. At the old default of 0.5, clip2 showed the rip on only 42% of frames with 31 on/off switches, and in the browser Compare dropped to "Clear" with the rip still in view.
+
+**Changed:** `DEFAULT_THRESHOLD` in `web/lib/clips.ts` is now 0.3 (used by Command, Compare and Hook), with a comment giving the numbers. Offline per-threshold coverage / on-off switches on clip2: 0.5 = 42% / 31; 0.4 = 76% / 25; 0.35 = 83% / 15; 0.3 = 87% / 9; 0.2 = 88% / 7. 0.3 keeps clip1 at 100% and clip3 at 0% (no false alarms on the no-rip clip); going lower only adds the faintest frames. The slider still goes from 5% to 95%. Baseline boxes ignore the threshold (they carry conf 1.0), unchanged.
+
+**Verified (built-in browser, 1440x900, real clips and masks):** Command shows 3 of 3 streaming, CAM 01 and CAM 02 in alert with mask labels (85%, 61%, 48%, 62%), CAM 03 "Clear", event log entries. Compare on CAM 02 at 30%: RipWatch shows the rip on about 85% of a 13 s pass with 4 status switches, against Clear at 0.5. Baseline (Gemini 3.5 Flash Lite) pane stays Clear on CAM 02. eslint, tsc, `next build` pass.
+
+**Not verified:** a full layout recheck with real clips at the three recording sizes (nothing in layout changed); Safari; other thresholds in the browser.
+
+**Files touched:** `web/lib/clips.ts`, `notes/web.md`
+**Next:** record the demo at 1440x900 and confirm the threshold wording in the video script (it does not mention a threshold). **Blockers:** None.
