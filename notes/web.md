@@ -411,3 +411,6 @@ web/app/{globals.css, layout.tsx, page.tsx, compare/page.tsx, results/page.tsx, 
 
 ## 2026-10-24 17:15 - Story credit filled in
 `TEAMMATE_NAME` in `web/components/story/cards.ts` is now "Sid Guddanti", so the closing card reads "Tejas Naik · Sid Guddanti". The matching line in `docs/video-script.md` is updated (docs edited on the user's request). `README.md` Team still has the "[your name]" placeholder; not touched. eslint and tsc pass; not checked in the browser. **Files touched:** `web/components/story/cards.ts`, `docs/video-script.md`, `notes/web.md`. **Blockers:** None.
+
+## 2026-10-24 17:20 - README Team already lists Sid Guddanti
+Checked `README.md` Team after pulling: it already reads "Tejas Naik" and "Sid Guddanti" (the `[your name]` placeholder was removed in the README rewrite on `main`). No change needed. **Files touched:** `notes/web.md`. **Blockers:** None.
