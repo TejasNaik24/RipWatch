@@ -32,18 +32,24 @@ Record at 1920x1080. Run the app with `npm run dev` in `web/`. Real clips and ma
 
 ## 0:20-0:45 Problem
 
-**Screen:** Open beach footage (the same clip, mask hidden). Add three text cards, one per beat: the drowning figure, the "invisible" line, the Lake Erie line. Keep sources on screen.
+**Screen:** Open beach footage (the same clip, mask hidden). Add four text cards, one per beat: the drowning figure, the rip current figure, the "only 22%" line, the Lake Erie line. Keep the short source under each card (see Sources).
 
 **Narration:**
-> Rip currents cause [TODO: verified number: annual rip current drownings or rescues, with source].
+> Drowning killed more than 300,000 people worldwide in 2021.
 >
-> And [TODO: verified number: share of beachgoers who cannot identify a rip current, with source] cannot see them. They look like the safest water on the beach.
+> In the United States, rip currents cause an estimated 100 or more deaths a year, and more than 80% of rescues by surf beach lifeguards.
 >
-> This is not only an ocean problem. On Lake Erie, [TODO: verified number: Lake Erie rip current incident or fatality count, with source].
+> And they are hard to see. In a field study at a New Zealand beach, only 22% of beachgoers could pick out a real rip current. They look like the safest water on the beach.
+>
+> This is not only an ocean problem. Lake Erie saw 17 drownings in 2025, according to the Great Lakes Surf Rescue Project.
 >
 > Lifeguards cannot watch every stretch of water at every moment.
 
-**Notes:** If we cannot source a line, cut that line and keep the rest. Do not say "thousands" or "most" without a number behind it.
+**Notes:**
+- The WHO figure is all drowning, not only rip currents. Do not say rip currents killed 300,000.
+- The Lake Erie figure is all drownings counted by an advocacy group, not an official or rip-only count. Keep the "according to" attribution on screen and in the voice-over.
+- Card sources: WHO 2024; USLA; NHESS 2021; Great Lakes Surf Rescue Project.
+- Do not add any statistic that is not in Sources.
 
 ---
 
@@ -73,12 +79,12 @@ Record at 1920x1080. Run the app with `npm run dev` in `web/`. Real clips and ma
 **Narration:**
 > *(Pipeline.)* A beach camera feeds video into RipWatch. The video is split into frames. A YOLO11 segmentation model, fine-tuned for rip currents, outlines the rip on each frame. Temporal smoothing keeps the result steady across frames, so the alert does not flicker. Then a lifeguard is alerted.
 >
-> It was trained on RipVIS, an open dataset of rip current video. [TODO: verified number: RipVIS video count and countries, from the dataset paper or card]
+> It was trained on RipVIS, an open dataset of rip current video: 184 videos, 212,328 frames, filmed in 10 countries.
 >
 > *(Results.)* We measure it the way a lifeguard would care about. Missing a rip is worse than a false alarm, so we report F2, which weights recall above precision. On held-out video, RipWatch scores [TODO: verified number: RipWatch F2], against [TODO: verified number: baseline F2] for the baseline. Precision [TODO: verified number], recall [TODO: verified number], over [TODO: verified number: held-out frame count] frames.
 
 **Notes:**
-- The `/pipeline` page currently shows "184 expert-annotated videos, 10 countries". The dataset card confirms 184 videos, 150 of them with annotated rips. It does not state the country count or "expert-annotated". Verify against the RipVIS paper or fix the page before recording.
+- RipVIS figures (184 videos, 212,328 frames, 10 countries) are from the RipVIS paper (CVPR 2025), see Sources. Check that the `/pipeline` dataset line matches them before recording.
 - `/results` shows a PLACEHOLDER DATA badge while `metrics.json` has `"fake": true`. Do not record it until the badge is gone.
 - Metrics must come from the official `compute_pr_f1_f2.py` run on the held-out split, not from our own re-implementation.
 
@@ -119,12 +125,24 @@ Record at 1920x1080. Run the app with `npm run dev` in `web/`. Real clips and ma
 ## Open TODOs before recording
 
 - [ ] Real clips (`clip1_obvious`, `clip2_sneaky`, `clip3_norip`) and real masks in `web/public/data/`
-- [ ] Drowning and rescue figure with source (Problem)
-- [ ] Share of people who cannot identify a rip, with source (Problem)
-- [ ] Lake Erie figure with source (Problem)
+- [x] Drowning and rescue figures with source (Problem)
+- [x] Share of people who cannot identify a rip, with source (Problem)
+- [x] Lake Erie figure with source (Problem)
 - [ ] What the baseline does on the sneaky clip (Demo)
-- [ ] RipVIS video count and country count, checked against the paper (How it works, `/pipeline`)
+- [x] RipVIS video, frame and country count, from the paper (How it works); `/pipeline` text still to be checked against it
 - [ ] F2, precision, recall, held-out frame count from `compute_pr_f1_f2.py` (How it works)
 - [ ] A real failure case clip (Responsible AI)
 - [ ] Flash rip claim sourced or cut (Responsible AI)
 - [ ] Non-commercial license wording re-checked (Responsible AI)
+
+---
+
+## Sources
+
+Only these statistics may appear in the video. Add the link for each before recording if it is not here.
+
+1. World Health Organization, *Global Status Report on Drowning Prevention* (December 2024): more than 300,000 drowning deaths worldwide in 2021.
+2. United States Lifesaving Association, Rip Currents, usla.org/page/ripcurrents: rip currents cause an estimated 100+ deaths a year in the US and more than 80% of rescues by surf beach lifeguards.
+3. Field study at Muriwai Beach, New Zealand, *Natural Hazards and Earth System Sciences* (2021): only 22% of beachgoers could identify a real rip current in person.
+4. Great Lakes Surf Rescue Project: 17 drownings in Lake Erie in 2025. An advocacy group's count; always attribute it ("according to the Great Lakes Surf Rescue Project").
+5. RipVIS dataset paper (CVPR 2025): 184 videos, 212,328 frames, footage from 10 countries.
