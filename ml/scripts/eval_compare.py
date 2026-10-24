@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Score zero-shot Gemini Flash and fine-tuned RipWatch YOLO on the same held-out frames.
+"""Score the zero-shot Gemini baseline and fine-tuned RipWatch YOLO on the same held-out frames.
 
     !python ml/scripts/eval_compare.py --weights /kaggle/input/<dataset>/best.pt
 
@@ -14,6 +14,7 @@ from __future__ import annotations
 
 import argparse
 import json
+import re
 import sys
 from pathlib import Path
 
@@ -21,9 +22,26 @@ sys.path.insert(0, str(Path(__file__).resolve().parent))  # find common.py even 
 import common  # noqa: E402
 from baseline_vlm import DEFAULT_MODEL, PROMPT_VERSION  # noqa: E402
 
-GEMINI_NAME = "Gemini Flash (zero-shot)"
 RIPWATCH_NAME = "RipWatch (fine-tuned YOLO11s-seg)"
 IOU_THRESHOLD = 0.5
+
+
+
+def gemini_display_name(model_id: str) -> str:
+    """Display name from the model id actually used: "gemini-3.5-flash-lite" -> "Gemini 3.5 Flash Lite (zero-shot)".
+    Keeps the first version number, drops later numeric or "latest" tokens (dates, revisions).
+    web/lib/clips.ts (geminiDisplayName) uses the same rule for the /compare titles."""
+    tokens = [t for t in model_id.strip().removeprefix("models/").split("-") if t]
+    words, seen_version = [], False
+    for t in tokens:
+        if re.fullmatch(r"\d+(\.\d+)*", t):
+            if not seen_version:
+                words.append(t)
+                seen_version = True
+        elif t.lower() != "latest":
+            words.append(t.capitalize())
+    return f"{' '.join(words)} (zero-shot)"
+
 
 # A prediction per frame: (rip present?, boxes in matching order, normalized [x1, y1, x2, y2]).
 Pred = tuple[bool, list[common.Box]]
@@ -142,8 +160,8 @@ def write_metrics(results: dict[str, dict], n_frames: int, notes: str) -> None:
     print(f"wrote {common.METRICS_JSON}")
 
 
-def write_markdown(results: dict[str, dict], header: list[str]) -> None:
-    lines = ["# Gemini Flash vs RipWatch on held-out frames", "", *header, ""]
+def write_markdown(results: dict[str, dict], header: list[str], baseline_name: str) -> None:
+    lines = [f"# {baseline_name} vs RipWatch on held-out frames", "", *header, ""]
     for level, title in (("image", "Image level: is there a rip?"), ("box", f"Box level: IoU >= {IOU_THRESHOLD}, greedy")):
         lines += [f"## {title}", "", "| Model | TP | FP | FN | Precision | Recall | F2 |", "|---|---|---|---|---|---|---|"]
         for name, r in results.items():
@@ -179,7 +197,8 @@ def main() -> None:
 
     gemini, unparseable = gemini_preds(frames, args.baseline_model, args.allow_missing)
     ripwatch = yolo_preds(frames, args.test_dir, args.weights, args.conf, args.imgsz, args.device)
-    results = {GEMINI_NAME: score(gemini, gts), RIPWATCH_NAME: score(ripwatch, gts)}
+    baseline_name = gemini_display_name(args.baseline_model)
+    results = {baseline_name: score(gemini, gts), RIPWATCH_NAME: score(ripwatch, gts)}
 
     print(f"\n{'model':36s} {'level':6s} {'TP':>5s} {'FP':>5s} {'FN':>5s} {'P':>7s} {'R':>7s} {'F2':>7s}")
     for name, r in results.items():
@@ -209,7 +228,7 @@ def main() -> None:
         "F2 = 5PR/(4P+R)",
         f"- Image level also has true negatives: "
         + ", ".join(f"{n} TN = {r['image']['tn']}" for n, r in results.items()),
-    ])
+    ], baseline_name)
 
 
 if __name__ == "__main__":

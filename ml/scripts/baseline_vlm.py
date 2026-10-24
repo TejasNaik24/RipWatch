@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Zero-shot Gemini Flash baseline on a fixed sample of held-out frames.
+"""Zero-shot Gemini baseline on a fixed sample of held-out frames.
 
     !python ml/scripts/baseline_vlm.py                 # rerun the same cell to resume
 
@@ -27,7 +27,7 @@ from pathlib import Path
 sys.path.insert(0, str(Path(__file__).resolve().parent))  # find common.py even under python -I
 import common  # noqa: E402
 
-DEFAULT_MODEL = "gemini-3.8-flash"  # latest stable Flash on ai.google.dev/gemini-api/docs/models (Oct 2026)
+DEFAULT_MODEL = "gemini-3.5-flash-lite"  # free-tier quota; eval_compare.py names the baseline from this id
 PROMPT_VERSION = "v1"  # bump if PROMPT changes, so old responses are not mixed with new ones
 PROMPT = (
     "This is a single frame from a camera looking at a beach. "
