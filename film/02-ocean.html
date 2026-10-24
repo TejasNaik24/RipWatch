@@ -60,10 +60,16 @@
       gsap.to(p, { x: k % 2 ? 90 : -90, duration: 9 + k, ease: "sine.inOut", repeat: -1, yoyo: true });
     }
   }
-  vid.addEventListener("error", usePlaceholder);
   vid.addEventListener("loadeddata", () => vid.play().catch(() => {}));
-  // A missing file over file:// does not always raise an error event; check shortly after load.
-  setTimeout(() => { if (vid.readyState === 0 && !ph.classList.contains("on")) usePlaceholder(); }, 1500);
+  // The scene ignores Space until the video can play through; after 6 s (or on an error) it uses the placeholder.
+  Film.hold(new Promise((done) => {
+    if (vid.readyState >= 4) return done();
+    // An error that fired before this script ran (a 404 can beat the GSAP script) is not replayed as an event.
+    if (vid.error || vid.networkState === HTMLMediaElement.NETWORK_NO_SOURCE) { usePlaceholder(); return done(); }
+    vid.addEventListener("canplaythrough", done, { once: true });
+    vid.addEventListener("error", () => { usePlaceholder(); done(); }, { once: true });
+    setTimeout(() => { if (vid.readyState < 4) usePlaceholder(); done(); }, 6000);
+  }));
 
   Film.run({
     beats: [

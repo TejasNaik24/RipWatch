@@ -461,3 +461,8 @@ Checked `README.md` Team after pulling: it already reads "Tejas Naik" and "Sid G
 **Timing:** no scene's minimum length exceeds its budget (01 5.8/8, 02 4.6/10, 03 14.7/24, 04 12.1/20, 05 5.4/7, 06 10.1/12, 08 6.4/15, 09 7.6/17, 10 5.0/16, 11 6.2/12). Tightest: 06 and 05. Timing unchanged.
 **Verified (Chrome 1440x900, scene 03):** P froze beat progress at 0.27 for 1.5 s and resumed to the end; B moved `?skip=2` to `?skip=1&auto=1` and replayed that beat. `node --check` passes (no lint config in film/). **Not verified:** B/P in every scene individually (shared engine), 02's video keeps playing while paused.
 **Next/Blockers:** none.
+
+## 2026-10-24 20:30 — film: wait for media before the first beat (written from the web teammate's laptop)
+**Changed:** `film/assets/stage.js`: new `Film.hold(promise)`; Space, Right Arrow and the `?auto=1` replay are ignored until every held promise settles. `film/02-ocean.html`: the 1.5 s placeholder timer is gone; the scene holds until the video's `canplaythrough` (preload stays `auto`), and switches to the placeholder on a video error (including one that fired before the script ran) or after 6 s. `film/08-build.html`: holds until all 24 thumbnail requests have loaded or failed, 6 s cap. README updated.
+**Verified (Chrome):** 02 plays the real clip on a cold load; a held promise blocks Space and releasing it lets the next press through; a missing video (test page, since deleted) shows the placeholder within 0.7 s and Space works; 08 loaded all 16 thumbnails and streams real frames, no placeholder tiles. **Not verified:** the full 6 s timeout path with a slow network.
+**Next/Blockers:** none.

@@ -14,6 +14,8 @@ Each scene is a fixed **1920×1080 stage scaled to fit the window** (letterbox b
 
 Pressing a key while a beat is still playing finishes that beat; the next press starts the next beat. Held keys are ignored. Timings per beat are in [`TIMING.md`](TIMING.md). Open a scene with `?skip=N` (for example `03-definition.html?skip=2`) to start with the first N beats already played, to pick up a take mid-scene.
 
+Scenes 02 and 08 ignore Space until their media has loaded (`Film.hold` in `assets/stage.js`): 02 waits for the video's `canplaythrough`, 08 for all thumbnails, each for at most 6 s, after which 02 shows its placeholder and 08 uses whichever thumbnails loaded. If the first press seems dead, wait a moment.
+
 Internet access is needed once per page load (GSAP is loaded from cdnjs, pinned to 3.12.5 with an integrity hash). Fonts are embedded, so everything else works from `file://`.
 
 ## Scenes

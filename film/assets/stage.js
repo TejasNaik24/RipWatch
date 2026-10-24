@@ -6,6 +6,7 @@
  * Space or Right Arrow: play the next beat. If a beat is still playing, the press finishes it
  * instead (so nothing double-plays); the next press starts the next beat. R: back to the start.
  * Held keys are ignored. `?skip=N` in the URL starts with the first N beats already played.
+ * Film.hold(promise) (before Film.run) keeps the first press from starting until media has loaded.
  * Recording aids (no on-screen UI): P pauses or resumes everything that is animating (GSAP's global
  * timeline, so beat timelines and endless loops alike). B steps back one beat: the page reloads with
  * the beats before the previous one already played (`?skip=i-1&auto=1`) and replays the previous beat
@@ -36,6 +37,22 @@
 
   const Film = (window.Film = {});
 
+  // ------------------------------------------------------------------ loading gate
+  // Film.hold(promise), called before Film.run: Space / Right Arrow (and the ?auto=1 replay) are ignored
+  // until every held promise has settled. Scenes use it to wait for their media.
+  let holds = 0;
+  let autoWaiting = false;
+  Film.hold = function (p) {
+    holds += 1;
+    Promise.resolve(p).catch(() => {}).then(() => {
+      holds -= 1;
+      if (!holds && autoWaiting) {
+        autoWaiting = false;
+        Film.next();
+      }
+    });
+  };
+
   // ------------------------------------------------------------------ beat engine
   Film.run = function ({ setup, beats }) {
     if (setup) setup();
@@ -47,6 +64,7 @@
       if (reduce && tl) tl.progress(1, false);
     }
     function next() {
+      if (holds) return;
       if (gsap.globalTimeline.paused()) gsap.globalTimeline.resume();
       // Finish a beat that is still playing before starting the next one.
       if (state.tl && state.tl.progress() < 1) {
@@ -80,7 +98,10 @@
       play(state.i);
       if (state.tl) state.tl.progress(1, false);
     }
-    if (new URLSearchParams(location.search).get("auto") === "1") next();
+    if (new URLSearchParams(location.search).get("auto") === "1") {
+      if (holds) autoWaiting = true;
+      else next();
+    }
   };
 
   // ------------------------------------------------------------------ helpers

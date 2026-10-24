@@ -77,13 +77,19 @@
   const CARD_LEFT = 820;
 
   // Use the real thumbnails if they exist; otherwise draw placeholder frames.
+  // The scene ignores Space until every thumbnail has loaded or failed (missing files are skipped), 6 s at most.
   const good = [];
+  const loads = [];
   for (let i = 1; i <= THUMBS; i++) {
     const src = `media/thumbs/${String(i).padStart(2, "0")}.jpg`;
-    const im = new Image();
-    im.onload = () => good.push(src);
-    im.src = src;
+    loads.push(new Promise((done) => {
+      const im = new Image();
+      im.onload = () => { good.push(src); done(); };
+      im.onerror = () => done();
+      im.src = src;
+    }));
   }
+  Film.hold(Promise.race([Promise.all(loads), new Promise((done) => setTimeout(done, 6000))]));
   function placeholderTile(k) {
     const NS = "http://www.w3.org/2000/svg";
     const svg = document.createElementNS(NS, "svg");
