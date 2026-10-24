@@ -35,3 +35,20 @@ Owned by the ML person. Append only; newest entry last. Format per entry: date/t
 **Next:** run `download_data.py` then `prepare_yolo.py --dry-run` in Kaggle and read the sanity-check output. Then build for real and train on `/kaggle/working/yolo/data.yaml`.
 
 **Blockers:** None. Unknown until run: whether the real label folders match (stem-based matching), and how many rip frames lack labels.
+
+## 2026-10-24 (train.py)
+**Built:** `ml/scripts/train.py`, which fine-tunes YOLO11-seg on `/kaggle/working/yolo/data.yaml`. Run it as `!python ml/scripts/train.py` (not in the kernel) so 2xT4 DDP works. Not run, and Ultralytics is not installed on this laptop, so the Ultralytics calls are untested.
+- Args and defaults as specified: `--model yolo11s-seg.pt --epochs 40 --imgsz 640 --batch 16 --device 0,1 --patience 10 --name ripwatch_s --project /kaggle/working/runs --workers 4`. Also `--data` (default `/kaggle/working/yolo/data.yaml`).
+- `--smoke`: 2 epochs, `fraction=0.1`, name gets `_smoke`. It still runs the test evaluation, so the whole pipeline is exercised.
+- COCO-pretrained start, default augmentations (none overridden), `plots=True`, `save_period=1` (an `epochN.pt` every epoch, plus `last.pt` and `best.pt`).
+- Per-epoch time: Ultralytics callbacks do not reach DDP worker processes, so a background thread tails `results.csv` and prints `[epoch time] epoch N/M: Xs this epoch, Y min elapsed, ~Z min left`. The ETA assumes all epochs run (early stopping can end sooner).
+- After training it evaluates `weights/best.pt` with `split="test"` on the first GPU (validation outside training is single-GPU) and prints box and mask mAP50, mAP50-95, P and R. It saves them to `<project>/<name>/test_metrics.json`; plots go to `<project>/<name>/test/`.
+- If `<project>/<name>` exists, it uses `<name>2`, `<name>3`... so a rerun never mixes with an old run (the message says which). Output path in that case is the suffixed one.
+- Also: exits early if the requested GPUs are not visible, and disables W&B so Kaggle never waits on a login prompt.
+- Checked on this laptop (no GPU, no Ultralytics): CLI parsing, the missing-data error, run naming, and the epoch timer against a fake `results.csv` (including a half-written last row).
+
+**Files touched:** `ml/scripts/train.py`, `notes/ml.md`
+
+**Next:** in Kaggle run `train.py --smoke` first (check DDP starts on both GPUs, epoch times print, `test_metrics.json` appears), then the full run. If DDP hangs, rerun with `--device 0`.
+
+**Blockers:** None. Unverified until it runs: the `m.box.map50` / `m.seg.map` attribute names against the installed Ultralytics version, and that `save_period=1` fits in /kaggle/working (about 20 MB per epoch for the s model).
