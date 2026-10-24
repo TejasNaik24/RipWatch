@@ -18,6 +18,7 @@
   #card svg { width: 76px; height: 76px; }
   #model { font-size: 84px; font-weight: 600; letter-spacing: -0.03em; color: var(--ink); }
   #kaggle { position: absolute; left: 0; width: 1920px; top: 76px; text-align: center; padding-left: 340px; font-size: 62px; }
+  #kicon { position: absolute; left: 1430px; top: 72px; width: 72px; height: 72px; }
   .chip { position: absolute; top: 212px; width: 220px; height: 130px; opacity: 0; }
   #chipA { left: 890px; } #chipB { left: 1150px; }
   #lines { position: absolute; inset: 0; width: 1920px; height: 1080px; }
@@ -30,6 +31,8 @@
 <body>
 <div id="stage">
   <p id="kaggle" class="line hidden">Trained on Kaggle</p>
+  <!-- Kaggle "k" mark, to the right of the label -->
+  <svg id="kicon" class="hidden" viewBox="0 0 24 24" aria-label="Kaggle"><path fill="#20beff" d="M18.825 23.859c-.022.092-.117.141-.281.141h-3.139c-.187 0-.351-.082-.492-.248l-5.178-6.589-1.448 1.374v5.111c0 .235-.117.352-.351.352H5.505c-.236 0-.354-.117-.354-.352V.353c0-.233.118-.353.354-.353h2.431c.234 0 .351.12.351.353v14.343l6.203-6.272c.165-.165.33-.246.495-.246h3.239c.144 0 .236.06.285.18.046.149.034.255-.036.315l-6.555 6.344 6.836 8.507c.095.104.117.208.07.358"/></svg>
 
   <svg id="lines" viewBox="0 0 1920 1080" aria-hidden="true">
     <path id="arrA" class="stroke" stroke="#4fb8ac" stroke-width="5" d="M1000 436 V362 M984 380 L1000 360 L1016 380"/>
@@ -131,6 +134,7 @@
       () => {
         const tl = gsap.timeline();
         tl.add(Film.rise("#kaggle", { duration: 1.0 }), 0);
+        tl.add(Film.rise("#kicon", { duration: 1.0 }), 0.25);
         tl.fromTo("#chipA", { opacity: 0, y: 18 }, { opacity: 1, y: 0, duration: 0.9, ease: "power3.out" }, 0.6);
         tl.fromTo("#chipB", { opacity: 0, y: 18 }, { opacity: 1, y: 0, duration: 0.9, ease: "power3.out" }, 0.85);
         tl.add(Film.draw("#arrA", 0.9), 1.5);

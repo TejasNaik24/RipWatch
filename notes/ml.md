@@ -424,3 +424,6 @@ Gemini's rate is the share of frames showing a box, with each answer held until 
 - `git check-ignore` confirms `ocean.mp4` and `thumbs/` are ignored; nothing from RipVIS is staged.
 
 **Next:** none. **Blockers:** `miss.png` missing.
+
+## 2026-10-24 19:55 (film scene 08: Kaggle icon)
+**Written from the web teammate's laptop.** `film/08-build.html`: the Kaggle "k" mark (brand blue, inline SVG, no new asset) now rises in to the right of "Trained on Kaggle" on beat 2. Checked in Chrome. **Next/Blockers:** none.
