@@ -10,3 +10,6 @@ __pycache__
 .DS_Store
 .remember/
 web/public/data/clips/*.mp4
+
+# trained weights (large, not for git)
+ml/weights/

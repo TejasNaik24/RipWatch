@@ -297,3 +297,17 @@ Not run on a real 4K RipVIS video.
 **Files touched:** `docs/video-script.md`, `notes/ml.md`
 
 **Next:** fill the metrics once `eval_compare.py` has run. **Blockers:** None.
+
+## 2026-10-24 (best.pt in the repo)
+**Written from the web teammate's laptop.**
+
+**Built:** moved the Kaggle `best.pt` to `ml/weights/best.pt` (20.5 MB, not committed).
+- The download in `~/Downloads` was named `best.zip`, not `best.pt`. There were no `.pt` files there. A `.pt` is a zip archive internally, and this one had the `best/data.pkl` layout of a PyTorch checkpoint, so I treated it as the weights file under the wrong extension and moved it to `best.pt`.
+- Loads with `YOLO("ml/weights/best.pt")` (ultralytics, installed in a scratch venv): task `segment`, imgsz 640, class names `{0: 'rip_current'}`.
+- `.gitignore` already had `*.pt`; added `ml/weights/` as well. Confirmed git ignores the file.
+
+**Files touched:** `.gitignore`, `notes/ml.md`. Weights: `ml/weights/best.pt` (untracked).
+
+**Not verified:** the model's quality (no inference or eval run); the weights are the "best" checkpoint from the Kaggle run as named by the user.
+
+**Next:** run `infer_video.py --weights ml/weights/best.pt` for the demo clips, then `eval_compare.py`. **Blockers:** None.
