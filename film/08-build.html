@@ -1,0 +1,152 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>08 Build · RipWatch film</title>
+<link rel="stylesheet" href="assets/fonts.css">
+<link rel="stylesheet" href="assets/stage.css">
+<style>
+  :root { --scene-bg: #0a0f15; }
+  /* Model card, centered at (1130, 600). */
+  #card {
+    position: absolute; left: 820px; top: 440px; width: 620px; height: 320px;
+    background: var(--panel); border: 2px solid rgba(190, 210, 235, 0.22); border-radius: 28px;
+    display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 22px;
+    z-index: 5; opacity: 0;
+  }
+  #card svg { width: 76px; height: 76px; }
+  #model { font-size: 84px; font-weight: 600; letter-spacing: -0.03em; color: var(--ink); }
+  #kaggle { position: absolute; left: 0; width: 1920px; top: 76px; text-align: center; padding-left: 340px; font-size: 62px; }
+  .chip { position: absolute; top: 212px; width: 220px; height: 130px; opacity: 0; }
+  #chipA { left: 890px; } #chipB { left: 1150px; }
+  #lines { position: absolute; inset: 0; width: 1920px; height: 1080px; }
+  #lane { position: absolute; inset: 0; z-index: 2; }
+  .thumb { position: absolute; left: 0; top: 0; width: 200px; height: 112px; border-radius: 12px; overflow: hidden; border: 2px solid rgba(190, 210, 235, 0.25); background: #10161f; will-change: transform; }
+  .thumb img, .thumb svg { width: 100%; height: 100%; display: block; object-fit: cover; }
+  #cap { position: absolute; left: 0; width: 1920px; top: 850px; text-align: center; font-size: 60px; padding-left: 0; }
+</style>
+</head>
+<body>
+<div id="stage">
+  <p id="kaggle" class="line hidden">Trained on Kaggle</p>
+
+  <svg id="lines" viewBox="0 0 1920 1080" aria-hidden="true">
+    <path id="arrA" class="stroke" stroke="#4fb8ac" stroke-width="5" d="M1000 436 V362 M984 380 L1000 360 L1016 380"/>
+    <path id="arrB" class="stroke" stroke="#4fb8ac" stroke-width="5" d="M1260 436 V362 M1244 380 L1260 360 L1276 380"/>
+  </svg>
+
+  <!-- two T4 GPU chips -->
+  <svg id="chipA" class="chip" viewBox="0 0 220 130" aria-label="T4 GPU">
+    <g class="stroke" stroke="#4fb8ac" stroke-width="5">
+      <rect x="26" y="20" width="168" height="90" rx="14" fill="#10161f" style="fill:#10161f"/>
+      <path d="M58 20 V6 M92 20 V6 M128 20 V6 M162 20 V6 M58 110 V124 M92 110 V124 M128 110 V124 M162 110 V124 M26 52 H10 M26 78 H10 M194 52 H210 M194 78 H210"/>
+    </g>
+    <text x="110" y="82" text-anchor="middle" font-family="IBM Plex Mono, monospace" font-weight="500" font-size="44" fill="#e6edf3">T4</text>
+  </svg>
+  <svg id="chipB" class="chip" viewBox="0 0 220 130" aria-label="T4 GPU">
+    <g class="stroke" stroke="#4fb8ac" stroke-width="5">
+      <rect x="26" y="20" width="168" height="90" rx="14" style="fill:#10161f"/>
+      <path d="M58 20 V6 M92 20 V6 M128 20 V6 M162 20 V6 M58 110 V124 M92 110 V124 M128 110 V124 M162 110 V124 M26 52 H10 M26 78 H10 M194 52 H210 M194 78 H210"/>
+    </g>
+    <text x="110" y="82" text-anchor="middle" font-family="IBM Plex Mono, monospace" font-weight="500" font-size="44" fill="#e6edf3">T4</text>
+  </svg>
+
+  <div id="lane"></div>
+
+  <div id="card">
+    <svg viewBox="0 0 24 24" fill="none" stroke="#4fb8ac" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+      <path d="M3 8V5.5A2.5 2.5 0 0 1 5.5 3H8"/><path d="M16 3h2.5A2.5 2.5 0 0 1 21 5.5V8"/>
+      <path d="M21 16v2.5a2.5 2.5 0 0 1-2.5 2.5H16"/><path d="M8 21H5.5A2.5 2.5 0 0 1 3 18.5V16"/>
+      <path d="m8.5 10 4-2.5 3.5 2.5-.5 4.5-4 2-3.5-2.5z"/>
+    </svg>
+    <div id="model" class="title">YOLO11s-seg</div>
+  </div>
+
+  <p id="cap" class="line hidden">RipVIS: 184 videos from 10 countries</p>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js" integrity="sha384-g4NTh/Iv5PPU4xPyhEWqPcwtNXOvdaDI8LLnyYfyNZOjKJeYQyjzQ9X5275eBjpt" crossorigin="anonymous"></script>
+<script src="assets/stage.js"></script>
+<script>
+  const THUMBS = 24;                    // media/thumbs/01.jpg ... NN.jpg (see media/README.md)
+  const LANES = [480, 600, 720];        // y centers of the three stream lanes, all inside the card's height
+  const CARD_LEFT = 820;
+
+  // Use the real thumbnails if they exist; otherwise draw placeholder frames.
+  const good = [];
+  for (let i = 1; i <= THUMBS; i++) {
+    const src = `media/thumbs/${String(i).padStart(2, "0")}.jpg`;
+    const im = new Image();
+    im.onload = () => good.push(src);
+    im.src = src;
+  }
+  function placeholderTile(k) {
+    const NS = "http://www.w3.org/2000/svg";
+    const svg = document.createElementNS(NS, "svg");
+    svg.setAttribute("viewBox", "0 0 200 112");
+    svg.innerHTML = '<rect width="200" height="112" fill="#12202b"/>' +
+      `<path d="${Film.wave(-20, 220, 70 + (k % 4) * 6, 7, 70)}" fill="none" stroke="#4fb8ac" stroke-opacity="0.7" stroke-width="3"/>` +
+      `<path d="${Film.wave(-20, 220, 92 + (k % 3) * 4, 5, 60)}" fill="none" stroke="#4fb8ac" stroke-opacity="0.35" stroke-width="2.5"/>` +
+      `<rect y="0" width="200" height="${34 + (k % 5) * 3}" fill="#0c1a24"/>`;
+    return svg;
+  }
+
+  let spawned = 0, streaming = false;
+  function spawn() {
+    if (!streaming) return;
+    const lane = LANES[spawned % LANES.length];
+    const el = document.createElement("div");
+    el.className = "thumb";
+    if (good.length) {
+      const im = new Image();
+      im.src = good[Math.floor(Math.random() * good.length)];
+      el.appendChild(im);
+    } else {
+      el.appendChild(placeholderTile(spawned));
+    }
+    document.getElementById("lane").appendChild(el);
+    spawned += 1;
+    const jitter = (Math.random() - 0.5) * 18;
+    gsap.fromTo(el, { x: -240, y: lane - 56 + jitter, rotation: (Math.random() - 0.5) * 4, opacity: 0, scale: 1 }, {
+      x: CARD_LEFT - 90, scale: 0.7, duration: 2.5, ease: "power1.in",
+      onComplete: () => el.remove(),
+    });
+    gsap.to(el, { opacity: 1, duration: 0.35, ease: "none" });
+    gsap.delayedCall(0.2, spawn);
+  }
+
+  Film.prep(["#arrA", "#arrB"]);
+  gsap.set(["#chipA", "#chipB"], { opacity: 0 });
+
+  Film.run({
+    beats: [
+      // 1. The model card slides up.
+      () => {
+        const tl = gsap.timeline();
+        tl.fromTo("#card", { opacity: 0, y: 90 }, { opacity: 1, y: 0, duration: 1.2, ease: "power3.out" }, 0);
+        return tl;
+      },
+      // 2. "Trained on Kaggle": two T4 chips, with arrows pointing to them.
+      () => {
+        const tl = gsap.timeline();
+        tl.add(Film.rise("#kaggle", { duration: 1.0 }), 0);
+        tl.fromTo("#chipA", { opacity: 0, y: 18 }, { opacity: 1, y: 0, duration: 0.9, ease: "power3.out" }, 0.6);
+        tl.fromTo("#chipB", { opacity: 0, y: 18 }, { opacity: 1, y: 0, duration: 0.9, ease: "power3.out" }, 0.85);
+        tl.add(Film.draw("#arrA", 0.9), 1.5);
+        tl.add(Film.draw("#arrB", 0.9), 1.7);
+        return tl;
+      },
+      // 3. A fast stream of video frames flows into the model; the dataset caption follows.
+      () => {
+        streaming = true;
+        spawn();
+        const tl = gsap.timeline();
+        tl.add(Film.rise("#cap", { duration: 1.0 }), 1.6);
+        return tl;
+      },
+    ],
+  });
+</script>
+</body>
+</html>

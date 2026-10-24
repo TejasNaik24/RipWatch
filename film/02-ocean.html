@@ -1,0 +1,93 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>02 Ocean · RipWatch film</title>
+<link rel="stylesheet" href="assets/fonts.css">
+<link rel="stylesheet" href="assets/stage.css">
+<style>
+  :root { --scene-bg: #ffffff; }
+  #ocean { opacity: 0; }
+  #ocean video, #ph { position: absolute; inset: 0; width: 1920px; height: 1080px; object-fit: cover; }
+  #ocean video { filter: brightness(1) saturate(1); }
+  /* Shown only when media/ocean.mp4 is missing. */
+  #ph { display: none; background: linear-gradient(180deg, #f3fafa 0%, #cfe9ea 45%, #8fc7cb 100%); }
+  #ph.on { display: block; }
+  #ph .tag { position: absolute; left: 40px; bottom: 32px; font: 400 22px var(--mono); color: rgba(10, 15, 21, 0.55); }
+  .scrim { position: absolute; inset: 0; opacity: 0; }
+  #scrimW { background: #ffffff; }
+  #scrimN { background: var(--bg); }
+  .t { position: absolute; left: 0; width: 1920px; text-align: center; }
+  #t1 { top: 424px; font-size: 140px; color: var(--paper-ink); }
+  #t2 { top: 380px; font-size: 220px; color: var(--ink); }
+</style>
+</head>
+<body>
+<div id="stage">
+  <div id="ocean" class="layer">
+    <video id="vid" src="media/ocean.mp4" muted loop playsinline preload="auto"></video>
+    <div id="ph">
+      <svg id="phwaves" width="1920" height="1080" viewBox="0 0 1920 1080" aria-hidden="true"></svg>
+      <span class="tag">media/ocean.mp4 not found: placeholder</span>
+    </div>
+  </div>
+  <div id="scrimW" class="scrim"></div>
+  <div id="scrimN" class="scrim"></div>
+  <h1 id="t1" class="t title hidden">Perhaps the ocean?</h1>
+  <h1 id="t2" class="t title hidden">But…</h1>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js" integrity="sha384-g4NTh/Iv5PPU4xPyhEWqPcwtNXOvdaDI8LLnyYfyNZOjKJeYQyjzQ9X5275eBjpt" crossorigin="anonymous"></script>
+<script src="assets/stage.js"></script>
+<script>
+  const vid = document.getElementById("vid");
+  const ph = document.getElementById("ph");
+
+  function usePlaceholder() {
+    vid.style.display = "none";
+    ph.classList.add("on");
+    const svg = document.getElementById("phwaves");
+    if (svg.childElementCount) return;
+    for (let k = 0; k < 7; k++) {
+      const p = document.createElementNS("http://www.w3.org/2000/svg", "path");
+      p.setAttribute("d", Film.wave(-200, 2200, 300 + k * 90, 10 + k, 220));
+      p.setAttribute("fill", "none");
+      p.setAttribute("stroke", "#ffffff");
+      p.setAttribute("stroke-opacity", "0.55");
+      p.setAttribute("stroke-width", "3");
+      svg.appendChild(p);
+      gsap.to(p, { x: k % 2 ? 90 : -90, duration: 9 + k, ease: "sine.inOut", repeat: -1, yoyo: true });
+    }
+  }
+  vid.addEventListener("error", usePlaceholder);
+  vid.addEventListener("loadeddata", () => vid.play().catch(() => {}));
+  // A missing file over file:// does not always raise an error event; check shortly after load.
+  setTimeout(() => { if (vid.readyState === 0 && !ph.classList.contains("on")) usePlaceholder(); }, 1500);
+
+  Film.run({
+    beats: [
+      // 1. The ocean fades in under a light scrim; "Perhaps the ocean?" appears in near-black.
+      () => {
+        vid.play().catch(() => {});
+        const tl = gsap.timeline();
+        tl.to("#ocean", { opacity: 1, duration: 1.8, ease: "sine.inOut" }, 0);
+        tl.to("#scrimW", { opacity: 0.32, duration: 1.8 }, 0);
+        tl.add(Film.rise("#t1", { duration: 1.1 }), 1.1);
+        return tl;
+      },
+      // 2. The palette turns from white to the app's navy and "But…" replaces the question.
+      () => {
+        const tl = gsap.timeline();
+        tl.to("#t1", { opacity: 0, y: -16, duration: 0.7, ease: "power2.in" }, 0);
+        tl.to("#scrimW", { opacity: 0, duration: 1.4 }, 0);
+        tl.to("#scrimN", { opacity: 0.84, duration: 2.0, ease: "sine.inOut" }, 0.2);
+        tl.to("#vid, #ph", { filter: "brightness(0.55) saturate(0.55)", duration: 2.0, ease: "sine.inOut" }, 0.2);
+        tl.add(Film.rise("#t2", { duration: 1.1 }), 1.3);
+        return tl;
+      },
+    ],
+  });
+</script>
+</body>
+</html>

@@ -1,0 +1,60 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>09 Benchmarks · RipWatch film</title>
+<link rel="stylesheet" href="assets/fonts.css">
+<link rel="stylesheet" href="assets/stage.css">
+<style>
+  :root { --scene-bg: #0a0f15; }
+  .abs { position: absolute; left: 0; width: 1920px; }
+  #title { top: 120px; text-align: center; font-size: 108px; }
+  .row { position: absolute; left: 210px; width: 1500px; opacity: 0; }
+  .lbl { font-size: 54px; font-weight: 500; letter-spacing: -0.015em; line-height: 1.1; margin-bottom: 26px; white-space: nowrap; }
+  .lbl .n { font-weight: 600; font-variant-numeric: tabular-nums; }
+  .track { position: relative; height: 76px; border-radius: 14px; background: var(--panel); border: 2px solid var(--line); overflow: hidden; }
+  .fill { position: absolute; left: 0; top: 0; bottom: 0; width: 100%; transform-origin: 0 50%; transform: scaleX(0); border-radius: 12px; }
+  #rowA { top: 360px; } #rowA .lbl { color: var(--ink-2); } #rowA .fill { background: var(--gray); }
+  #rowB { top: 590px; } #rowB .lbl { color: var(--ink); } #rowB .fill { background: var(--sea); }
+  #sub { top: 862px; text-align: center; font-size: 52px; font-weight: 400; color: var(--ink-2); letter-spacing: -0.01em; }
+</style>
+</head>
+<body>
+<div id="stage">
+  <h1 id="title" class="abs title hidden">Tested on footage it never saw</h1>
+
+  <div id="rowA" class="row">
+    <p class="lbl">Gemini 3.5 Flash Lite (zero-shot): <span class="n"></span></p>
+    <div class="track"><div class="fill"></div></div>
+  </div>
+  <div id="rowB" class="row">
+    <p class="lbl">RipWatch: <span class="n"></span></p>
+    <div class="track"><div class="fill"></div></div>
+  </div>
+
+  <p id="sub" class="abs hidden">Rip frames correctly flagged. Both about 95% precise.</p>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js" integrity="sha384-g4NTh/Iv5PPU4xPyhEWqPcwtNXOvdaDI8LLnyYfyNZOjKJeYQyjzQ9X5275eBjpt" crossorigin="anonymous"></script>
+<script src="assets/stage.js"></script>
+<script>
+  const TOTAL = 150; // rip frames in the held-out sample
+  function bar(row, found, dur) {
+    const tl = gsap.timeline();
+    tl.to(row, { opacity: 1, duration: 0.7 }, 0);
+    tl.add(Film.countUp(document.querySelector(row + " .n"), { to: found, post: " / " + TOTAL, dur, ease: "power2.inOut" }), 0.5);
+    tl.to(row + " .fill", { scaleX: found / TOTAL, duration: dur, ease: "power2.inOut" }, 0.5);
+    return tl;
+  }
+  Film.run({
+    beats: [
+      () => Film.rise("#title", { duration: 1.1 }),
+      () => bar("#rowA", 39, 1.9),
+      () => bar("#rowB", 108, 2.6),
+      () => Film.rise("#sub", { duration: 1.0 }),
+    ],
+  });
+</script>
+</body>
+</html>

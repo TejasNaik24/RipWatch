@@ -1,0 +1,85 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>01 Hook · RipWatch film</title>
+<link rel="stylesheet" href="assets/fonts.css">
+<link rel="stylesheet" href="assets/stage.css">
+<style>
+  :root { --scene-bg: #ffffff; }
+  body { color: var(--paper-ink); }
+  #line {
+    position: relative;
+    display: flex;
+    align-items: baseline;
+    gap: 0.28em;
+    font-size: 132px;
+    color: var(--paper-ink);
+    white-space: nowrap;
+    transform-origin: 50% 60%;
+  }
+  .w { display: inline-block; }
+  #q { opacity: 0; margin-left: -0.28em; } /* "?" sits tight against "swim" */
+  #cursor {
+    position: absolute;
+    top: 0.1em;
+    width: 0.055em;
+    height: 0.86em;
+    background: var(--paper-ink);
+    opacity: 0;
+  }
+  #cursor.on { opacity: 1; animation: blink 1.06s steps(1, end) infinite; }
+</style>
+</head>
+<body>
+<div id="stage">
+  <div class="layer center">
+    <h1 id="line" class="title" aria-label="Where would you swim?">
+      <span class="w hidden">Where</span>
+      <span class="w hidden">would</span>
+      <span class="w hidden">you</span>
+      <span class="w hidden">swim</span>
+      <span id="q" class="w">?</span>
+      <span id="cursor"></span>
+    </h1>
+  </div>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js" integrity="sha384-g4NTh/Iv5PPU4xPyhEWqPcwtNXOvdaDI8LLnyYfyNZOjKJeYQyjzQ9X5275eBjpt" crossorigin="anonymous"></script>
+<script src="assets/stage.js"></script>
+<script>
+  const line = document.getElementById("line");
+  const words = gsap.utils.toArray(".w:not(#q)");
+  const q = document.getElementById("q");
+  const cursor = document.getElementById("cursor");
+
+  function placeCursor(afterQuestionMark) {
+    const em = parseFloat(getComputedStyle(line).fontSize);
+    const x = q.offsetLeft + (afterQuestionMark ? q.offsetWidth + 0.04 * em : 0);
+    cursor.style.left = x + "px";
+  }
+
+  Film.run({
+    beats: [
+      // 1. The four words rise in one by one while the line slowly zooms.
+      () => {
+        const tl = gsap.timeline();
+        tl.to(line, { scale: 1.05, duration: 3.6, ease: "sine.inOut" }, 0);
+        words.forEach((w, i) => tl.add(Film.rise(w, { duration: 0.95 }), 0.15 + i * 0.62));
+        return tl;
+      },
+      // 2. A cursor appears and blinks; the "?" types in; the cursor keeps blinking after it.
+      () => {
+        const tl = gsap.timeline();
+        placeCursor(false);
+        tl.set(cursor, { opacity: 1 }).call(() => cursor.classList.add("on"), null, 0);
+        tl.set(q, { opacity: 1 }, 1.5).call(() => placeCursor(true), null, 1.5);
+        tl.to(line, { scale: 1.07, duration: 2.2, ease: "sine.inOut" }, 0);
+        return tl;
+      },
+    ],
+  });
+</script>
+</body>
+</html>

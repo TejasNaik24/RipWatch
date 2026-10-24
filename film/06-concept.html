@@ -1,0 +1,166 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>06 Concept · RipWatch film</title>
+<link rel="stylesheet" href="assets/fonts.css">
+<link rel="stylesheet" href="assets/stage.css">
+<style>
+  :root { --scene-bg: #0a0f15; }
+  #beach { position: absolute; inset: 0; width: 1920px; height: 1080px; }
+  .big { font: 600 56px var(--sans); letter-spacing: -0.015em; fill: #e6edf3; text-anchor: middle; }
+</style>
+</head>
+<body>
+<div id="stage">
+  <svg id="beach" viewBox="0 0 1920 1080" aria-label="A beach with three lifeguard towers, each with a camera">
+    <defs>
+      <linearGradient id="water" x1="0" y1="0" x2="0" y2="1">
+        <stop offset="0" stop-color="#0a1a23"/>
+        <stop offset="1" stop-color="#0d2a33"/>
+      </linearGradient>
+      <pattern id="dots" width="26" height="26" patternUnits="userSpaceOnUse">
+        <circle cx="6" cy="7" r="1.6" fill="#2a3644"/><circle cx="19" cy="19" r="1.3" fill="#2a3644"/><circle cx="21" cy="5" r="1" fill="#33414f"/>
+      </pattern>
+      <linearGradient id="cone" x1="0" y1="1" x2="0" y2="0">
+        <stop offset="0" stop-color="#4fb8ac" stop-opacity="0.22"/>
+        <stop offset="1" stop-color="#4fb8ac" stop-opacity="0.03"/>
+      </linearGradient>
+    </defs>
+
+    <!-- water, sand, waterline -->
+    <rect width="1920" height="580" fill="url(#water)"/>
+    <g id="seaWaves" fill="none" stroke="#4fb8ac" stroke-width="3" stroke-linecap="round"></g>
+    <path id="sandShape" fill="#19222d"/>
+    <path id="sandDots" fill="url(#dots)"/>
+    <path id="foam1" class="stroke" stroke="#cfe9e6" stroke-opacity="0.55" stroke-width="4"/>
+    <path id="foam2" class="stroke" stroke="#cfe9e6" stroke-opacity="0.25" stroke-width="3"/>
+
+    <!-- what each camera sees -->
+    <g id="cones" opacity="0"></g>
+
+    <!-- three lifeguard towers, each with a camera on the water side -->
+    <g id="towers"></g>
+
+    <!-- beat 1: cameras pulse -->
+    <g id="pulses" fill="none" stroke="#4fb8ac" stroke-width="3"></g>
+
+    <!-- beat 2: viewfinder brackets, label, arrows -->
+    <g id="brackets" class="stroke" stroke="#4fb8ac" stroke-width="5"></g>
+    <g id="arrows" class="stroke" stroke="#4fb8ac" stroke-width="3.5"></g>
+    <text id="label" class="big hidden" x="960" y="214">RipWatch runs on the cameras beaches already have</text>
+
+    <!-- beat 3: a rip appears, the alert travels to a lifeguard tower -->
+    <path id="rip" class="stroke" stroke="#ff3b3b" stroke-width="7" style="fill:#ff3b3b;fill-opacity:0"
+          d="M926 568 C930 506 926 462 908 424 C880 372 884 308 934 276 C984 246 1056 278 1050 342 C1046 390 1008 424 1000 470 C996 510 998 540 1000 568 Z"/>
+    <path id="alert" class="stroke" stroke="#ff3b3b" stroke-width="6" d="M988 668 C1170 596 1400 596 1500 690"/>
+    <circle id="alertRing" cx="1560" cy="730" r="62" fill="none" stroke="#ff3b3b" stroke-width="5" opacity="0"/>
+    <g id="alertText" class="hidden">
+      <circle cx="704" cy="946" r="11" fill="#ff3b3b"/>
+      <text class="big" x="960" y="962">Lifeguard alerted.</text>
+    </g>
+  </svg>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js" integrity="sha384-g4NTh/Iv5PPU4xPyhEWqPcwtNXOvdaDI8LLnyYfyNZOjKJeYQyjzQ9X5275eBjpt" crossorigin="anonymous"></script>
+<script src="assets/stage.js"></script>
+<script>
+  const NS = "http://www.w3.org/2000/svg";
+  const $ = (id) => document.getElementById(id);
+  const mk = (tag, attrs, parent) => {
+    const el = document.createElementNS(NS, tag);
+    for (const k in attrs) el.setAttribute(k, attrs[k]);
+    parent.appendChild(el);
+    return el;
+  };
+
+  const TOWERS = [360, 960, 1560];
+  const TY = 740;          // tower center y
+  const CAM = TY - 58;     // camera center y (on the water-facing edge)
+
+  // ---- scenery
+  const shore = (y, amp, per) => Film.wave(-40, 1960, y, amp, per);
+  $("sandShape").setAttribute("d", shore(580, 10, 240).replace(/^M-40 580/, "M-40 580") + " L1960 1080 L-40 1080 Z");
+  $("sandDots").setAttribute("d", $("sandShape").getAttribute("d"));
+  $("foam1").setAttribute("d", shore(580, 10, 240));
+  $("foam2").setAttribute("d", Film.wave(-40, 1960, 560, 9, 210));
+  const sea = $("seaWaves");
+  [120, 200, 280, 360, 440, 510].forEach((y, k) => {
+    const p = mk("path", { d: Film.wave(-300, 2300, y, 8 + (k % 3) * 2, 200 + k * 14), opacity: 0.16 + (k % 3) * 0.07 }, sea);
+    gsap.to(p, { x: k % 2 ? 110 : -110, duration: 11 + k * 1.3, ease: "sine.inOut", repeat: -1, yoyo: true });
+  });
+
+  // ---- towers, cameras, view cones, pulse rings, viewfinder brackets
+  const towers = $("towers"), cones = $("cones"), pulses = $("pulses"), brackets = $("brackets");
+  const rings = [];
+  TOWERS.forEach((x, i) => {
+    mk("polygon", { points: `${x},${CAM} ${x - 240},110 ${x + 240},110`, fill: "url(#cone)", stroke: "#4fb8ac", "stroke-opacity": 0.28, "stroke-width": 1.5 }, cones);
+    const g = mk("g", { transform: `translate(${x} ${TY})` }, towers);
+    mk("rect", { x: -48, y: -42, width: 96, height: 96, rx: 16, fill: "#18212c", stroke: "#41536a", "stroke-width": 3 }, g);
+    mk("rect", { x: -32, y: -26, width: 64, height: 64, rx: 11, fill: "#223041" }, g);
+    mk("path", { d: "M-20 54 V70 M20 54 V70 M-20 62 H20", stroke: "#41536a", "stroke-width": 3, fill: "none", "stroke-linecap": "round" }, g);
+    mk("path", { d: "M34 -26 V-52 L56 -44 L34 -36", stroke: "#4fb8ac", "stroke-width": 3, fill: "#4fb8ac", "fill-opacity": 0.35, "stroke-linejoin": "round", "stroke-linecap": "round" }, g);
+    const cam = mk("g", { transform: `translate(0 -58)` }, g);
+    mk("rect", { x: -20, y: -13, width: 40, height: 26, rx: 7, fill: "#10161f", stroke: "#4fb8ac", "stroke-width": 3 }, cam);
+    mk("circle", { cx: 0, cy: 0, r: 7, fill: "none", stroke: "#4fb8ac", "stroke-width": 3 }, cam);
+    for (let r = 0; r < 3; r++) rings.push(mk("circle", { cx: x, cy: CAM, r: 16, opacity: 0 }, pulses));
+    // four corner brackets around the camera
+    const bx = 78, by = 62, a = 26;
+    [[-1, -1], [1, -1], [1, 1], [-1, 1]].forEach(([sx, sy]) => {
+      mk("path", { d: `M${x + sx * bx} ${CAM + sy * (by - a)} V${CAM + sy * by} H${x + sx * (bx - a)}` }, brackets);
+    });
+  });
+  Film.prep(brackets.querySelectorAll("path"));
+
+  // ---- label arrows (a curve from the label down to each camera, ending in a chevron)
+  const arrows = $("arrows");
+  const ARR = [
+    { d: "M620 262 C540 380 392 450 364 596", ex: 364, ey: 596 },
+    { d: "M960 262 L960 596", ex: 960, ey: 596 },
+    { d: "M1300 262 C1380 380 1528 450 1556 596", ex: 1556, ey: 596 },
+  ].map(({ d, ex, ey }) => mk("path", { d: `${d} M${ex - 13} ${ey - 18} L${ex} ${ey} L${ex + 13} ${ey - 18}` }, arrows));
+  Film.prep(ARR);
+
+  /** A ring that grows from rFrom to rTo while it fades in and out, `repeat` extra times. */
+  function ripple(circle, rFrom, rTo, dur, repeat, delay, peak) {
+    const tl = gsap.timeline({ repeat, delay });
+    tl.fromTo(circle, { attr: { r: rFrom } }, { attr: { r: rTo }, duration: dur, ease: "sine.out" }, 0);
+    tl.fromTo(circle, { opacity: 0 }, { keyframes: { opacity: [0, peak, 0], easeEach: "none" }, duration: dur, ease: "none" }, 0);
+    return tl;
+  }
+  Film.prep(["#rip", "#alert"]);
+
+  Film.run({
+    beats: [
+      // 1. The cameras pulse: they are already watching the water.
+      () => {
+        gsap.to("#cones", { opacity: 1, duration: 1.4 });
+        rings.forEach((r, k) => ripple(r, 16, 120, 2.4, 2, (k % 3) * 0.8 + Math.floor(k / 3) * 0.25, 0.75));
+        return gsap.timeline().to({}, { duration: 2.6 }); // a beat's worth of time for the pulses
+      },
+      // 2. Viewfinder brackets lock onto each camera; the label arrives with arrows.
+      () => {
+        const tl = gsap.timeline();
+        brackets.querySelectorAll("path").forEach((p, i) => tl.add(Film.draw(p, 0.7), Math.floor(i / 4) * 0.25));
+        tl.add(Film.rise("#label", { dy: 20, duration: 1.0 }), 0.9);
+        ARR.forEach((p, i) => tl.add(Film.draw(p, 1.0), 1.5 + i * 0.18));
+        return tl;
+      },
+      // 3. A rip appears in the water; the alert goes to the next tower.
+      () => {
+        const tl = gsap.timeline();
+        tl.to("#label", { opacity: 0, y: -10, duration: 0.6, ease: "power2.in" }, 0);
+        tl.to(ARR, { opacity: 0, duration: 0.6 }, 0);
+        tl.add(Film.draw("#rip", 1.6), 0.5);
+        tl.to("#rip", { fillOpacity: 0.34, duration: 0.9 }, 1.7);
+        tl.add(Film.draw("#alert", 1.3), 2.5);
+        tl.add(() => ripple($("alertRing"), 62, 130, 1.6, 2, 0, 0.9), 3.6);
+        tl.add(Film.rise("#alertText", { dy: 18, duration: 0.9 }), 3.7);
+        return tl;
+      },
+    ],
+  });
+</script>
+</body>
+</html>

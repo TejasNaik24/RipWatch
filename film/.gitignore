@@ -1,0 +1,4 @@
+# Large or non-redistributable media. See media/README.md.
+media/*.mp4
+media/thumbs/
+media/miss.png

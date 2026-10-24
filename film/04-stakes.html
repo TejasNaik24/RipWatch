@@ -1,0 +1,83 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>04 Stakes · RipWatch film</title>
+<link rel="stylesheet" href="assets/fonts.css">
+<link rel="stylesheet" href="assets/stage.css">
+<style>
+  :root { --scene-bg: #0a0f15; }
+  .card { position: absolute; inset: 0; opacity: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; padding: 0 160px; }
+  .n { font-size: 300px; line-height: 1; color: var(--ink); white-space: nowrap; }
+  .rule { display: block; margin-top: 44px; width: 560px; height: 8px; }
+  .label { margin-top: 44px; font-size: 62px; font-weight: 500; color: var(--ink); letter-spacing: -0.015em; line-height: 1.16; max-width: 1500px; text-wrap: balance; }
+  .card .source { margin-top: 40px; }
+  /* The Lake Erie card is a statement, not a number. */
+  .stmt { font-size: 112px; max-width: 1560px; text-wrap: balance; color: var(--ink); }
+</style>
+</head>
+<body>
+<div id="stage">
+  <section class="card" id="c1">
+    <div class="n num"></div>
+    <svg class="rule" viewBox="0 0 560 8"><path class="stroke" d="M4 4 H556" stroke="#4fb8ac" stroke-width="8"/></svg>
+    <p class="label">estimated drowning deaths worldwide in 2021</p>
+    <p class="source">Source: World Health Organization</p>
+  </section>
+  <section class="card" id="c2">
+    <div class="n num"></div>
+    <svg class="rule" viewBox="0 0 560 8"><path class="stroke" d="M4 4 H556" stroke="#4fb8ac" stroke-width="8"/></svg>
+    <p class="label">of rescues by US surf beach lifeguards involve rip currents</p>
+    <p class="source">Source: United States Lifesaving Association</p>
+  </section>
+  <section class="card" id="c3">
+    <div class="n num"></div>
+    <svg class="rule" viewBox="0 0 560 8"><path class="stroke" d="M4 4 H556" stroke="#4fb8ac" stroke-width="8"/></svg>
+    <p class="label">beachgoers could spot a real rip current in person</p>
+    <p class="source">Source: Muriwai Beach study, NHESS 2021</p>
+  </section>
+  <section class="card" id="c4">
+    <p class="stmt title">Rip currents have taken lives on Lake Erie.</p>
+    <svg class="rule" viewBox="0 0 560 8"><path class="stroke" d="M4 4 H556" stroke="#4fb8ac" stroke-width="8"/></svg>
+    <p class="source">Source: Fox 8 Cleveland, WJW</p>
+  </section>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js" integrity="sha384-g4NTh/Iv5PPU4xPyhEWqPcwtNXOvdaDI8LLnyYfyNZOjKJeYQyjzQ9X5275eBjpt" crossorigin="anonymous"></script>
+<script src="assets/stage.js"></script>
+<script>
+  const cards = ["#c1", "#c2", "#c3", "#c4"];
+  const counts = [
+    { to: 300000, group: true },
+    { to: 80, post: "%+" },
+    { pre: "1 in ", from: 1, to: 5 }, // the 5 counts up from 1
+    null,
+  ];
+  cards.forEach((c) => Film.prep(c + " .rule path"));
+  let shown = -1;
+
+  function show(k) {
+    const tl = gsap.timeline();
+    const c = cards[k];
+    if (shown >= 0) tl.to(cards[shown], { opacity: 0, y: -18, duration: 0.7, ease: "power2.in" }, 0);
+    const at = shown >= 0 ? 0.55 : 0;
+    shown = k;
+    tl.set(c, { opacity: 1 }, at);
+    const number = document.querySelector(c + " .n");
+    if (counts[k]) {
+      tl.add(Film.rise(c + " .n", { duration: 0.7 }), at);
+      tl.add(Film.countUp(number, { ...counts[k], dur: 1.9 }), at + 0.1);
+    } else {
+      tl.add(Film.rise(c + " .stmt", { duration: 1.0 }), at);
+    }
+    tl.add(Film.draw(c + " .rule path", 1.0), at + (counts[k] ? 1.0 : 0.7));
+    if (counts[k]) tl.add(Film.rise(c + " .label", { duration: 0.9 }), at + 1.2);
+    tl.add(Film.rise(c + " .source", { duration: 0.9 }), at + (counts[k] ? 1.8 : 1.4));
+    return tl;
+  }
+
+  Film.run({ beats: [() => show(0), () => show(1), () => show(2), () => show(3)] });
+</script>
+</body>
+</html>

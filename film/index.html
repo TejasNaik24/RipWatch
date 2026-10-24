@@ -1,0 +1,50 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>RipWatch film scenes</title>
+<link rel="icon" href="assets/logo.svg">
+<link rel="stylesheet" href="assets/fonts.css">
+<style>
+  :root { --bg: #0a0f15; --panel: #10161f; --raised: #18212c; --ink: #e6edf3; --ink-2: #9daaba; --ink-3: #7a889a; --sea: #4fb8ac; --line: rgba(190, 210, 235, 0.14); }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { background: var(--bg); color: var(--ink); font-family: "Public Sans", system-ui, sans-serif; -webkit-font-smoothing: antialiased; min-height: 100vh; padding: 56px 40px 72px; }
+  main { max-width: 1180px; margin: 0 auto; }
+  header { display: flex; align-items: center; gap: 18px; margin-bottom: 14px; }
+  header img { width: 44px; height: 44px; }
+  h1 { font-size: 34px; font-weight: 600; letter-spacing: -0.02em; }
+  .lead { color: var(--ink-2); font-size: 17px; line-height: 1.55; max-width: 780px; margin-bottom: 30px; }
+  kbd { font: 500 13px "IBM Plex Mono", monospace; background: var(--raised); border: 1px solid var(--line); border-radius: 6px; padding: 2px 8px; color: var(--ink); }
+  ol { list-style: none; display: grid; grid-template-columns: repeat(auto-fill, minmax(340px, 1fr)); gap: 16px; }
+  li a, li.live { display: flex; flex-direction: column; gap: 6px; height: 100%; padding: 20px 22px; border-radius: 14px; background: var(--panel); border: 1px solid var(--line); color: inherit; text-decoration: none; transition: border-color 150ms ease-out, background-color 150ms ease-out; }
+  li a:hover, li a:focus-visible { border-color: rgba(79, 184, 172, 0.6); background: var(--raised); outline: none; }
+  li.live { border-style: dashed; }
+  .n { font: 500 13px "IBM Plex Mono", monospace; color: var(--sea); }
+  .t { font-size: 21px; font-weight: 600; letter-spacing: -0.01em; }
+  .d { color: var(--ink-2); font-size: 14.5px; line-height: 1.5; }
+  .m { margin-top: auto; padding-top: 8px; font: 400 12.5px "IBM Plex Mono", monospace; color: var(--ink-3); }
+  footer { margin-top: 34px; color: var(--ink-3); font-size: 14px; }
+</style>
+</head>
+<body>
+<main>
+  <header><img src="assets/logo.svg" alt=""><h1>RipWatch film scenes</h1></header>
+  <p class="lead">Standalone 1920×1080 scenes for the judging video, scaled to fit the window. Open one full screen and start the screen recorder. <kbd>Space</kbd> or <kbd>→</kbd> plays the next beat, <kbd>R</kbd> restarts the scene. Pressing a key while a beat is still playing finishes that beat first. Needs internet access once per page load, for GSAP from cdnjs.</p>
+  <ol>
+    <li><a href="01-hook.html"><span class="n">01</span><span class="t">Hook</span><span class="d">“Where would you swim?” on white, then the question mark types in.</span><span class="m">2 beats · white</span></a></li>
+    <li><a href="02-ocean.html"><span class="n">02</span><span class="t">Ocean</span><span class="d">Full-bleed ocean video, “Perhaps the ocean?”, then “But…” as the palette goes dark.</span><span class="m">2 beats · white → navy · media/ocean.mp4</span></a></li>
+    <li><a href="03-definition.html"><span class="n">03</span><span class="t">What is a rip current?</span><span class="d">Title, the NWS-sourced definition, and the waves-and-channel diagram.</span><span class="m">3 beats · navy</span></a></li>
+    <li><a href="04-stakes.html"><span class="n">04</span><span class="t">Stakes</span><span class="d">Four sourced facts, three of them counting up.</span><span class="m">4 beats · navy</span></a></li>
+    <li><a href="05-intro.html"><span class="n">05</span><span class="t">Intro</span><span class="d">The logo draws itself, the wordmark appears, then the one-line description.</span><span class="m">2 beats · navy</span></a></li>
+    <li><a href="06-concept.html"><span class="n">06</span><span class="t">Concept</span><span class="d">An illustrated beach: cameras pulse, RipWatch runs on them, a rip is found, a lifeguard is alerted.</span><span class="m">3 beats · navy</span></a></li>
+    <li class="live"><span class="n">07</span><span class="t">Live app</span><span class="d">A screen recording of the real app. No scene file: record it from the running web app.</span><span class="m">cut here</span></li>
+    <li><a href="08-build.html"><span class="n">08</span><span class="t">Build</span><span class="d">The model card, two T4 GPUs on Kaggle, and a stream of frames flowing in.</span><span class="m">3 beats · navy · media/thumbs/</span></a></li>
+    <li><a href="09-benchmarks.html"><span class="n">09</span><span class="t">Benchmarks</span><span class="d">Two bars filling: Gemini 39 / 150, RipWatch 108 / 150.</span><span class="m">4 beats · navy</span></a></li>
+    <li><a href="10-limits.html"><span class="n">10</span><span class="t">Limits</span><span class="d">A rip RipWatch missed, then three honest limits.</span><span class="m">4 beats · navy · media/miss.png</span></a></li>
+    <li><a href="11-close.html"><span class="n">11</span><span class="t">Close</span><span class="d">“Rip currents are invisible. Now they don’t have to be.” and the credits.</span><span class="m">3 beats · navy</span></a></li>
+  </ol>
+  <footer>Setup, media to drop in and recording tips: <code>film/README.md</code>.</footer>
+</main>
+</body>
+</html>

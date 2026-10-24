@@ -414,3 +414,29 @@ web/app/{globals.css, layout.tsx, page.tsx, compare/page.tsx, results/page.tsx, 
 
 ## 2026-10-24 17:20 - README Team already lists Sid Guddanti
 Checked `README.md` Team after pulling: it already reads "Tejas Naik" and "Sid Guddanti" (the `[your name]` placeholder was removed in the README rewrite on `main`). No change needed. **Files touched:** `notes/web.md`. **Blockers:** None.
+
+## 2026-10-24 19:40 - film/: animated scenes for the judging video (written from the ML teammate's laptop)
+**Note:** written from the ML teammate's laptop; same arrangement as before. New top-level folder `film/`, not part of the Next.js app. Nothing in `web/` or `ml/` changed.
+
+**Built**
+- Ten standalone scenes (`film/01-hook.html` … `11-close.html`, no 07: that is the live app recording) plus `film/index.html`, `film/README.md`, and `film/media/README.md`. Each scene is a fixed 1920×1080 stage scaled to fit the window, driven by Space or → (next beat), R (restart). A press mid-beat finishes the beat first. Held keys and modifier keys are ignored. `?skip=N` starts with N beats already played, for picking up a take.
+- Shared runtime in `film/assets/`: `stage.js` (beat engine and helpers: stroke draw-on, text rise, count-up, wave paths, the logo), `stage.css` (app color tokens), `fonts.css` (Public Sans and IBM Plex Mono latin subsets embedded as base64, so scenes work from `file://`), `logo.svg` (copy of docs/assets/logo.svg).
+- GSAP 3.12.5 from cdnjs, pinned with a SHA-384 integrity hash that matches cdnjs's published hash. This is the only network request.
+- Palette: 01 white; 02 white to navy; 03-11 the app's navy and teal. Red only for danger: the rip channel (03), the rip and alert (06), and the ground-truth outlines in the scene 10 image.
+- Copy follows the brief exactly. Decisions with the user: 03's definition is "A strong, narrow channel of water flowing away from shore." (close paraphrase of NWS "strong, narrow, seaward flows of water", credited National Weather Service); 11's team line is "Tejas Naik · Sid Guddanti" (one `TEAM` constant). Scene 04 sources are worded as given, including "NHESS 2021" and "Fox 8 Cleveland, WJW".
+- Media is optional, with placeholders: `media/ocean.mp4` (02), `media/miss.png` (10, falls back to the RipVIS-129 contact sheet in docs/clip-candidates with its header cropped), `media/thumbs/01..24.jpg` (08, falls back to drawn frames). The media folder's video, image and thumbs are git-ignored.
+
+**Verified (Chrome, 1920x1080 and 1440x900)**
+- Every scene played through beat by beat with real or dispatched key events: no errors, no page scroll, no text outside the stage. At 1440x900 the stage scales to 1440×810 with matching bars.
+- Frame pacing during every beat: about 8.3 ms average (about 120 fps on this display), 95th percentile under 9.4 ms.
+- Found and fixed while testing: the text-rise helper treated `y` as the end position, which pushed the definition 48px down; the rip's fill was overridden by a CSS class; the alert dot overlapped the text; a 625 ms hitch when scene 10's wide image first decoded (now decoded at load); scene 01's line was too wide with the zoom.
+- Scene 02 with a real video (a generated test clip, since deleted): placeholder steps aside, the clip plays and loops, and beat 2 dims it. Opened a scene from `file://` once: fonts, GSAP and animations all work.
+- Audit: every on-screen number comes from the brief; red appears only in 03 and 06.
+
+**Not verified**
+- Real `ocean.mp4`, `miss.png` and thumbnails (none exist yet); only the placeholders and fallbacks were seen.
+- Safari or Firefox; only Chrome.
+- Recording with a real screen recorder. The `?skip=N` and R paths are tested, but frame pacing may differ while a recorder is running.
+- The sources shown in scene 04 are the ones given in the brief; the Lake Erie line cites Fox 8 Cleveland (WJW) as in the README.
+
+**Next:** drop in the media, record each scene at 1920x1080, and cut to the live app recording for 07.

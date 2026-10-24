@@ -1,0 +1,67 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>10 Limits · RipWatch film</title>
+<link rel="stylesheet" href="assets/fonts.css">
+<link rel="stylesheet" href="assets/stage.css">
+<style>
+  :root { --scene-bg: #0a0f15; }
+  #shot { position: absolute; left: 110px; top: 110px; width: 1700px; max-height: 420px; border-radius: 18px; overflow: hidden; border: 2px solid var(--line); background: var(--panel); clip-path: inset(0 0 100% 0 round 18px); }
+  #shot img { display: block; width: 1700px; height: auto; max-height: 420px; object-fit: contain; }
+  /* The built-in fallback is a diagnostic strip with a header line; crop the header off. */
+  #shot.fallback { height: 330px; }
+  #shot.fallback img { margin-top: -30px; }
+  #cap { position: absolute; left: 0; width: 1920px; top: 568px; text-align: center; font-size: 58px; }
+  .pt { position: absolute; left: 270px; display: flex; align-items: center; gap: 36px; font-size: 56px; font-weight: 500; letter-spacing: -0.015em; color: var(--ink); opacity: 0; }
+  .pt i { display: block; width: 44px; height: 6px; border-radius: 3px; background: var(--sea); flex: none; }
+  #p1 { top: 702px; } #p2 { top: 804px; } #p3 { top: 906px; }
+</style>
+</head>
+<body>
+<div id="stage">
+  <div id="shot"><img id="img" alt="RipVIS-129: a rip current that RipWatch missed"></div>
+  <p id="cap" class="line hidden">A rip RipWatch missed.</p>
+
+  <p id="p1" class="pt"><i></i><span>Advisory only: a lifeguard makes the call</span></p>
+  <p id="p2" class="pt"><i></i><span>Not yet tested at night or in fog</span></p>
+  <p id="p3" class="pt"><i></i><span>Next: pilot on real beach cameras</span></p>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js" integrity="sha384-g4NTh/Iv5PPU4xPyhEWqPcwtNXOvdaDI8LLnyYfyNZOjKJeYQyjzQ9X5275eBjpt" crossorigin="anonymous"></script>
+<script src="assets/stage.js"></script>
+<script>
+  const shot = document.getElementById("shot");
+  const img = document.getElementById("img");
+  // media/miss.png is the RipVIS-129 contact sheet. Until it is dropped in, use the one already in the repo.
+  img.onerror = () => {
+    if (img.dataset.fallback) return;
+    img.dataset.fallback = "1";
+    shot.classList.add("fallback");
+    img.src = "../docs/clip-candidates/clip2_sneaky_1_RipVIS-129.jpg";
+  };
+  // Decode the image while the page is idle, not in the middle of the reveal (a large JPEG can hitch).
+  img.onload = () => { if (img.decode) img.decode().catch(() => {}); };
+  img.src = "media/miss.png";
+
+  const points = ["#p1", "#p2", "#p3"];
+  Film.run({
+    beats: [
+      // 1. The image opens from the top; the caption follows.
+      () => {
+        const tl = gsap.timeline();
+        tl.to(shot, { clipPath: "inset(0 0 0% 0 round 18px)", duration: 1.5, ease: "power2.inOut" }, 0);
+        tl.add(Film.rise("#cap", { duration: 1.0 }), 1.0);
+        return tl;
+      },
+      ...points.map((p) => () => {
+        const tl = gsap.timeline();
+        tl.add(Film.rise(p, { duration: 1.0 }), 0);
+        return tl;
+      }),
+    ],
+  });
+</script>
+</body>
+</html>

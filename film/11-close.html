@@ -1,0 +1,55 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>11 Close · RipWatch film</title>
+<link rel="stylesheet" href="assets/fonts.css">
+<link rel="stylesheet" href="assets/stage.css">
+<style>
+  :root { --scene-bg: #0a0f15; }
+  .abs { position: absolute; left: 0; width: 1920px; text-align: center; }
+  #l1 { top: 190px; font-size: 128px; color: var(--ink-2); }
+  #l2 { top: 350px; font-size: 128px; color: var(--ink); }
+  #mark { position: absolute; left: 860px; top: 590px; width: 200px; height: 200px; }
+  #mark svg { display: block; }
+  #credit { top: 826px; font-size: 52px; font-weight: 500; letter-spacing: -0.01em; color: var(--ink); }
+  #team { top: 906px; font-size: 40px; font-weight: 400; color: var(--ink-2); }
+</style>
+</head>
+<body>
+<div id="stage">
+  <h1 id="l1" class="abs title hidden">Rip currents are invisible.</h1>
+  <h1 id="l2" class="abs title hidden">Now they don’t have to be.</h1>
+  <div id="mark"></div>
+  <p id="credit" class="abs hidden">RipWatch · HackOHI/O 2026</p>
+  <p id="team" class="abs hidden"></p>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js" integrity="sha384-g4NTh/Iv5PPU4xPyhEWqPcwtNXOvdaDI8LLnyYfyNZOjKJeYQyjzQ9X5275eBjpt" crossorigin="anonymous"></script>
+<script src="assets/stage.js"></script>
+<script>
+  const TEAM = ["Tejas Naik", "Sid Guddanti"]; // names on the closing card
+  document.getElementById("team").textContent = TEAM.join(" · ");
+
+  const mark = document.getElementById("mark");
+  mark.insertAdjacentHTML("beforeend", Film.logo(200));
+  gsap.set(mark.querySelector(".lg-fill"), { opacity: 0 });
+  Film.prep([...mark.querySelectorAll(".lg-frame, .lg-w")]);
+
+  Film.run({
+    beats: [
+      () => Film.rise("#l1", { duration: 1.2 }),
+      () => Film.rise("#l2", { duration: 1.2 }),
+      () => {
+        const tl = gsap.timeline();
+        tl.add(Film.drawLogo(mark), 0);
+        tl.add(Film.rise("#credit", { duration: 1.0 }), 2.4);
+        tl.add(Film.rise("#team", { duration: 1.0 }), 2.8);
+        return tl;
+      },
+    ],
+  });
+</script>
+</body>
+</html>

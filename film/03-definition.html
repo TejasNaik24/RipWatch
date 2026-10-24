@@ -1,0 +1,134 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>03 Definition · RipWatch film</title>
+<link rel="stylesheet" href="assets/fonts.css">
+<link rel="stylesheet" href="assets/stage.css">
+<style>
+  :root { --scene-bg: #0a0f15; }
+  #copy { position: absolute; inset: 0; }
+  .c { position: absolute; left: 0; width: 1920px; text-align: center; }
+  #title { top: 392px; font-size: 128px; }
+  #def { top: 604px; font-size: 56px; color: var(--ink); letter-spacing: -0.015em; }
+  #src { top: 716px; }
+  #ul { position: absolute; left: 0; top: 0; width: 1920px; height: 1080px; }
+  #diagram { position: absolute; left: 0; top: 520px; width: 1920px; height: 560px; opacity: 0; }
+  .tag { font: 500 34px var(--sans); stroke: #0a0f15; stroke-width: 16px; paint-order: stroke; stroke-linejoin: round; }
+</style>
+</head>
+<body>
+<div id="stage">
+  <div id="copy">
+    <h1 id="title" class="c title hidden">What is a rip current?</h1>
+    <svg id="ul" viewBox="0 0 1920 1080" aria-hidden="true">
+      <path id="underline" class="stroke" d="M730 548 H1190" stroke="#4fb8ac" stroke-width="7"/>
+    </svg>
+    <p id="def" class="c line hidden">A strong, narrow channel of water flowing away from shore.</p>
+    <p id="src" class="c source hidden">Source: National Weather Service</p>
+  </div>
+
+  <!-- Top-down view: waves roll toward the shore, and one narrow channel flows back out. -->
+  <svg id="diagram" viewBox="0 0 1920 560" aria-label="Waves coming in, one channel flowing out">
+    <defs>
+      <linearGradient id="chan" x1="0" y1="1" x2="0" y2="0">
+        <stop offset="0" stop-color="#ff3b3b" stop-opacity="0.22"/>
+        <stop offset="1" stop-color="#ff3b3b" stop-opacity="0"/>
+      </linearGradient>
+    </defs>
+    <rect id="sand" x="0" y="446" width="1920" height="114" fill="#10161f"/>
+    <path id="shoreline" class="stroke" d="" stroke="#9daaba" stroke-opacity="0.55" stroke-width="3"/>
+    <g id="waves"></g>
+    <rect id="band" x="866" y="30" width="188" height="420" fill="url(#chan)" opacity="0"/>
+    <g id="particles"></g>
+    <path id="arrow" class="stroke" d="M960 436 V84" stroke="#ff3b3b" stroke-width="12"/>
+    <path id="head" class="stroke" d="M914 134 L960 80 L1006 134" stroke="#ff3b3b" stroke-width="12"/>
+    <text id="lbW" class="tag hidden" x="330" y="262" fill="#4fb8ac" text-anchor="middle">Waves</text>
+    <text id="lbR" class="tag hidden" x="1086" y="262" fill="#ff3b3b">Rip current</text>
+  </svg>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js" integrity="sha384-g4NTh/Iv5PPU4xPyhEWqPcwtNXOvdaDI8LLnyYfyNZOjKJeYQyjzQ9X5275eBjpt" crossorigin="anonymous"></script>
+<script src="assets/stage.js"></script>
+<script>
+  const NS = "http://www.w3.org/2000/svg";
+  const mk = (tag, attrs, parent) => {
+    const el = document.createElementNS(NS, tag);
+    for (const k in attrs) el.setAttribute(k, attrs[k]);
+    parent.appendChild(el);
+    return el;
+  };
+  const GAP = [880, 1040]; // the channel: waves break here and leave a gap
+
+  // ---- static pieces of the diagram
+  document.getElementById("shoreline").setAttribute("d", Film.wave(0, 1920, 446, 5, 160));
+  const wavesG = document.getElementById("waves");
+  const waves = [];
+  for (let k = 0; k < 6; k++) {
+    const g = mk("g", { opacity: 0 }, wavesG);
+    for (const [a, b] of [[-20, GAP[0] - 10], [GAP[1] + 10, 1940]]) {
+      mk("path", { d: Film.wave(a, b, 0, 9, 120), fill: "none", stroke: "#4fb8ac", "stroke-width": 4, "stroke-linecap": "round" }, g);
+    }
+    waves.push(g);
+  }
+  const partG = document.getElementById("particles");
+  const parts = [];
+  for (let k = 0; k < 7; k++) parts.push(mk("circle", { r: 7, cx: 960 + (k % 3 - 1) * 26, cy: 0, fill: "#ff3b3b", opacity: 0 }, partG));
+
+  Film.prep(["#underline", "#arrow", "#head"]);
+
+  // Waves roll toward the shore forever; staggered so the sea looks steady from the first frame.
+  function startWaves() {
+    waves.forEach((g, k) => {
+      gsap.fromTo(g, { y: 24 }, {
+        keyframes: { y: [24, 400], opacity: [0, 0.85, 0.85, 0], easeEach: "none" },
+        duration: 7.2, ease: "none", repeat: -1,
+      }).progress(k / waves.length);
+    });
+  }
+  // Water in the channel moves the other way: outward, along the arrow.
+  function startParticles() {
+    parts.forEach((c, k) => {
+      gsap.fromTo(c, { y: 410 }, {
+        keyframes: { y: [410, 70], opacity: [0, 0.9, 0.9, 0], easeEach: "none" },
+        duration: 2.8, ease: "none", repeat: -1,
+      }).progress(k / parts.length);
+    });
+  }
+
+  Film.run({
+    beats: [
+      // 1. The question, with a teal underline drawn beneath it.
+      () => {
+        const tl = gsap.timeline();
+        tl.add(Film.rise("#title", { duration: 1.1 }), 0);
+        tl.add(Film.draw("#underline", 1.1), 0.7);
+        return tl;
+      },
+      // 2. The definition slides up, with its source.
+      () => {
+        const tl = gsap.timeline();
+        tl.add(Film.rise("#def", { dy: 48, duration: 1.2 }), 0);
+        tl.add(Film.rise("#src", { duration: 0.9 }), 0.7);
+        return tl;
+      },
+      // 3. The words move up and make room for the diagram.
+      () => {
+        const tl = gsap.timeline();
+        tl.to("#copy", { y: -268, duration: 1.3 }, 0);
+        tl.to("#diagram", { opacity: 1, duration: 1.0 }, 0.6);
+        tl.call(startWaves, null, 0.6);
+        tl.to("#band", { opacity: 1, duration: 1.0 }, 1.6);
+        tl.add(Film.draw("#arrow", 1.4), 1.8);
+        tl.add(Film.draw("#head", 0.5), 3.0);
+        tl.call(startParticles, null, 3.0);
+        tl.add(Film.rise("#lbW", { dy: 14 }), 2.2);
+        tl.add(Film.rise("#lbR", { dy: 14 }), 3.0);
+        return tl;
+      },
+    ],
+  });
+</script>
+</body>
+</html>
