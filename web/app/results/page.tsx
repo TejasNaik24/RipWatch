@@ -1,9 +1,19 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import ResultsChart from "@/components/ResultsChart";
+import { IconInfo } from "@/components/Icons";
+import PageTransition from "@/components/PageTransition";
+import ResultsChart, { isRipWatch, modelColors } from "@/components/ResultsChart";
 import { loadMetrics } from "@/lib/data";
 import type { Metrics } from "@/lib/types";
+
+const LIMITATIONS = [
+  "Advisory only. A lifeguard makes every call; RipWatch never closes a beach on its own.",
+  "Evaluated on held-out frames from the RipVIS validation split, not yet on live beach cameras.",
+  "Not evaluated on flash rips, which can form and fade quickly.",
+  "Performance in rain, fog, glare and at night has not been measured.",
+  "Trained on RipVIS, which is licensed for non-commercial use only.",
+];
 
 export default function ResultsPage() {
   const [metrics, setMetrics] = useState<Metrics | null>(null);
@@ -13,64 +23,105 @@ export default function ResultsPage() {
     loadMetrics().then(setMetrics).catch(() => setFailed(true));
   }, []);
 
-  const best = metrics?.models.reduce((a, b) => (b.f2 > a.f2 ? b : a));
+  const models = metrics?.models ?? [];
+  const colors = modelColors(models.map((m) => m.name));
+  const best = models.length ? models.reduce((a, b) => (b.f2 > a.f2 ? b : a)) : undefined;
+  const ours = models.find((m) => isRipWatch(m.name)) ?? best;
+  const others = models.filter((m) => m !== ours);
+  const baseline = others.length ? others.reduce((a, b) => (b.f2 > a.f2 ? b : a)) : undefined;
 
   return (
-    <main className="flex flex-1 flex-col gap-5 p-6">
-      <div className="flex h-9 items-center justify-between">
-        <h1 className="text-xl font-semibold tracking-wide">Model Performance</h1>
-        {metrics?.fake && (
-          <span className="rounded-md border border-amber/50 bg-amber/10 px-3 py-1 font-mono text-xs tracking-wider text-amber">
-            PLACEHOLDER DATA
-          </span>
-        )}
-      </div>
-
-      {failed && <p className="text-mute">Could not load metrics.json.</p>}
-
-      {metrics && best && (
-        <div className="grid grid-cols-[1fr_520px] gap-6">
-          <section className="flex h-[760px] flex-col rounded-lg border border-line bg-panel p-6">
-            <div className="flex items-baseline justify-between">
-              <div className="font-mono text-xs tracking-[0.2em] text-mute">
-                HELD-OUT FRAMES
-              </div>
-              <div className="font-mono text-2xl font-semibold">{metrics.heldOutFrames}</div>
-            </div>
-            <div className="mt-4 min-h-0 flex-1">
-              <ResultsChart metrics={metrics} />
-            </div>
-          </section>
-
-          <div className="flex flex-col gap-6">
-            <section className="rounded-lg border border-line bg-panel p-6">
-              <div className="font-mono text-xs tracking-[0.2em] text-mute">BEST F2</div>
-              <div className="mt-3 flex items-end justify-between">
-                <span className="text-2xl font-semibold">{best.name}</span>
-                <span className="font-mono text-5xl font-semibold text-alert">
-                  {best.f2.toFixed(2)}
-                </span>
-              </div>
-              <p className="mt-4 text-sm leading-relaxed text-mute">
-                F2 weights recall higher than precision, because a missed rip current costs more than a false alarm.
-              </p>
-              {metrics.notes && (
-                <p className="mt-3 font-mono text-xs text-amber">{metrics.notes}</p>
-              )}
-            </section>
-
-            <section className="rounded-lg border border-line bg-panel p-6">
-              <div className="font-mono text-xs tracking-[0.2em] text-mute">LIMITS</div>
-              <ul className="mt-4 space-y-3 text-sm leading-relaxed text-ink/90">
-                <li>Placeholder: evaluated on a small held-out set from a limited number of beaches.</li>
-                <li>Placeholder: performance in rain, glare, low light and heavy surf is untested.</li>
-                <li>Placeholder: a supervised aid for lifeguards, not a replacement for them.</li>
-                <li>Placeholder: fixed camera angles only, no drone or handheld footage.</li>
-              </ul>
-            </section>
+    <PageTransition>
+      <main className="flex h-[calc(100dvh-56px)] min-h-0 flex-col gap-6 px-8 pb-8 pt-6">
+        <div className="flex shrink-0 items-end justify-between">
+          <div>
+            <h1 className="text-[28px] font-semibold leading-tight tracking-[-0.01em]">Model comparison</h1>
+            <p className="mt-1 text-sm text-ink-2">
+              Box-level scores on{" "}
+              <span className="font-mono text-ink">{metrics ? metrics.heldOutFrames : "–"}</span> held-out frames
+              the models never trained on.
+            </p>
           </div>
+          {metrics?.fake && (
+            <span className="rounded-md border border-dashed border-line-3 px-3 py-1.5 font-mono text-xs font-medium text-ink-2">
+              PLACEHOLDER DATA
+            </span>
+          )}
         </div>
-      )}
-    </main>
+
+        {failed && (
+          <p className="text-ink-2">Could not load metrics.json. Check that web/public/data/metrics.json exists.</p>
+        )}
+
+        {metrics && ours && (
+          <div className="grid min-h-0 flex-1 grid-cols-[minmax(0,1fr)_480px] gap-6">
+            <section className="rw-panel flex min-h-0 flex-col p-6">
+              <div className="flex shrink-0 items-center justify-between">
+                <h2 className="text-base font-semibold">Scores by metric</h2>
+                <ul className="flex items-center gap-6 text-sm" aria-label="Legend">
+                  {models.map((m, i) => (
+                    <li key={m.name} className={`flex items-center gap-2 ${m === ours ? "text-ink" : "text-ink-2"}`}>
+                      <span className="h-3 w-3 rounded-xs" style={{ background: colors[i] }} />
+                      {m.name}
+                    </li>
+                  ))}
+                </ul>
+              </div>
+              <div className="mt-4 min-h-0 flex-1">
+                <ResultsChart metrics={metrics} />
+              </div>
+            </section>
+
+            <div className="flex min-h-0 flex-col gap-6">
+              <section className="rw-panel p-6">
+                <h2 className="text-sm text-ink-2">{ours.name}, F2</h2>
+                <div className="mt-3 flex items-end gap-5">
+                  <span className="font-mono text-[64px] font-medium leading-none tracking-[-0.04em] text-sea">
+                    {ours.f2.toFixed(2)}
+                  </span>
+                  {baseline && (
+                    <div className="pb-1.5">
+                      <div className="font-mono text-[28px] leading-none text-ink-2">{baseline.f2.toFixed(2)}</div>
+                      <div className="mt-1 text-[13px] text-ink-3">{baseline.name}</div>
+                    </div>
+                  )}
+                </div>
+                {baseline && (
+                  <div className="mt-4 text-sm text-ink-2">
+                    <span className="font-mono text-ink">
+                      {ours.f2 - baseline.f2 >= 0 ? "+" : "−"}
+                      {Math.abs(ours.f2 - baseline.f2).toFixed(2)}
+                    </span>{" "}
+                    F2 over the best baseline
+                  </div>
+                )}
+                <p className="mt-4 border-t border-line pt-4 text-sm leading-relaxed text-ink-2">
+                  F2 weights recall above precision, because a missed rip current costs more than a false alarm.
+                </p>
+              </section>
+
+              {metrics.notes && (
+                <section className="rw-panel p-6">
+                  <h2 className="text-sm font-semibold">How it was measured</h2>
+                  <p className="mt-2 text-sm leading-relaxed text-ink-2">{metrics.notes}</p>
+                </section>
+              )}
+
+              <section className="rw-panel min-h-0 flex-1 p-6">
+                <h2 className="text-sm font-semibold">Known limitations</h2>
+                <ul className="mt-3 space-y-2.5">
+                  {LIMITATIONS.map((t) => (
+                    <li key={t} className="flex gap-3 text-sm leading-relaxed text-ink-2">
+                      <IconInfo size={16} className="mt-0.5 shrink-0 text-ink-3" />
+                      {t}
+                    </li>
+                  ))}
+                </ul>
+              </section>
+            </div>
+          </div>
+        )}
+      </main>
+    </PageTransition>
   );
 }

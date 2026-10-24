@@ -1,33 +1,114 @@
+import type { CSSProperties, ReactNode } from "react";
 import type { ClipMeta } from "@/lib/clips";
+import type { RipStatus } from "@/lib/useRipStatus";
+import { IconAlert, IconCheck, IconClear } from "./Icons";
+import { Elapsed } from "./LiveClock";
 
-export default function AlertCard({
-  show,
-  clip,
-  conf,
-}: {
-  show: boolean;
-  clip: ClipMeta;
-  conf: number;
-}) {
+function Cell({ label, children, alert }: { label: string; children: ReactNode; alert?: boolean }) {
   return (
-    <div
-      className={`rounded-lg border border-alert/60 bg-gradient-to-br from-alert/20 to-panel p-5 transition-all duration-500 ease-out ${
-        show ? "translate-x-0 opacity-100" : "pointer-events-none translate-x-24 opacity-0"
-      }`}
-      role="alert"
-      aria-hidden={!show}
-    >
-      <div className="flex items-center gap-2 font-mono text-xs font-semibold tracking-[0.2em] text-alert">
-        <span className="rw-blink h-2 w-2 rounded-full bg-alert" />
-        ALERT · RIP CURRENT
-      </div>
-      <div className="mt-3 text-2xl font-semibold">{clip.camera} · {clip.location}</div>
-      <div className="mt-2 flex items-end justify-between">
-        <span className="text-sm text-mute">Dispatch lifeguard to flag the zone</span>
-        <span className="font-mono text-3xl font-semibold text-alert">
-          {Math.round(conf * 100)}%
-        </span>
-      </div>
+    <div className="min-w-30">
+      <dt className="text-[13px] text-ink-3">{label}</dt>
+      <dd className={`mt-1 font-mono text-[28px] leading-none ${alert ? "text-rip" : "text-ink"}`}>{children}</dd>
     </div>
+  );
+}
+
+/**
+ * Status panel under the main feed. Always present (so nothing shifts), it turns into the
+ * alert card when the main camera sees a rip: red edge and tint, a short rise-in, and a
+ * pulse that stops once a lifeguard acknowledges it.
+ */
+export default function AlertCard({
+  clip,
+  status,
+  acked,
+  since,
+  watchingSince,
+  others,
+  onAcknowledge,
+  onView,
+  style,
+}: {
+  clip: ClipMeta;
+  status?: RipStatus;
+  acked: boolean;
+  since: number | null;
+  watchingSince: number | null;
+  others: ClipMeta[];
+  onAcknowledge: () => void;
+  onView: (clipId: string) => void;
+  style?: CSSProperties;
+}) {
+  const active = !!status?.active;
+  const message = active
+    ? acked
+      ? "Acknowledged. Keep the zone flagged until this feed clears."
+      : "Send a lifeguard to check the water and flag the zone."
+    : others.length
+      ? `${others.length === 1 ? "Another camera has" : `${others.length} other cameras have`} an active alert.`
+      : "Watching for rip currents. Advisory only: lifeguards and posted beach flags have the final say.";
+
+  return (
+    <section
+      style={style}
+      role={active ? "alert" : "status"}
+      className={`relative flex min-h-0 overflow-hidden rounded-xl border ${
+        active
+          ? "border-rip/45 bg-[linear-gradient(90deg,rgba(255,59,59,0.16),rgba(255,59,59,0.05)_55%,var(--panel))]"
+          : "border-line bg-panel"
+      } ${active && !acked ? "rw-alert-pulse" : ""}`}
+    >
+      {active && <span className="absolute inset-y-0 left-0 w-1 bg-rip" />}
+      <div key={active ? "alert" : "clear"} className="rw-rise flex flex-1 items-center gap-10 px-7">
+        <div className="flex min-w-0 flex-1 items-center gap-5">
+          <span
+            className={`grid h-14 w-14 shrink-0 place-items-center rounded-full ${
+              active ? "bg-rip/15 text-rip" : "bg-sea/10 text-sea"
+            }`}
+          >
+            {active ? <IconAlert size={28} /> : <IconClear size={28} />}
+          </span>
+          <div className="min-w-0">
+            <div className="text-[13px] text-ink-2">
+              <span className="font-mono">{clip.camera}</span> · {clip.location}
+            </div>
+            <div className="mt-1 text-[28px] font-semibold leading-tight tracking-[-0.01em]">
+              {active ? "Rip current detected" : "Clear"}
+            </div>
+            <p className="mt-1 truncate text-sm text-ink-2">{message}</p>
+          </div>
+        </div>
+
+        <dl className="flex shrink-0 items-center gap-8">
+          <Cell label="Confidence" alert={active}>
+            {active ? `${Math.round((status?.conf ?? 0) * 100)}%` : "–"}
+          </Cell>
+          <Cell label={active ? "Active for" : "Watching for"}>
+            <Elapsed since={active ? since : watchingSince} />
+          </Cell>
+        </dl>
+
+        <div className="flex w-42 shrink-0 justify-end">
+          {active ? (
+            acked ? (
+              <span className="inline-flex items-center gap-2 text-sm text-ink-2">
+                <IconCheck size={18} />
+                Acknowledged
+              </span>
+            ) : (
+              <button type="button" onClick={onAcknowledge} className="rw-btn rw-btn-light h-11 px-5 text-[15px]">
+                Acknowledge
+              </button>
+            )
+          ) : (
+            others.length > 0 && (
+              <button type="button" onClick={() => onView(others[0].id)} className="rw-btn h-11 px-5 text-[15px]">
+                View {others[0].camera}
+              </button>
+            )
+          )}
+        </div>
+      </div>
+    </section>
   );
 }

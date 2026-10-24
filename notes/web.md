@@ -72,3 +72,69 @@ eslint and tsc pass. Loaded `/pipeline` after a clean dev-server restart: sweep 
 
 **Blockers**
 - Real clip1 and clip2 videos and all real masks (ML).
+
+## 2026-10-24 10:50 - Full visual redesign (written from the ML teammate's laptop)
+**Note:** this entry was written from the ML teammate's laptop. For this task only, the user had the ML teammate do web work while the web teammate was not touching web/. Unchanged: notes/contract.md, lib/data.ts, lib/useRipStatus.ts, anything in web/public/data/, the MaskedVideo frame sync (frame = floor(currentTime * fps)) and the PLACEHOLDER DATA badge condition (`metrics.fake`).
+
+**Direction**
+- Calm coastal operations console, based on research into Surfline cam pages, VMS and alarm consoles (ISA-101, Genetec, Milestone), NWS rip current pages, and the Vercel Geist / Linear dark systems.
+- Navy surfaces in three levels, one accent (sea glass #4fb8ac) for clear, selected and interactive states, and red (#ff3b3b) only for an active rip detection: mask, alert frame, alert badge, alert card and active-alert count.
+- Color is always paired with a shape: triangle for rip, circle-check for clear.
+- Type: Public Sans for UI, IBM Plex Mono only for timestamps, IDs and numbers. Sentence-case labels; uppercase letter-spaced labels removed.
+- Tokens and shared button, segmented and panel classes live in app/globals.css. New one-style icon set in components/Icons.tsx.
+
+**Per page**
+- **Global:**
+  - New nav with a sea-glass logo mark (not red) and an underlined active link, "Monitoring" status and a mono clock.
+  - Consistent buttons with focus-visible rings (2px sea glass).
+  - Route crossfade via React `<ViewTransition>` (components/PageTransition.tsx) with the nav anchored. `prefers-reduced-motion` disables animations.
+  - `devIndicators: false` in next.config.ts, so the Next dev badge is not in recordings.
+- **Command (/):**
+  - One large feed plus a strip of the other two (click a tile or press 1-3 to switch), sized from the container so the hero height equals the strip and nothing overflows. Feeds stay mounted, so switching never restarts video or re-fires alerts.
+  - CCTV-style overlays: camera and location, "Live" only when footage is playing, and a mono timestamp.
+  - The Network status box is replaced by a compact status row: "x of 3 streaming" and an active-alert count, red only when above 0.
+  - Under the hero is a status panel that becomes the alert card on detection: red edge and tint, confidence, "Active for" timer, and Acknowledge. It pulses until acknowledged, then stays steady red. Acknowledging is logged. When the hero is clear but another camera is alerting, the panel shows "View CAM 0x".
+  - Slim event log with severity icons and time-only stamps.
+  - Missing clips show a calm "Awaiting footage" placeholder, placed low in the frame so masks stay readable.
+  - New files: components/FeedTile.tsx, components/EventLog.tsx; AlertCard.tsx rewritten.
+- **Compare (/compare):**
+  - Two large synced panes (about 916x515 each).
+  - Titles come from each mask file's `model` field. If the field is missing or the file fails to load, the fallback is "Gemini Flash (zero-shot)" / "RipWatch (fine-tuned)" (lib/clips.ts), hidden for up to 1s so there is no flash.
+  - New `tone` prop on MaskedVideo: baseline boxes draw in neutral slate and the baseline status chip is neutral ("Detection"). Only RipWatch is red.
+  - Playback bar: Play/Pause, Restart, shared clock readout, and a legend.
+- **Results (/results):**
+  - Chart grouped by metric (F2, Precision, Recall), one bar per model. RipWatch is sea glass (the user chose this over red) and other models are neutral grays. Legend, y-axis 0-1, values on the bars, and it fits at 1080.
+  - Headline card: RipWatch F2 against the best other model's F2, plus the difference. "How it was measured" shows `metrics.notes`.
+  - "Known limitations" replaces the placeholder list with honest statements and no numbers.
+  - The PLACEHOLDER DATA badge text and its `metrics.fake` condition are unchanged; only its style changed (neutral dashed).
+- **Pipeline (/pipeline):**
+  - Smaller, balanced type; one icon style; the model card in sea glass instead of red; the teal sweep animation kept.
+  - Dataset line is now exactly "Trained on RipVIS: 184 videos, 212,328 frames, 10 countries".
+- **Hook (/hook):** full-bleed video, 88px "Where would you swim?", softer gradient, smoother mask fade. Keys unchanged.
+
+**Files touched**
+web/app/{globals.css, layout.tsx, page.tsx, compare/page.tsx, results/page.tsx, pipeline/page.tsx, hook/page.tsx}, web/components/{TopBar, Dashboard, AlertCard, StatusPill, ThresholdControl, LiveClock, ResultsChart, MaskedVideo}.tsx, new web/components/{Icons, PageTransition, FeedTile, EventLog}.tsx, web/lib/clips.ts, web/next.config.ts, notes/web.md.
+
+**Verified**
+- eslint, tsc and `next build` pass; all routes are static.
+- At an emulated 1920x1080 viewport (dev and production build): every route has scrollWidth x scrollHeight exactly 1920x1080, so no overflow. No console errors except the expected 404s for the missing clip1/clip2 mp4s.
+- Fake detections on CAM 01/02 escalate (red frame, badge, alert card, pulse). Acknowledge stops the pulse and logs.
+- CAM 03 (real clip3 mp4) plays and stays Clear. Switching the hero by click and by keys keeps the video playing (no restart) and adds no duplicate log entries.
+- Compare shows the `model` fields; the fallback labels show when the mask requests fail. Both panes play clip3 within about 0.01s.
+- Results shows 9 bars with values. Pipeline dataset line text matches exactly.
+- Hook fades the mask on M (opacity 0 → 1 over about 1.2s).
+- Keyboard focus ring visible. View transitions fire on nav clicks.
+
+**Not verified**
+- Real clip1/clip2 playback and real masks/metrics (none exist yet).
+- The reduced-motion behavior in a browser; the CSS rule is in place but DevTools here cannot emulate the media feature.
+- Safari/Firefox view transitions; they fall back to no animation.
+- The dataset figures 212,328 frames and 10 countries: these are the user's wording. The RipVIS dataset card confirms 184 videos but does not state the frame or country count. Check them against the paper before recording.
+- Surfline condition colors and some VMS vendors could not be checked during research.
+
+**Next**
+- Once ML drops real clips and masks, re-check mask alignment on real video and the Compare labels (they will show whatever `model` the real files carry).
+- Record a dry run of the 3-minute flow.
+
+**Blockers**
+- Real clip1/clip2 mp4s and real model output (ML).

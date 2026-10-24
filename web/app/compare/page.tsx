@@ -1,10 +1,12 @@
 "use client";
 
-import { useRef, useState } from "react";
+import { useEffect, useRef, useState, type MutableRefObject } from "react";
+import { IconPause, IconPlay, IconRestart } from "@/components/Icons";
 import MaskedVideo from "@/components/MaskedVideo";
+import PageTransition from "@/components/PageTransition";
 import StatusPill from "@/components/StatusPill";
 import ThresholdControl from "@/components/ThresholdControl";
-import { CLIPS, DEFAULT_THRESHOLD, SOURCE_LABEL } from "@/lib/clips";
+import { CLIPS, DEFAULT_THRESHOLD, FALLBACK_MODEL_LABEL, SOURCE_LABEL } from "@/lib/clips";
 import type { MaskFile, MaskSource } from "@/lib/types";
 import { useRipStatus } from "@/lib/useRipStatus";
 
@@ -22,40 +24,74 @@ function Side({
   threshold: number;
   playing: boolean;
   restartKey: number;
-  timeRef?: React.MutableRefObject<number>;
-  followTimeRef?: React.MutableRefObject<number>;
+  timeRef?: MutableRefObject<number>;
+  followTimeRef?: MutableRefObject<number>;
 }) {
   const [status, onFrame] = useRipStatus();
   const [file, setFile] = useState<MaskFile | null>(null);
+  const [waited, setWaited] = useState(false);
   const ripwatch = source === "ripwatch";
+
+  // The title is the mask file's "model" field. Hold it back briefly so it never flashes
+  // from the fallback to the real name while the file loads.
+  useEffect(() => {
+    const id = setTimeout(() => setWaited(true), 1000);
+    return () => clearTimeout(id);
+  }, []);
+  const title = file?.model?.trim() || (file || waited ? FALLBACK_MODEL_LABEL[source] : "");
+
   return (
-    <section
-      className={`min-w-0 flex-1 overflow-hidden rounded-lg border bg-panel ${
-        ripwatch ? "border-alert/50" : "border-line"
-      }`}
-    >
-      <div className="flex items-center justify-between border-b border-line px-5 py-4">
-        <div>
-          <div className="text-2xl font-semibold tracking-wide">{SOURCE_LABEL[source]}</div>
-          <div className="mt-1 font-mono text-xs tracking-wider text-mute">
-            {file?.model ?? "loading model"}
-          </div>
+    <section className="flex min-w-0 flex-1 flex-col gap-3">
+      <div className="flex h-14 items-end justify-between gap-4 px-1">
+        <div className="min-w-0">
+          <div className="text-[13px] text-ink-3">{SOURCE_LABEL[source]}</div>
+          <h2
+            className={`mt-0.5 truncate text-xl font-semibold tracking-[-0.01em] transition-opacity duration-200 ${
+              title ? "opacity-100" : "opacity-0"
+            }`}
+          >
+            {title || " "}
+          </h2>
         </div>
-        <StatusPill active={status.active} />
+        <StatusPill active={status.active} tone={ripwatch ? "alert" : "neutral"} />
       </div>
-      <MaskedVideo
-        clipId={clipId}
-        source={source}
-        threshold={threshold}
-        playing={playing}
-        restartKey={restartKey}
-        timeRef={timeRef}
-        followTimeRef={followTimeRef}
-        onFrame={onFrame}
-        onLoad={setFile}
-        className="aspect-video w-full"
-      />
+      <div className="relative">
+        <MaskedVideo
+          clipId={clipId}
+          source={source}
+          tone={ripwatch ? "alert" : "neutral"}
+          threshold={threshold}
+          playing={playing}
+          restartKey={restartKey}
+          timeRef={timeRef}
+          followTimeRef={followTimeRef}
+          onFrame={onFrame}
+          onLoad={setFile}
+          className="aspect-video w-full rounded-xl"
+        />
+        <span
+          className={`pointer-events-none absolute inset-0 rounded-xl border ${
+            ripwatch && status.active ? "border-2 border-rip" : "border-line-2"
+          }`}
+        />
+      </div>
     </section>
+  );
+}
+
+/** Reads the shared clock ref a few times a second; the panes keep syncing on their own. */
+function ClockReadout({ clock }: { clock: MutableRefObject<number> }) {
+  const [t, setT] = useState(0);
+  useEffect(() => {
+    const id = setInterval(() => setT(clock.current), 250);
+    return () => clearInterval(id);
+  }, [clock]);
+  const m = Math.floor(t / 60);
+  const s = t % 60;
+  return (
+    <span className="font-mono text-sm text-ink">
+      {String(m).padStart(2, "0")}:{s.toFixed(1).padStart(4, "0")}
+    </span>
   );
 }
 
@@ -67,62 +103,77 @@ export default function ComparePage() {
   const clock = useRef(0);
 
   return (
-    <main className="flex flex-1 flex-col gap-5 p-6">
-      <div className="flex h-9 items-center justify-between">
-        <div className="flex items-center gap-2">
-          {CLIPS.map((c) => (
-            <button
-              key={c.id}
-              type="button"
-              onClick={() => setClipId(c.id)}
-              className={`rounded-md border px-4 py-1.5 text-sm ${
-                c.id === clipId
-                  ? "border-ink/40 bg-panel2 text-ink"
-                  : "border-line text-mute hover:text-ink"
-              }`}
-            >
-              {c.camera} · {c.location}
-            </button>
-          ))}
-        </div>
-        <div className="flex items-center gap-6">
+    <PageTransition>
+      <main className="flex h-[calc(100dvh-56px)] flex-col gap-5 px-8 pb-8 pt-5">
+        <div className="flex h-10 shrink-0 items-center justify-between">
+          <div className="flex items-center gap-6">
+            <h1 className="text-xl font-semibold tracking-[-0.01em]">Compare models</h1>
+            <div className="rw-seg" role="group" aria-label="Camera">
+              {CLIPS.map((c) => (
+                <button
+                  key={c.id}
+                  type="button"
+                  aria-pressed={c.id === clipId}
+                  onClick={() => setClipId(c.id)}
+                  className="rw-seg-item"
+                >
+                  <span className="font-mono text-[13px]">{c.camera}</span>
+                  <span className="ml-2">{c.location}</span>
+                </button>
+              ))}
+            </div>
+          </div>
           <ThresholdControl value={threshold} onChange={setThreshold} />
-          <div className="flex gap-2">
-            <button
-              type="button"
-              onClick={() => setPlaying((p) => !p)}
-              className="w-24 rounded-md border border-line px-4 py-1.5 font-mono text-xs tracking-wider hover:border-mute"
-            >
-              {playing ? "PAUSE" : "PLAY"}
-            </button>
-            <button
-              type="button"
-              onClick={() => setRestartKey((k) => k + 1)}
-              className="rounded-md border border-line px-4 py-1.5 font-mono text-xs tracking-wider text-mute hover:text-ink"
-            >
-              RESTART
-            </button>
+        </div>
+
+        <div className="flex min-h-0 flex-1 flex-col justify-center gap-6">
+          <div className="flex gap-6" key={clipId}>
+            <Side
+              clipId={clipId}
+              source="baseline"
+              threshold={threshold}
+              playing={playing}
+              restartKey={restartKey}
+              timeRef={clock}
+            />
+            <Side
+              clipId={clipId}
+              source="ripwatch"
+              threshold={threshold}
+              playing={playing}
+              restartKey={restartKey}
+              followTimeRef={clock}
+            />
+          </div>
+
+          <div className="rw-panel flex h-16 shrink-0 items-center justify-between px-5">
+            <div className="flex items-center gap-3">
+              <button type="button" onClick={() => setPlaying((p) => !p)} className="rw-btn rw-btn-primary w-28">
+                {playing ? <IconPause size={16} /> : <IconPlay size={16} />}
+                {playing ? "Pause" : "Play"}
+              </button>
+              <button type="button" onClick={() => setRestartKey((k) => k + 1)} className="rw-btn">
+                <IconRestart size={16} />
+                Restart
+              </button>
+              <span className="ml-3 flex items-center gap-2 text-sm text-ink-3">
+                Shared clock <ClockReadout clock={clock} />
+              </span>
+            </div>
+            <div className="flex items-center gap-6 text-sm text-ink-2">
+              <span className="flex items-center gap-2">
+                <span className="h-3.5 w-5 rounded-xs border border-det bg-det/10" />
+                Baseline boxes
+              </span>
+              <span className="flex items-center gap-2">
+                <span className="h-3.5 w-5 rounded-xs border border-rip bg-rip/30" />
+                RipWatch mask
+              </span>
+              <span className="text-ink-3">Same footage, one shared clock</span>
+            </div>
           </div>
         </div>
-      </div>
-      <div className="flex gap-6" key={clipId}>
-        <Side
-          clipId={clipId}
-          source="baseline"
-          threshold={threshold}
-          playing={playing}
-          restartKey={restartKey}
-          timeRef={clock}
-        />
-        <Side
-          clipId={clipId}
-          source="ripwatch"
-          threshold={threshold}
-          playing={playing}
-          restartKey={restartKey}
-          followTimeRef={clock}
-        />
-      </div>
-    </main>
+      </main>
+    </PageTransition>
   );
 }

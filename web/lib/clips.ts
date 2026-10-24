@@ -16,9 +16,16 @@ export const CLIPS: ClipMeta[] = [
 
 export const DEFAULT_THRESHOLD = 0.5;
 
+/** Role of each side in /compare. */
 export const SOURCE_LABEL: Record<MaskSource, string> = {
   baseline: "Baseline",
-  ripwatch: "RipWatch",
+  ripwatch: "Fine-tuned",
+};
+
+/** Pane title when a mask file has no "model" field (or could not load). */
+export const FALLBACK_MODEL_LABEL: Record<MaskSource, string> = {
+  baseline: "Gemini Flash (zero-shot)",
+  ripwatch: "RipWatch (fine-tuned)",
 };
 
 export function clipVideoUrl(clipId: string) {

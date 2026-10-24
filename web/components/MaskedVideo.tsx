@@ -4,6 +4,7 @@ import { useEffect, useRef, useState, type MutableRefObject } from "react";
 import { clipVideoUrl } from "@/lib/clips";
 import { detectionsAt, loadMasks } from "@/lib/data";
 import type { Detection, MaskFile, MaskSource } from "@/lib/types";
+import { IconCameraOff } from "./Icons";
 
 interface Props {
   clipId: string;
@@ -23,11 +24,19 @@ interface Props {
   /** Called when the frame index changes, with detections above threshold. */
   onFrame?: (detections: Detection[]) => void;
   onLoad?: (file: MaskFile) => void;
+  /** Called with true once the clip has a frame to show, false if it cannot load. */
+  onVideoState?: (ok: boolean) => void;
+  /** "alert" (red) for RipWatch; "neutral" for other models, so only RipWatch is red. */
+  tone?: Tone;
   className?: string;
 }
 
-const FILL = "rgba(255, 45, 45, 0.30)";
-const STROKE = "#ff3b3b";
+type Tone = "alert" | "neutral";
+
+const TONES: Record<Tone, { fill: string; stroke: string; labelBg: string; labelInk: string }> = {
+  alert: { fill: "rgba(255, 45, 45, 0.30)", stroke: "#ff3b3b", labelBg: "rgba(10, 4, 4, 0.82)", labelInk: "#ffd7d7" },
+  neutral: { fill: "rgba(201, 211, 222, 0.10)", stroke: "#c9d3de", labelBg: "rgba(10, 15, 21, 0.85)", labelInk: "#e6edf3" },
+};
 
 function bounds(d: Detection) {
   if (d.box) return { x1: d.box[0], y1: d.box[1], x2: d.box[2], y2: d.box[3] };
@@ -47,7 +56,9 @@ function drawDetections(
   file: MaskFile,
   dets: Detection[],
   scale: number,
+  tone: Tone,
 ) {
+  const { fill: FILL, stroke: STROKE, labelBg, labelInk } = TONES[tone];
   ctx.clearRect(0, 0, file.width, file.height);
   ctx.lineJoin = "round";
   for (const d of dets) {
@@ -80,12 +91,12 @@ function drawDetections(
     let ly = b.y1 - h - 4 * scale;
     lx = Math.min(Math.max(lx, 0), file.width - w);
     if (ly < 0) ly = b.y2 + 4 * scale;
-    ctx.fillStyle = "rgba(10, 4, 4, 0.82)";
+    ctx.fillStyle = labelBg;
     ctx.fillRect(lx, ly, w, h);
     ctx.strokeStyle = STROKE;
     ctx.lineWidth = 1 * scale;
     ctx.strokeRect(lx, ly, w, h);
-    ctx.fillStyle = "#ffd7d7";
+    ctx.fillStyle = labelInk;
     ctx.textBaseline = "middle";
     ctx.fillText(text, lx + padX, ly + h / 2 + 0.5 * scale);
   }
@@ -103,6 +114,8 @@ export default function MaskedVideo({
   followTimeRef,
   onFrame,
   onLoad,
+  onVideoState,
+  tone = "alert",
   className = "",
 }: Props) {
   const videoRef = useRef<HTMLVideoElement>(null);
@@ -112,17 +125,26 @@ export default function MaskedVideo({
   const [videoFailed, setVideoFailed] = useState(false);
 
   // Everything the draw loop needs lives in refs so React never re-renders per frame.
-  const live = useRef({ threshold, showMask, playing, onFrame, onLoad, videoOk });
+  const live = useRef({ threshold, showMask, playing, onFrame, onLoad, videoOk, tone });
   useEffect(() => {
-    live.current = { threshold, showMask, playing, onFrame, onLoad, videoOk };
+    live.current = { threshold, showMask, playing, onFrame, onLoad, videoOk, tone };
   });
   const dirty = useRef(true);
   const synthT = useRef(0);
   const restartRef = useRef(restartKey);
+  const videoStateCb = useRef(onVideoState);
+  useEffect(() => {
+    videoStateCb.current = onVideoState;
+  });
 
   useEffect(() => {
     dirty.current = true;
-  }, [threshold, showMask]);
+  }, [threshold, showMask, tone]);
+
+  useEffect(() => {
+    if (videoOk) videoStateCb.current?.(true);
+    else if (videoFailed) videoStateCb.current?.(false);
+  }, [videoOk, videoFailed]);
 
   useEffect(() => {
     let cancelled = false;
@@ -214,7 +236,7 @@ export default function MaskedVideo({
         lastIdx = idx;
         dirty.current = false;
         const dets = detectionsAt(file, idx).filter((d) => d.conf >= st.threshold);
-        if (st.showMask) drawDetections(ctx, file, dets, scale);
+        if (st.showMask) drawDetections(ctx, file, dets, scale, st.tone);
         else ctx.clearRect(0, 0, file.width, file.height);
         if (changed) st.onFrame?.(dets);
       }
@@ -228,12 +250,16 @@ export default function MaskedVideo({
   }, [file, followTimeRef, timeRef]);
 
   return (
-    <div className={`relative overflow-hidden bg-black ${className}`}>
+    <div className={`relative overflow-hidden bg-[#05080c] @container ${className}`}>
       {!videoOk && (
-        <div className="rw-grid-bg absolute inset-0 bg-[#05080c]">
-          <span className="absolute bottom-3 left-4 font-mono text-[11px] tracking-[0.3em] text-mute/60">
-            {videoFailed ? "NO SIGNAL" : "ACQUIRING"}
-          </span>
+        <div className="rw-placeholder absolute inset-0">
+          {videoFailed && (
+            // Low in the frame, so it stays readable when a mask is drawn over the empty feed.
+            <div className="absolute inset-x-0 bottom-[14%] flex items-center justify-center gap-[0.8cqw] text-ink-3">
+              <IconCameraOff className="h-[clamp(16px,1.9cqw,26px)] w-[clamp(16px,1.9cqw,26px)]" />
+              <span className="text-[clamp(12px,1.35cqw,17px)]">Awaiting footage</span>
+            </div>
+          )}
         </div>
       )}
       <video
@@ -255,7 +281,7 @@ export default function MaskedVideo({
         ref={canvasRef}
         width={file?.width ?? 1280}
         height={file?.height ?? 720}
-        className="absolute inset-0 h-full w-full object-contain transition-opacity duration-[1200ms] ease-in-out"
+        className="absolute inset-0 h-full w-full object-contain transition-opacity duration-1200 ease-[cubic-bezier(0.22,1,0.36,1)]"
         style={{ opacity: maskOpacity }}
       />
     </div>

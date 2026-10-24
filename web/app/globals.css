@@ -1,31 +1,44 @@
 @import "tailwindcss";
 
+/*
+ * RipWatch tokens. Calm coastal operations console:
+ * neutral navy surfaces, one accent (sea glass) for clear / selected / interactive,
+ * and red ONLY for an active rip detection.
+ */
 :root {
-  --bg: #06080c;
-  --panel: #0c1118;
-  --panel-2: #111823;
-  --line: #1c2633;
-  --ink: #e8eef5;
-  --mute: #8795a8;
-  --alert: #ff3b3b;
-  --ok: #22c55e;
-  --amber: #f5a524;
-  --steel: #5b8def;
+  --bg: #0a0f15;          /* abyss: page canvas */
+  --panel: #10161f;       /* deep: panels */
+  --raised: #18212c;      /* shoal: raised controls, hover */
+  --raised-2: #1f2a37;
+  --line: rgba(190, 210, 235, 0.08);
+  --line-2: rgba(190, 210, 235, 0.14);
+  --line-3: rgba(190, 210, 235, 0.24);
+  --ink: #e6edf3;         /* foam: primary text */
+  --ink-2: #9daaba;       /* mist: secondary text */
+  --ink-3: #7a889a;       /* slate: tertiary text */
+  --sea: #4fb8ac;         /* sea glass: the one accent */
+  --sea-ink: #06201c;     /* text on a sea-glass fill */
+  --rip: #ff3b3b;         /* active rip detection only */
+  --det: #c9d3de;         /* neutral (non-RipWatch) detections */
 }
 
 @theme inline {
   --color-bg: var(--bg);
   --color-panel: var(--panel);
-  --color-panel2: var(--panel-2);
+  --color-raised: var(--raised);
+  --color-raised-2: var(--raised-2);
   --color-line: var(--line);
+  --color-line-2: var(--line-2);
+  --color-line-3: var(--line-3);
   --color-ink: var(--ink);
-  --color-mute: var(--mute);
-  --color-alert: var(--alert);
-  --color-ok: var(--ok);
-  --color-amber: var(--amber);
-  --color-steel: var(--steel);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
+  --color-ink-2: var(--ink-2);
+  --color-ink-3: var(--ink-3);
+  --color-sea: var(--sea);
+  --color-sea-ink: var(--sea-ink);
+  --color-rip: var(--rip);
+  --color-det: var(--det);
+  --font-sans: var(--font-public-sans);
+  --font-mono: var(--font-plex-mono);
 }
 
 html {
@@ -34,55 +47,201 @@ html {
 }
 
 body {
-  background: var(--bg);
   color: var(--ink);
-  font-family: var(--font-geist-sans), system-ui, sans-serif;
+  font-family: var(--font-public-sans), system-ui, sans-serif;
+  /* A faint wash of light from above so the canvas is layered, not flat black. */
+  background:
+    radial-gradient(1400px 520px at 50% -240px, rgba(79, 184, 172, 0.07), transparent 70%),
+    var(--bg);
 }
 
-@keyframes rw-pulse {
-  0% { box-shadow: 0 0 0 0 rgba(255, 59, 59, 0.55); }
+/* Mono is for timestamps, IDs and numbers, so its digits always line up. */
+.font-mono {
+  font-variant-numeric: tabular-nums;
+}
+
+:focus-visible {
+  outline: 2px solid var(--sea);
+  outline-offset: 2px;
+}
+
+@layer components {
+  .rw-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    height: 36px;
+    padding: 0 14px;
+    border-radius: 6px;
+    border: 1px solid var(--line-2);
+    background: var(--raised);
+    color: var(--ink);
+    font-size: 14px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: background-color 150ms ease-out, border-color 150ms ease-out, color 150ms ease-out;
+  }
+  .rw-btn:hover {
+    background: var(--raised-2);
+    border-color: var(--line-3);
+  }
+  .rw-btn:active {
+    transform: translateY(1px);
+  }
+  .rw-btn-primary {
+    background: var(--sea);
+    border-color: transparent;
+    color: var(--sea-ink);
+  }
+  .rw-btn-primary:hover {
+    background: #63c6ba;
+    border-color: transparent;
+  }
+  .rw-btn-ghost {
+    background: transparent;
+    border-color: transparent;
+    color: var(--ink-2);
+  }
+  .rw-btn-ghost:hover {
+    background: var(--raised);
+    border-color: transparent;
+    color: var(--ink);
+  }
+  /* The one action on a red alert: a light button reads clearly on the red tint. */
+  .rw-btn-light {
+    background: var(--ink);
+    border-color: transparent;
+    color: #1a0b0b;
+  }
+  .rw-btn-light:hover {
+    background: #ffffff;
+    border-color: transparent;
+  }
+
+  .rw-seg {
+    display: inline-flex;
+    gap: 2px;
+    padding: 3px;
+    border-radius: 8px;
+    border: 1px solid var(--line-2);
+    background: var(--panel);
+  }
+  .rw-seg-item {
+    height: 32px;
+    padding: 0 14px;
+    border-radius: 6px;
+    font-size: 14px;
+    font-weight: 500;
+    color: var(--ink-2);
+    cursor: pointer;
+    transition: background-color 150ms ease-out, color 150ms ease-out;
+  }
+  .rw-seg-item:hover {
+    color: var(--ink);
+  }
+  .rw-seg-item[aria-pressed="true"] {
+    background: var(--raised-2);
+    color: var(--ink);
+    box-shadow: inset 0 0 0 1px var(--line-2);
+  }
+
+  .rw-panel {
+    border-radius: 12px;
+    border: 1px solid var(--line);
+    background: var(--panel);
+  }
+
+  /* Empty feed: a calm surface, not a broken player. */
+  .rw-placeholder {
+    background:
+      radial-gradient(ellipse 70% 60% at 50% 45%, #15202c 0%, #0d131b 70%, #0b1017 100%);
+  }
+}
+
+/* ---------------------------------------------------------------- Command: feed grid
+ * The hero's height is exactly two strip tiles (video + caption) plus the gap, so the
+ * columns line up. Sizes come from the container, so the grid shrinks from the height
+ * on shorter screens instead of overflowing. At 1920x1080: hero ~1288x724, strip ~548 wide.
+ */
+.rw-command {
+  container-type: size;
+}
+.rw-cmd-grid {
+  --g: 20px;
+  --cap: 44px;
+  --hh: min(
+    calc(100cqw * 0.375 - var(--g) / 24 + var(--cap) * 2 / 3),
+    calc(100cqh - var(--g) - 150px)
+  );
+  --hw: calc(var(--hh) * 16 / 9);
+  --rw: calc((var(--hh) - 2 * var(--cap) - var(--g)) * 8 / 9);
+  display: grid;
+  grid-template-columns: var(--hw) var(--rw);
+  grid-template-rows:
+    calc((var(--hh) - var(--g)) / 2)
+    calc((var(--hh) - var(--g)) / 2)
+    minmax(0, 1fr);
+  gap: var(--g);
+  justify-content: center;
+  height: 100%;
+}
+
+/* ---------------------------------------------------------------- Motion */
+@keyframes rw-alert-ring {
+  0% { box-shadow: 0 0 0 0 rgba(255, 59, 59, 0.5); }
   70% { box-shadow: 0 0 0 10px rgba(255, 59, 59, 0); }
   100% { box-shadow: 0 0 0 0 rgba(255, 59, 59, 0); }
 }
+/* Pulses only while an alert is unacknowledged. */
+.rw-alert-pulse { animation: rw-alert-ring 1.6s ease-out infinite; }
 
-@keyframes rw-blink {
-  50% { opacity: 0.25; }
+@keyframes rw-rise {
+  from { opacity: 0; transform: translateY(8px); }
+  to { opacity: 1; transform: none; }
 }
-
-.rw-pulse { animation: rw-pulse 1.4s ease-out infinite; }
-.rw-blink { animation: rw-blink 1.2s steps(2, jump-none) infinite; }
-
-.rw-grid-bg {
-  background-image:
-    linear-gradient(rgba(255, 255, 255, 0.035) 1px, transparent 1px),
-    linear-gradient(90deg, rgba(255, 255, 255, 0.035) 1px, transparent 1px);
-  background-size: 48px 48px;
-}
+.rw-rise { animation: rw-rise 240ms cubic-bezier(0.2, 0.8, 0.2, 1) both; }
 
 /* /pipeline: one light sweeps through the stages, a packet travels each connector. */
 @keyframes rw-node-glow {
   0%, 20%, 100% { box-shadow: none; transform: none; }
   3%, 17% {
-    box-shadow: 0 0 0 1px rgba(91, 141, 239, 0.6), 0 0 36px rgba(91, 141, 239, 0.28);
-    transform: translateY(-4px);
+    box-shadow: 0 0 0 1px rgba(79, 184, 172, 0.55), 0 0 32px rgba(79, 184, 172, 0.18);
+    transform: translateY(-3px);
   }
 }
-
 @keyframes rw-packet-run {
   0%, 22%, 100% { left: 0; opacity: 0; }
   2% { opacity: 1; }
-  18% { left: calc(100% - 14px); opacity: 1; }
-  20% { left: calc(100% - 14px); opacity: 0; }
+  18% { left: calc(100% - 10px); opacity: 1; }
+  20% { left: calc(100% - 10px); opacity: 0; }
 }
-
 @keyframes rw-dash-move {
-  to { stroke-dashoffset: -28; }
+  to { stroke-dashoffset: -24; }
 }
-
 .rw-node { animation: rw-node-glow 8s ease-in-out infinite; }
 .rw-packet { animation: rw-packet-run 8s linear infinite; opacity: 0; }
-.rw-dash { animation: rw-dash-move 1.2s linear infinite; }
+.rw-dash { animation: rw-dash-move 1.4s linear infinite; }
+
+/* Route changes: the page crossfades, the nav stays put. */
+@keyframes rw-fade-out { to { opacity: 0; } }
+@keyframes rw-fade-in { from { opacity: 0; transform: translateY(6px); } }
+::view-transition-old(root),
+::view-transition-new(root) { animation: none; }
+::view-transition-old(.rw-page) { animation: 120ms ease-in both rw-fade-out; }
+::view-transition-new(.rw-page) { animation: 220ms ease-out 40ms both rw-fade-in; }
 
 @media (prefers-reduced-motion: reduce) {
-  .rw-node, .rw-packet, .rw-dash { animation: none; }
+  *,
+  ::before,
+  ::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+  ::view-transition-group(*),
+  ::view-transition-old(*),
+  ::view-transition-new(*) {
+    animation: none !important;
+  }
 }

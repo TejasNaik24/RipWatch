@@ -2,6 +2,7 @@
 
 import { useEffect, useRef, useState } from "react";
 import MaskedVideo from "@/components/MaskedVideo";
+import PageTransition from "@/components/PageTransition";
 import { CLIPS, DEFAULT_THRESHOLD } from "@/lib/clips";
 
 // Keys: M fades the mask in/out, Space plays/pauses, R restarts, 1-3 switch clip.
@@ -30,23 +31,26 @@ export default function HookPage() {
   }, []);
 
   return (
-    <main className="fixed inset-0 cursor-none bg-black">
-      <MaskedVideo
-        key={clipId}
-        clipId={clipId}
-        source="ripwatch"
-        threshold={DEFAULT_THRESHOLD}
-        maskOpacity={mask ? 1 : 0}
-        playing={playing}
-        restartKey={restartKey}
-        timeRef={clock}
-        className="h-full w-full"
-      />
-      <div className="pointer-events-none absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/85 via-black/40 to-transparent px-16 pb-20 pt-48 text-center">
-        <h1 className="text-7xl font-semibold tracking-tight text-white drop-shadow-lg">
-          Where would you swim?
-        </h1>
-      </div>
-    </main>
+    <PageTransition>
+      <main className="fixed inset-0 cursor-none bg-black">
+        <MaskedVideo
+          key={clipId}
+          clipId={clipId}
+          source="ripwatch"
+          threshold={DEFAULT_THRESHOLD}
+          maskOpacity={mask ? 1 : 0}
+          playing={playing}
+          restartKey={restartKey}
+          timeRef={clock}
+          className="h-full w-full"
+        />
+        <div className="pointer-events-none absolute inset-x-0 bottom-0 h-[48%] bg-linear-to-t from-black/80 via-black/30 to-transparent" />
+        <div className="pointer-events-none absolute inset-x-0 bottom-0 px-16 pb-24 text-center">
+          <h1 className="text-[88px] font-semibold leading-none tracking-[-0.03em] text-white [text-shadow:0_2px_32px_rgba(0,0,0,0.45)]">
+            Where would you swim?
+          </h1>
+        </div>
+      </main>
+    </PageTransition>
   );
 }
