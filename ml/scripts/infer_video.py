@@ -3,7 +3,7 @@
 
     python ml/scripts/infer_video.py --weights best.pt --video beach.mp4 --clip-id clip1_obvious --start 12 --end 32
 
-Writes web/public/data/clips/{clipId}.mp4 (trimmed or copied, see video_clip.py) and
+Writes web/public/data/clips/{clipId}.mp4 (trimmed, downscaled to --max-width or copied, see video_clip.py) and
 web/public/data/masks/{clipId}.ripwatch.json per notes/contract.md.
 
 Temporal smoothing (default on): a per-pixel rip-probability heatmap at reduced resolution is updated

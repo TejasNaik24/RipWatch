@@ -30,6 +30,9 @@ def add_clip_args(ap: argparse.ArgumentParser) -> None:
     ap.add_argument("--data-dir", type=Path, default=DEFAULT_DATA_DIR,
                     help="output root with clips/ and masks/ (default: web/public/data)")
     ap.add_argument("--ffmpeg", default=None, help="ffmpeg binary (default: the one bundled by imageio-ffmpeg)")
+    ap.add_argument("--max-width", type=int, default=1920,
+                    help="downscale the clip to at most this width, keeping aspect (0 = keep source size). "
+                         "4K clips stutter when the dashboard plays three at once")
 
 
 def ffmpeg_exe(override: str | None = None) -> str:
@@ -79,6 +82,16 @@ def probe(path: Path) -> tuple[int, int, float, int]:
     return w, h, fps, n
 
 
+def source_width(path: Path) -> int:
+    """Width from the container header (cheap; no decoding)."""
+    import cv2
+
+    cap = open_video(path)
+    w = int(cap.get(cv2.CAP_PROP_FRAME_WIDTH))
+    cap.release()
+    return w
+
+
 def iter_frames(path: Path):
     """Yields (i, bgr frame) for every frame, i from 0."""
     cap = open_video(path)
@@ -99,8 +112,9 @@ def _sidecar(clip_id: str) -> Path:
 
 
 def prepare_clip(args) -> Path:
-    """Writes {data-dir}/clips/{clipId}.mp4: a frame-accurate trim when --start/--end are given, else a copy.
-    A matching sidecar means the clip is already there and is reused, so both scripts share one clip."""
+    """Writes {data-dir}/clips/{clipId}.mp4: a frame-accurate trim when --start/--end are given, downscaled
+    when the source is wider than --max-width, else a copy. A matching sidecar means the clip is already
+    there and is reused, so both scripts share one clip."""
     src = args.video.resolve()
     if not src.exists():
         sys.exit(f"ERROR: video not found: {src}")
@@ -108,12 +122,14 @@ def prepare_clip(args) -> Path:
         sys.exit("ERROR: --start must be >= 0")
     if args.start is not None and args.end is not None and args.end <= args.start:
         sys.exit("ERROR: --end must be after --start")
+    if args.max_width < 0:
+        sys.exit("ERROR: --max-width must be >= 0")
 
     out = (args.data_dir / "clips" / f"{args.clip_id}.mp4").resolve()
     out.parent.mkdir(parents=True, exist_ok=True)
     st = src.stat()
     key = {"source": str(src), "size": st.st_size, "mtime_ns": st.st_mtime_ns,
-           "start": args.start, "end": args.end, "out": str(out)}
+           "start": args.start, "end": args.end, "max_width": args.max_width, "out": str(out)}
 
     side = _sidecar(args.clip_id)
     if side.exists() and out.exists():
@@ -126,17 +142,26 @@ def prepare_clip(args) -> Path:
             return out
 
     trimming = args.start is not None or args.end is not None
-    if trimming:
+    src_w = source_width(src)
+    scaling = bool(args.max_width) and src_w > args.max_width
+    if trimming or scaling:
         cmd = [ffmpeg_exe(args.ffmpeg), "-y", "-loglevel", "error"]
         if args.start:
             cmd += ["-ss", f"{args.start:.6f}"]
         cmd += ["-i", str(src)]
         if args.end is not None:
             cmd += ["-t", f"{args.end - (args.start or 0.0):.6f}"]
+        if scaling:
+            cmd += ["-vf", f"scale={args.max_width}:-2:flags=lanczos"]  # -2: even height, same aspect
         # Re-encode (not stream copy) so the cut is frame-accurate and timestamps restart at 0.
         cmd += ["-map", "0:v:0", "-an", "-c:v", "libx264", "-crf", "18", "-preset", "medium",
                 "-pix_fmt", "yuv420p", "-fps_mode", "cfr", "-movflags", "+faststart", str(out)]
-        print(f"trimming {src.name} [{args.start or 0:g}s, {'end' if args.end is None else f'{args.end:g}s'}] -> {out}")
+        what = []
+        if trimming:
+            what.append(f"trimming [{args.start or 0:g}s, {'end' if args.end is None else f'{args.end:g}s'}]")
+        if scaling:
+            what.append(f"downscaling {src_w} -> {args.max_width} wide")
+        print(f"{' and '.join(what)}: {src.name} -> {out}")
         subprocess.run(cmd, check=True)
     elif src != out:
         if src.suffix.lower() != ".mp4":
@@ -153,7 +178,7 @@ def fingerprint(args, n_frames: int, fps: float) -> str:
     """Machine-independent ID of the clip content (same on laptop and Kaggle), for response caches."""
     st = args.video.stat()
     blob = json.dumps({"source": args.video.name, "size": st.st_size, "start": args.start, "end": args.end,
-                       "frames": n_frames, "fps": round(fps, 9)}, sort_keys=True)
+                       "max_width": args.max_width, "frames": n_frames, "fps": round(fps, 9)}, sort_keys=True)
     return hashlib.sha1(blob.encode()).hexdigest()[:12]
 
 
