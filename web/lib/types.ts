@@ -23,17 +23,36 @@ export interface MaskFile {
   frames: FrameEntry[];
 }
 
-export interface ModelMetrics {
-  name: string;
+export interface BoxLevel {
   f2: number;
   precision: number;
   recall: number;
+  tp: number;
+  fp: number;
+  fn: number;
+}
+
+export interface ImageLevel extends BoxLevel {
+  tn: number;
+}
+
+export interface ModelMetrics {
+  name: string;
+  // f2, precision and recall are box level (IoU >= 0.5), as in the original contract.
+  f2: number;
+  precision: number;
+  recall: number;
+  // Optional (notes/contract.md section 3). Old files lack them and the page falls back to box level.
+  imageLevel?: ImageLevel;
+  boxLevel?: BoxLevel;
 }
 
 export interface Metrics {
   fake?: boolean;
   models: ModelMetrics[];
   heldOutFrames: number;
+  ripFrames?: number;
+  noRipFrames?: number;
   notes: string;
 }
 

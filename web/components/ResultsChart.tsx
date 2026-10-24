@@ -1,7 +1,7 @@
 "use client";
 
 import { Bar, BarChart, CartesianGrid, LabelList, ResponsiveContainer, Tooltip, XAxis, YAxis } from "recharts";
-import type { Metrics } from "@/lib/types";
+import type { Metrics, ModelMetrics } from "@/lib/types";
 
 const METRICS = [
   { key: "f2", label: "F2" },
@@ -23,13 +23,17 @@ export function modelColors(names: string[]) {
 
 const fmt = (v: unknown) => (typeof v === "number" ? v.toFixed(2) : String(v));
 
+/** Chart values for one model: image level when asked for and present, else the top-level box-level fields. */
+export const scoresFor = (m: ModelMetrics, level: "image" | "box") =>
+  level === "image" && m.imageLevel ? m.imageLevel : m;
+
 // Grouped by metric: one cluster each for F2, precision and recall, one bar per model.
-export default function ResultsChart({ metrics }: { metrics: Metrics }) {
+export default function ResultsChart({ metrics, level = "box" }: { metrics: Metrics; level?: "image" | "box" }) {
   const models = metrics.models;
   const colors = modelColors(models.map((m) => m.name));
   const data = METRICS.map(({ key, label }) => ({
     metric: label,
-    ...Object.fromEntries(models.map((m, i) => [`m${i}`, m[key]])),
+    ...Object.fromEntries(models.map((m, i) => [`m${i}`, scoresFor(m, level)[key]])),
   }));
 
   return (
