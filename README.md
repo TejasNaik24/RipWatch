@@ -7,7 +7,7 @@ RipWatch watches beach camera video and outlines rip currents in red, so lifegua
 - Drowning killed more than 300,000 people worldwide in 2021 (WHO).
 - In the United States, rip currents cause an estimated 100+ deaths a year and more than 80% of rescues by surf beach lifeguards (USLA).
 - They are hard to see: in a field study at Muriwai Beach, New Zealand, only 22% of beachgoers could identify a real rip current in person.
-- It is not only an ocean problem: Lake Erie saw 17 drownings in 2025, according to the Great Lakes Surf Rescue Project.
+- It is not only an ocean problem: Lake Erie has rip currents too, and the Great Lakes Surf Rescue Project describes them as a recurring factor in Lake Erie drownings.
 
 Lifeguards cannot watch every stretch of water at every moment. RipWatch is a second pair of eyes on the camera feed.
 

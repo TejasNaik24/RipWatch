@@ -123,15 +123,6 @@
   text-wrap: balance;
 }
 
-/* "At least" in front of a number: a lead-in, not part of the figure. */
-.rw-story-pre {
-  margin-right: 0.18em;
-  font-size: 0.34em;
-  font-weight: 500;
-  letter-spacing: 0;
-  color: var(--ink-2);
-}
-
 /* Bridge and closing cards */
 .rw-story-line {
   max-width: 88cqw;

@@ -7,8 +7,6 @@ export const TEAMMATE_NAME = "[Teammate name]";
 /** A number that counts up once each time its card appears. Shown as `pre + number + post`. */
 export interface CountSpec {
   pre?: string;
-  /** Show `pre` small, as a lead-in to the number ("At least"), instead of at full size. */
-  preSmall?: boolean;
   from: number;
   to: number;
   post?: string;
@@ -18,7 +16,8 @@ export interface CountSpec {
 
 export type Card =
   | { kind: "title"; title: string; subline: string }
-  | { kind: "stat"; count: CountSpec; label: string; source: string; eyebrow?: string }
+  | { kind: "stat"; count: CountSpec; label: string; source: string }
+  | { kind: "note"; eyebrow: string; headline: string; subline: string; source: string }
   | { kind: "bridge"; lead: string; before: string; danger: string; after: string }
   | { kind: "closing"; lead: string; turn: string; credit: string; team: string };
 
@@ -44,11 +43,11 @@ export const CARDS: Card[] = [
     source: "Source: Muriwai Beach field study, Natural Hazards and Earth System Sciences (2021)",
   },
   {
-    kind: "stat",
+    kind: "note",
     eyebrow: "Closer to home",
-    count: { pre: "At least ", preSmall: true, from: 0, to: 17 },
-    label: "drownings in Lake Erie in 2025",
-    source: "According to the Great Lakes Surf Rescue Project",
+    headline: "Lake Erie has rip currents too.",
+    subline: "Rip currents are a recurring factor in Lake Erie drownings.",
+    source: "Great Lakes Surf Rescue Project",
   },
   {
     kind: "bridge",

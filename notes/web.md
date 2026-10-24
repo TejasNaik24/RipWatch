@@ -278,3 +278,15 @@ web/app/{globals.css, layout.tsx, page.tsx, compare/page.tsx, results/page.tsx, 
 **Verified:** eslint, tsc and `next build` pass. At 1440x900: both cards free of off-screen or clipped text, no page scroll; the count on card 5 sampled 0, 3, 10, 14, 16, 17. Other sizes not rerun (all story sizes derive from the stage, and all seven cards passed at 1920x1080, 1512x982 and 1440x900 before this change).
 
 **Still to check before recording:** the Lake Erie 17 against the Great Lakes Surf Rescue Project's tracker.
+
+## 2026-10-24 12:30 - /story Lake Erie card without a number (written from the ML teammate's laptop)
+**Note:** written from the ML teammate's laptop; same arrangement as before. Changed only `web/components/story/*`, `web/app/story/story.css`, `README.md`, `docs/video-script.md`.
+
+**Changed**
+- Lake Erie card (card 5) is now a text card with no number and no count-up: "Closer to home" / "Lake Erie has rip currents too." / "Rip currents are a recurring factor in Lake Erie drownings." / source "Great Lakes Surf Rescue Project". New `note` card kind in `cards.ts` and `StoryStage.tsx`. The "At least" lead-in code (`preSmall`, `.rw-story-pre`) was removed since nothing uses it.
+- The "17" is gone from `README.md` and `docs/video-script.md` (card table, Problem narration, notes, Sources, TODO list). Older log entries in `notes/web.md` and `notes/ml.md` still mention it as history; they were not rewritten.
+- The script now says the stat cards are cards 2-4 only, and that card 5 is an advocacy group's claim.
+
+**Verified:** eslint, tsc and `next build` pass. Card 5 at 1920x1080 and 1440x900: no digits on the card, no off-screen or clipped text, no page scroll; card 6 unaffected.
+
+**Still to check before recording:** that "a recurring factor in Lake Erie drownings" matches the Great Lakes Surf Rescue Project's own published wording (it is listed as an open item in the script).

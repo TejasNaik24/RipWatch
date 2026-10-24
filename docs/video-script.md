@@ -27,14 +27,14 @@ A full-screen, keyboard-driven sequence for recording the opening and close. It 
 | 2 | 300,000 estimated drowning deaths worldwide in 2021 (World Health Organization) | Problem, beat 1 |
 | 3 | 80%+ of rescues by US surf beach lifeguards involve rip currents (United States Lifesaving Association) | Problem, beat 2 |
 | 4 | 1 in 5 beachgoers could spot a real rip current in person (Muriwai Beach field study, *Natural Hazards and Earth System Sciences*, 2021) | Problem, beat 3 |
-| 5 | At least 17 drownings in Lake Erie in 2025 (according to the Great Lakes Surf Rescue Project) | Problem, beat 4 |
+| 5 | "Closer to home" / "Lake Erie has rip currents too." / "Rip currents are a recurring factor in Lake Erie drownings." (Great Lakes Surf Rescue Project). No number, no count-up | Problem, beat 4 |
 | 6 | Bridge: "Rip currents look calm. That's what makes them deadly." | End of Problem |
 | 7 | Closing: "Rip currents are invisible. Now they don't have to be." + "RipWatch · HackOHI/O 2026" + team names | Close |
 
 **Notes:**
-- Only the four statistics above appear on the cards, with the sources listed under Sources. Say the same numbers in the voice-over. Card 4 says "1 in 5": **say "about 1 in 5"** (the study's figure is 22%).
+- Only the three statistics above (cards 2-4) appear on the cards; card 5 has no number, with the sources listed under Sources. Say the same numbers in the voice-over. Card 4 says "1 in 5": **say "about 1 in 5"** (the study's figure is 22%).
 - Card 3 is "surf beach lifeguards", not all lifeguards. The USLA-based figure rests on voluntary lifeguard-agency reporting.
-- Card 5 reads "At least 17" (the number counts up to 17). It is an advocacy group's count; keep "according to the Great Lakes Surf Rescue Project" in the voice-over. Re-check the 17 on their tracker before recording (the full-year 2025 total could not be confirmed from news coverage alone).
+- Card 5 is a statement, not a statistic, attributed to the Great Lakes Surf Rescue Project (an advocacy group). Keep "according to the Great Lakes Surf Rescue Project" in the voice-over, and check the wording against their published material before recording.
 - Card 2 says "300,000" with the label "estimated drowning deaths", matching WHO's own "estimated 300,000" for 2021. Say "an estimated 300,000" in the voice-over.
 - Card 7 shows the placeholder `[Teammate name]` until `TEAMMATE_NAME` in `web/components/story/cards.ts` is filled in.
 - The word "deadly" on card 6 is the one red element (`.text-rip` in `StoryStage.tsx`).
@@ -67,14 +67,14 @@ A full-screen, keyboard-driven sequence for recording the opening and close. It 
 >
 > And they are hard to see. In a field study at a New Zealand beach, only 22% of beachgoers could pick out a real rip current. They look like the safest water on the beach.
 >
-> This is not only an ocean problem. Lake Erie saw at least 17 drownings in 2025, according to the Great Lakes Surf Rescue Project.
+> This is not only an ocean problem. Lake Erie has rip currents too. According to the Great Lakes Surf Rescue Project, they are a recurring factor in Lake Erie drownings.
 >
 > Lifeguards cannot watch every stretch of water at every moment.
 
 **Notes:**
 - Voice-over for the third card: say "about 1 in 5 beachgoers could spot a real rip" (the card says "1 in 5"; the study's exact figure is 22%).
 - The WHO figure is all drowning, not only rip currents. Do not say rip currents killed 300,000.
-- The Lake Erie figure is all drownings counted by an advocacy group, not an official or rip-only count. Keep the "according to" attribution on screen and in the voice-over.
+- The Lake Erie line is an advocacy group's claim, not an official count, and it carries no number. Keep the "according to" attribution in the voice-over.
 - Card sources: WHO 2024; USLA; NHESS 2021; Great Lakes Surf Rescue Project.
 - Do not add any statistic that is not in Sources.
 
@@ -154,7 +154,7 @@ A full-screen, keyboard-driven sequence for recording the opening and close. It 
 - [ ] Real clips (`clip1_obvious`, `clip2_sneaky`, `clip3_norip`) and real masks in `web/public/data/`
 - [x] Drowning and rescue figures with source (Problem)
 - [x] Share of people who cannot identify a rip, with source (Problem)
-- [x] Lake Erie figure with source (Problem)
+- [ ] Lake Erie claim: check the card wording against the Great Lakes Surf Rescue Project's own material (Problem)
 - [ ] What the baseline does on the sneaky clip (Demo)
 - [x] RipVIS video, frame and country count, from the paper (How it works); `/pipeline` text still to be checked against it
 - [x] F2, precision, recall, held-out frame count from `ml/scripts/eval_compare.py` (How it works): filled with the image-level headline from `ml/results/comparison.md` (box level mentioned once at most)
@@ -171,5 +171,5 @@ Only these statistics may appear in the video. Add the link for each before reco
 1. World Health Organization, *Global Status Report on Drowning Prevention* (December 2024): an estimated 300,000 drowning deaths worldwide in 2021.
 2. United States Lifesaving Association, Rip Currents, usla.org/page/ripcurrents: rip currents cause an estimated 100+ deaths a year in the US and more than 80% of rescues by surf beach lifeguards.
 3. Field study at Muriwai Beach, New Zealand, *Natural Hazards and Earth System Sciences* (2021): only 22% of beachgoers could identify a real rip current in person.
-4. Great Lakes Surf Rescue Project: at least 17 drownings in Lake Erie in 2025. An advocacy group's count; always attribute it ("according to the Great Lakes Surf Rescue Project").
+4. Great Lakes Surf Rescue Project: rip currents are a recurring factor in Lake Erie drownings (no figure used). An advocacy group's claim; always attribute it ("according to the Great Lakes Surf Rescue Project").
 5. RipVIS dataset paper (CVPR 2025): 184 videos, 212,328 frames, footage from 10 countries.

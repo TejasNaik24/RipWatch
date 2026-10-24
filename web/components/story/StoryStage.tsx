@@ -63,18 +63,30 @@ function CardView({ card }: { card: Card }) {
     case "stat":
       return (
         <>
-          {card.eyebrow && (
-            <p className="rw-story-rise rw-story-eyebrow" style={after(0)}>
-              {card.eyebrow}
-            </p>
-          )}
-          <p className="rw-story-rise rw-story-number" style={after(card.eyebrow ? 150 : 0)}>
+          <p className="rw-story-rise rw-story-number" style={after(0)}>
             <CountUp spec={card.count} />
           </p>
           <p className="rw-story-rise rw-story-label" style={after(450)}>
             {card.label}
           </p>
           <p className="rw-story-rise rw-story-source" style={after(1100)}>
+            {card.source}
+          </p>
+        </>
+      );
+    case "note":
+      return (
+        <>
+          <p className="rw-story-rise rw-story-eyebrow" style={after(0)}>
+            {card.eyebrow}
+          </p>
+          <h2 className="rw-story-rise rw-story-line" style={after(150)}>
+            {card.headline}
+          </h2>
+          <p className="rw-story-rise rw-story-subline" style={after(900)}>
+            {card.subline}
+          </p>
+          <p className="rw-story-rise rw-story-source" style={after(1500)}>
             {card.source}
           </p>
         </>

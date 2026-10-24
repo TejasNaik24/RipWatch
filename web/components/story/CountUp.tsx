@@ -20,7 +20,7 @@ export default function CountUp({
   duration?: number;
   delay?: number;
 }) {
-  const { pre = "", preSmall, post = "", from, to, group } = spec;
+  const { pre = "", post = "", from, to, group } = spec;
   const [n, setN] = useState(from);
 
   useEffect(() => {
@@ -43,7 +43,7 @@ export default function CountUp({
   return (
     <span aria-label={`${pre}${final}${post}`}>
       <span aria-hidden>
-        {preSmall ? <span className="rw-story-pre">{pre}</span> : pre}
+        {pre}
         {/* The slot is sized by the final value (hidden), and the live value sits at its right
             edge, so nothing shifts while it counts. Digits are tabular. */}
         <span className="inline-grid">
