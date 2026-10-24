@@ -316,14 +316,20 @@ def main() -> None:
     ap.add_argument("--dev-nr-videos", type=int, default=2)
     ap.add_argument("--dry-run", action="store_true", help="run the sanity checks only, build nothing")
     ap.add_argument("--strict", action="store_true", help="exit non-zero if any label line is not class 0 + polygon")
+    ap.add_argument("--splits", default="train,val",
+                    help='official splits that were downloaded: "train,val" (default) or "val" alone, '
+                         "which builds only test/ (enough for baseline_vlm.py and eval_compare.py)")
     args = ap.parse_args()
+    official = tuple(s.strip() for s in args.splits.split(",") if s.strip())
+    if not official or set(official) - {"train", "val"}:
+        sys.exit("ERROR: --splits must be a subset of train,val")
 
     args.out.mkdir(parents=True, exist_ok=True)
     scanned: dict[str, list[Image]] = {}
     fmt: dict[str, FormatStats] = {}
 
     heading("1. Sanity checks")
-    for split in ("train", "val"):
+    for split in official:
         img_base = find_dir(args.root, split, "sampled_images")
         lab_base = find_dir(args.root, split, "yolo_annotations")
         images = scan_images(img_base)
@@ -334,10 +340,11 @@ def main() -> None:
         report_unlabeled(split, images, args.out)
         print(f"[{split}] label files with no matching image: {orphans}; ambiguous label matches: {ambiguous}")
 
-    report_additional(scanned["train"])
+    if "train" in scanned:
+        report_additional(scanned["train"])
 
     heading("Label format (expect: class 0, then polygon with more than 4 coordinates)")
-    for split in ("train", "val"):
+    for split in official:
         report_format(split, fmt[split])
     format_ok = not any(s.counts for s in fmt.values())
 
@@ -348,7 +355,6 @@ def main() -> None:
         sys.exit("ERROR: --strict and some label lines are not class 0 + polygon. Nothing built.")
 
     heading("2. Building splits (symlinks)")
-    train_all = scanned["train"]
     excluded = Counter()
     for split, imgs in scanned.items():
         for im in imgs:
@@ -358,40 +364,49 @@ def main() -> None:
         print(f"excluded (no annotations): {n:6d}  official {split}, {group}, {kind}")
     print(f"excluded total: {sum(excluded.values())}")
 
-    kept_train = [im for im in train_all if keep(im)]
-    train_main = [im for im in kept_train if im.group == "main"]
-    dev_videos = choose_dev(train_main, args.dev_rip_videos, args.dev_nr_videos, args.seed)
-    print(f"dev videos (seed {args.seed}): {sorted(f'RipVIS-{v[1]}' if v[0] == 'RIP' else f'RipVIS-NR-{v[1]}' for v in dev_videos)}")
-
-    splits = {
-        "test": [im for im in scanned["val"] if keep(im)],
-        "dev": [im for im in train_main if im.video in dev_videos],
-        "train": [im for im in kept_train if im.group == "additional" or im.video not in dev_videos],
-    }
+    splits: dict[str, list[Image]] = {}
+    if "val" in scanned:
+        splits["test"] = [im for im in scanned["val"] if keep(im)]
+    if "train" in scanned:
+        kept_train = [im for im in scanned["train"] if keep(im)]
+        train_main = [im for im in kept_train if im.group == "main"]
+        dev_videos = choose_dev(train_main, args.dev_rip_videos, args.dev_nr_videos, args.seed)
+        print(f"dev videos (seed {args.seed}): "
+              f"{sorted(f'RipVIS-{v[1]}' if v[0] == 'RIP' else f'RipVIS-NR-{v[1]}' for v in dev_videos)}")
+        splits["dev"] = [im for im in train_main if im.video in dev_videos]
+        splits["train"] = [im for im in kept_train if im.group == "additional" or im.video not in dev_videos]
 
     counts = {name: link_split(args.out, name, items) for name, items in splits.items()}
-    yaml_path = write_yaml(args.out)
+    order = [n for n in ("train", "dev", "test") if n in splits]
 
     heading("3. Leakage check (by video ID)")
     vids = {name: videos_of(items) for name, items in splits.items()}
     leaks = {
         f"{a}/{b}": sorted(vids[a] & vids[b])
         for a, b in (("train", "dev"), ("train", "test"), ("dev", "test"))
-        if vids[a] & vids[b]
+        if a in vids and b in vids and vids[a] & vids[b]
     }
-    for name in ("train", "dev", "test"):
+    for name in order:
         n_rip = sum(1 for v in vids[name] if v[0] == "RIP")
         print(f"{name:5s}: {len(vids[name]):3d} videos ({n_rip} rip, {len(vids[name]) - n_rip} no-rip)")
-    print("FAIL: videos in more than one split: " + str(leaks) if leaks else "PASS: no video appears in more than one split")
+    if len(order) > 1:
+        print("FAIL: videos in more than one split: " + str(leaks) if leaks else "PASS: no video appears in more than one split")
+    else:
+        print("only one split built, nothing to compare")
 
     heading("4. Final counts")
     print(f"{'split':6s} {'images':>8s} {'labeled':>9s} {'unlabeled (NR negatives)':>26s} {'instances':>10s}")
-    for name in ("train", "dev", "test"):
+    for name in order:
         c = counts[name]
         print(f"{name:6s} {c['images']:8d} {c['labeled']:9d} {c['negative']:26d} {c['instances']:10d}")
-    add = [im for im in splits["train"] if im.group == "additional"]
-    print(f"(train includes {len(add)} additional-data images)")
-    print(f"\ndata.yaml: {yaml_path}\n{yaml_path.read_text()}")
+    if "train" in splits:
+        add = [im for im in splits["train"] if im.group == "additional"]
+        print(f"(train includes {len(add)} additional-data images)")
+    if {"train", "test"} <= set(splits):
+        yaml_path = write_yaml(args.out)
+        print(f"\ndata.yaml: {yaml_path}\n{yaml_path.read_text()}")
+    else:
+        print("\ndata.yaml not written: training needs both official splits (--splits train,val).")
     if not format_ok:
         print("WARNING: some label lines are not class 0 + polygon (see the label format section above). "
               "They were linked as-is; rerun with --strict to stop instead.")

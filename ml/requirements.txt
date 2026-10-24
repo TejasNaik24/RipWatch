@@ -1,0 +1,6 @@
+ultralytics
+huggingface_hub
+google-genai
+numpy
+opencv-python-headless
+python-dotenv

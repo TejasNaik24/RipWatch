@@ -52,3 +52,71 @@ Owned by the ML person. Append only; newest entry last. Format per entry: date/t
 **Next:** in Kaggle run `train.py --smoke` first (check DDP starts on both GPUs, epoch times print, `test_metrics.json` appears), then the full run. If DDP hangs, rerun with `--device 0`.
 
 **Blockers:** None. Unverified until it runs: the `m.box.map50` / `m.seg.map` attribute names against the installed Ultralytics version, and that `save_period=1` fits in /kaggle/working (about 20 MB per epoch for the s model).
+
+## 2026-10-24 (Gemini baseline vs RipWatch comparison)
+**Built:** scripts to score zero-shot Gemini Flash and fine-tuned RipWatch YOLO on the same 200 held-out frames with one scoring function. Not run on real data and no API was called. All logic was tested locally with stubbed `google.genai` and `ultralytics` on synthetic frames (28 checks: parser, scoring, sampling, resume, metrics.json shape).
+- `ml/.env.example`, `ml/requirements.txt`. `.gitignore` already had `.env*` (covers `.env` and `ml/.env`), but that also hid `ml/.env.example`, so I added `!.env.example` and an explicit `ml/.env`.
+- `ml/scripts/common.py`: repo-relative paths, `ml/.env` loading (python-dotenv, environment wins), `GEMINI_API_KEY` from env or the Kaggle Secret of the same name, ground-truth boxes from polygon labels.
+- `download_data.py --splits` (default `train,val`; `val` alone for the baseline account). `test` is still refused.
+- `prepare_yolo.py --splits` (not asked, but needed): with `val` only it builds just `test/` and skips `data.yaml`. Without it, the val-only cell order failed because `train/` was missing.
+- `baseline_vlm.py`:
+  - Sampling: 150 rip frames round-robin across rip videos plus 50 RipVIS-NR frames, seed 42, saved to `ml/results/eval_frames.txt` and reused if present.
+  - One fixed prompt (`PROMPT_VERSION = "v1"`). It asks for Gemini's native box format, `[ymin, xmin, ymax, xmax]` on 0-1000 (agreed with the user), which is converted to normalized xyxy.
+  - Requests: `--delay 6`, 429/5xx backoff from 30 s doubling to 300 s. When retries run out on 429 it stops cleanly (exit 2) and resumes on rerun.
+  - Every response goes to `ml/results/baseline_raw.jsonl`. Unparseable answers are logged and count as no detection. Other API errors are logged and retried on the next run.
+- `eval_compare.py`:
+  - YOLO boxes at `--conf 0.25`, sorted by confidence. Gemini boxes from the jsonl.
+  - One `score()` for both: image-level P/R/F2 and box-level P/R/F2 with greedy IoU >= 0.5. F2 = 5PR/(4P+R).
+  - Writes `web/public/data/metrics.json` per the contract (box level, two entries, `heldOutFrames`, `notes`, no `fake`) and `ml/results/comparison.md` (both levels with TP/FP/FN).
+
+**Decisions to check**
+- Default model `gemini-3.8-flash`, the latest stable Flash on the Gemini models page as of today. The rate-limits page does not say whether it is on the free tier. If it is not, pass `--model` (for example `gemini-3.5-flash-lite`) to both scripts, after checking AI Studio.
+- Temperature and thinking are left at defaults. Google's Gemini 3 docs say not to set temperature below 1.0 (it can cause looping and worse results), so the planned `temperature=0` was dropped. Responses are therefore not deterministic. The jsonl keeps the exact answers that were scored.
+- Gemini "rip present" = `rip: true` or at least one box. YOLO = at least one box at conf >= 0.25.
+- Box-level scoring uses YOLO's detection boxes, not masks, so both models are judged on boxes.
+- The metrics.json entry is named "RipWatch (fine-tuned YOLO11s-seg)" whatever `--weights` points at.
+
+**Files touched:** `.gitignore`, `ml/.env.example`, `ml/requirements.txt`, `ml/scripts/common.py`, `ml/scripts/baseline_vlm.py`, `ml/scripts/eval_compare.py`, `ml/scripts/download_data.py`, `ml/scripts/prepare_yolo.py`, `notes/ml.md`
+
+**Next:** run the cells below on the baseline account, then `eval_compare.py` once `best.pt` exists. Commit `ml/results/` and the real `metrics.json`. That replaces the fake file, and `/results` drops its PLACEHOLDER badge.
+
+**Blockers:** None. Unverified until run: free-tier access to the default model, and Kaggle Secrets being readable from a `!python` subprocess (if not, create `ml/.env` in the notebook instead).
+
+### How to run in Kaggle (Gemini baseline + comparison)
+Notebook settings: Internet on. Add-ons, Secrets: add `GEMINI_API_KEY` and attach it to this notebook. A GPU is only needed for the last step.
+
+```
+# 1. Clone the repo (public)
+!git clone https://github.com/TejasNaik24/RipWatch.git
+%cd /kaggle/working/RipWatch
+```
+```
+# 2. Install
+!pip install -q -r ml/requirements.txt
+```
+```
+# 3. Only if Kaggle Secrets do not work: write the key to ml/.env (git-ignored)
+# !echo "GEMINI_API_KEY=..." > ml/.env
+```
+```
+# 4. Val split only (about 1.7 GB of images plus labels)
+!python ml/scripts/download_data.py --splits val
+```
+```
+# 5. Build /kaggle/working/yolo/test (official val = held-out test)
+!python ml/scripts/prepare_yolo.py --splits val
+```
+```
+# 6. Gemini baseline. Rerun this cell to resume after a rate-limit stop.
+!python ml/scripts/baseline_vlm.py
+# other model: !python ml/scripts/baseline_vlm.py --model gemini-3.5-flash-lite
+```
+```
+# 7. Once best.pt exists (upload it from the training account as a Kaggle dataset)
+!python ml/scripts/eval_compare.py --weights /kaggle/input/<your-dataset>/best.pt
+# if step 6 used --model X, add: --baseline-model X
+```
+```
+# 8. Bundle the outputs to download, then commit them from the laptop (Kaggle has no push credentials)
+!tar czf /kaggle/working/ripwatch_results.tgz ml/results web/public/data/metrics.json
+```

@@ -4,6 +4,8 @@ ml/data/
 *.pt
 *.onnx
 .env*
+!.env.example
+ml/.env
 __pycache__
 .DS_Store
 .remember/

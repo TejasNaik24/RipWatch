@@ -5,8 +5,9 @@ Intended for a Kaggle notebook:
 
     !pip install -q huggingface_hub
     !python ml/scripts/download_data.py --val-videos RipVIS-NR-004.mp4 <rip1>.mp4 <rip2>.mp4
+    !python ml/scripts/download_data.py --splits val    # val only, e.g. for the Gemini baseline
 
-Downloads ONLY:
+Downloads ONLY (for the splits in --splits):
   - train/val sampled_images.zip
   - train/val yolo_annotations.zip
   - compute_pr_f1_f2.py
@@ -64,11 +65,11 @@ def find_one(files: list[str], label: str, pred) -> str | None:
     return matches[0]
 
 
-def select_targets(files: list[str], val_videos: list[str]) -> list[str]:
+def select_targets(files: list[str], val_videos: list[str], splits: tuple[str, ...] = SPLITS) -> list[str]:
     safe = [f for f in files if not is_test(f)]
     targets: list[str] = []
 
-    for split in SPLITS:
+    for split in splits:
         for zip_name in ("sampled_images.zip", "yolo_annotations.zip"):
             hit = find_one(
                 safe,
@@ -82,7 +83,7 @@ def select_targets(files: list[str], val_videos: list[str]) -> list[str]:
     if hit:
         targets.append(hit)
 
-    for v in val_videos:
+    for v in val_videos if "val" in splits else []:
         want = v.lower()
         hit = find_one(
             safe,
@@ -140,9 +141,9 @@ def unzip_all(targets: list[str], out_dir: Path) -> dict[str, Path]:
     return extracted
 
 
-def report_counts(extracted: dict[str, Path]) -> None:
+def report_counts(extracted: dict[str, Path], splits: tuple[str, ...] = SPLITS) -> None:
     print("\n=== Dataset counts ===")
-    for split in SPLITS:
+    for split in splits:
         img_dirs = [d for t, d in extracted.items() if split_of(t) == split and "image" in Path(t).name.lower()]
         lbl_dirs = [d for t, d in extracted.items() if split_of(t) == split and "annotation" in Path(t).name.lower()]
         if not img_dirs or not lbl_dirs:
@@ -169,7 +170,15 @@ def main() -> None:
         default=DEFAULT_VAL_VIDEOS,
         help="val video filenames to fetch for demo clips (basename, with or without extension)",
     )
+    ap.add_argument(
+        "--splits",
+        default=",".join(SPLITS),
+        help='comma-separated official splits to fetch: "train,val" (default) or "val" alone',
+    )
     args = ap.parse_args()
+    splits = tuple(s.strip() for s in args.splits.split(",") if s.strip())
+    if not splits or set(splits) - set(SPLITS):
+        sys.exit(f"ERROR: --splits must be a subset of {','.join(SPLITS)} (test is never downloaded)")
 
     files = list_repo_files(REPO_ID, repo_type=REPO_TYPE)
     print(f"Repo {REPO_ID}: {len(files)} files total. Non-video paths:")
@@ -178,7 +187,7 @@ def main() -> None:
             print(f"  {f}")
     print()
 
-    targets = select_targets(files, args.val_videos)
+    targets = select_targets(files, args.val_videos, splits)
     print("Selected for download:")
     for t in targets:
         print(f"  {t}")
@@ -187,7 +196,7 @@ def main() -> None:
     args.out_dir.mkdir(parents=True, exist_ok=True)
     download(targets, args.out_dir)
     extracted = unzip_all(targets, args.out_dir)
-    report_counts(extracted)
+    report_counts(extracted, splits)
 
 
 if __name__ == "__main__":
