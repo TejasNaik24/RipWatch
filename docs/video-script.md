@@ -86,7 +86,7 @@ Record at 1920x1080. Run the app with `npm run dev` in `web/`. Real clips and ma
 **Notes:**
 - RipVIS figures (184 videos, 212,328 frames, 10 countries) are from the RipVIS paper (CVPR 2025), see Sources. Check that the `/pipeline` dataset line matches them before recording.
 - `/results` shows a PLACEHOLDER DATA badge while `metrics.json` has `"fake": true`. Do not record it until the badge is gone.
-- Final numbers come from our `ml/scripts/eval_compare.py` (one scoring function for RipWatch and the Gemini baseline on the same 200 held-out frames, written to `web/public/data/metrics.json`), matching the README.
+- Final numbers come from our `ml/scripts/eval_compare.py` (one scoring function for RipWatch and the Gemini 3.5 Flash Lite baseline on the same 200 held-out frames, written to `web/public/data/metrics.json`), matching the README.
 
 ---
 

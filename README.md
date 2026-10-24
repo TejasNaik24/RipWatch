@@ -34,7 +34,7 @@ YOLO11s-seg (Ultralytics), starting from COCO-pretrained weights and fine-tuned 
 
 - **Held-out data:** the official RipVIS validation videos. They are never used for training or model selection.
 - **Metric:** F2, which weights recall above precision, because missing a rip is worse than a false alarm. We also report precision and recall.
-- **Baseline:** zero-shot Gemini Flash.
+- **Baseline:** zero-shot Gemini 3.5 Flash Lite (`gemini-3.5-flash-lite`). We used Flash Lite because of free-tier API limits.
   - It runs on the same 200 held-out frames (150 rip frames spread across the rip videos, plus 50 no-rip frames, fixed seed).
   - It gets one fixed prompt and is asked for boxes in its native format (`[ymin, xmin, ymax, xmax]` on a 0-1000 scale), which we convert.
 - **Scoring:**
@@ -44,7 +44,7 @@ YOLO11s-seg (Ultralytics), starting from COCO-pretrained weights and fine-tuned 
 
 ## Results
 
-[TODO: RipWatch vs. Gemini Flash F2, precision and recall on the 200 held-out frames, once the real run is done.]
+[TODO: RipWatch vs. Gemini 3.5 Flash Lite F2, precision and recall on the 200 held-out frames, once the real run is done.]
 
 ## Known limitations
 
@@ -74,7 +74,7 @@ python ml/scripts/train.py                          # fine-tune YOLO11s-seg (--s
 Evaluation (needs `GEMINI_API_KEY` in `ml/.env`, see `ml/.env.example`):
 
 ```bash
-python ml/scripts/baseline_vlm.py                   # Gemini Flash on the 200 held-out frames (rerun to resume)
+python ml/scripts/baseline_vlm.py                   # Gemini 3.5 Flash Lite on the 200 held-out frames (rerun to resume)
 python ml/scripts/eval_compare.py --weights best.pt # scores both, writes web/public/data/metrics.json
 ```
 
