@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState, type CSSProperties } from "react";
-import { IconWaves } from "../Icons";
+import LogoMark from "../LogoMark";
 import { CARDS, type Card } from "./cards";
 import CountUp from "./CountUp";
 
@@ -50,7 +50,7 @@ function CardView({ card }: { card: Card }) {
       return (
         <>
           <span className="rw-story-rise rw-story-mark" style={after(0)}>
-            <IconWaves size={30} />
+            <LogoMark className="h-full w-full" />
           </span>
           <h1 className="rw-story-rise rw-story-title" style={after(120)}>
             {card.title}

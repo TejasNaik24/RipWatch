@@ -333,3 +333,38 @@ web/app/{globals.css, layout.tsx, page.tsx, compare/page.tsx, results/page.tsx, 
 **Not verified:** a clip that fails after it had loaded (code path is the same `error` handler, not exercised); Safari. The browser pane sometimes throttles animation frames, which made the first measurement after a reload read zero for a few seconds; a screenshot 3 s after load showed the alert.
 
 **Files touched:** `web/components/MaskedVideo.tsx`, `StatusPill.tsx`, `FeedTile.tsx`, `AlertCard.tsx`, `Dashboard.tsx`, `web/app/compare/page.tsx`, `web/lib/useRipStatus.ts`, `notes/web.md`. **Blockers:** None.
+## 2026-10-24 15:30 - Logo mark, app icons, README rewrite (written from the ML teammate's laptop)
+**Note:** written from the ML teammate's laptop; same arrangement as before.
+
+**Logo mark**
+- **Design:** a line of breaking waves with a gap in the middle, and the wave beyond it pulled outward into a point: how a rip looks from shore. Teal `#4fb8ac` strokes (2.5 on a 32 grid) on a navy `#10161f` rounded square with a faint teal hairline.
+- **Variants rejected:** a stem with waves (reads as a pine tree), chevrons plus broken waves (busy), and an explicit arrow tip (too busy at 16px). The chosen one stays legible at 16px on dark and light tabs.
+- **Where it is used:**
+  - `web/components/LogoMark.tsx` (inline SVG) in the nav (`TopBar.tsx`, replacing the circle and `IconWaves`) and on the `/story` title card (`StoryStage.tsx`, `.rw-story-mark` restyled).
+  - The same paths are in `web/app/icon.svg` and `docs/assets/logo.svg`; change all three together.
+- **Raster icons:**
+  - `web/app/apple-icon.png` (180×180, full-bleed navy so iOS does not add black corners).
+  - `web/app/favicon.ico` (16/32/48 PNG entries), replacing the create-next-app default.
+  - Both were rasterized by drawing the SVG to a canvas in Chrome and packing the ICO with stdlib Python, since no SVG tool is installed. Nothing was downloaded.
+- **Banner:** `docs/assets/banner.svg` (1280×400). It has the mark, a "RipWatch" wordmark, the tagline and the `/story` waterline. The Public Sans latin woff2 is embedded as base64, so the wordmark renders on GitHub, where SVGs load as images without web fonts.
+
+**README.md (full rewrite)**
+- **Sections:** banner, pitch, badges, problem, what it does, screenshots (TODO), architecture (3 Mermaid diagrams), tech stack, dataset with BibTeX, model and training, results, demo clips, responsible AI, repo tree, running it, environment, Built at HackOHI/O 2026, team and acknowledgments.
+- **Number sources:**
+  - Results from `ml/results/comparison.md` and `metrics.json`.
+  - Demo clip rates and the RipVIS-129 failure from `notes/ml.md`.
+  - Smoothing parameters and splits from the ML notes and scripts.
+  - Problem facts, RipVIS facts and the training numbers (mask mAP50 0.615, P 0.69, R 0.55) from the user's list.
+  - TODOs where the repo has no number: epochs actually trained and training time, and per-split frame counts.
+- **Removed** from the old README because they are not on the user's list: the "100+ US deaths a year" figure and the Great Lakes Surf Rescue Project line. Lake Erie is now sourced to Fox 8 Cleveland (WJW).
+- **Fox 8 link:** https://fox8.com/news/10-year-old-girl-hospitalized-after-edgewater-beach-rescue-has-died/ (a girl swept away by rip currents at Edgewater Beach who later died). fox8.com blocks automated access (403 and a bot page), so it was confirmed from search-result text only. There is a hidden TODO comment in the README to open it once in a browser.
+- **Mermaid:** all three diagrams parse and render with mermaid 10.9.1 and 11.4.1 (no "Unsupported markdown"). Numbered subgraph titles were renamed, because "1. ..." renders as a markdown list.
+- **Added** "Claude Code (AI coding assistant)" to the pre-existing tools list, for disclosure. Remove it if the event's rules say otherwise.
+- `docs/screenshots/README.md` lists the five screenshots (file, route, state) to capture at 1920×1080 on the recording laptop.
+
+**Verified:** eslint, tsc and `next build` pass. The build emits `/icon.svg`, `/apple-icon.png` and `/favicon.ico`, and the page head has `icon` (ico 48x48 and svg any) and `apple-touch-icon` 180x180. Nav and `/story` title checked at 1920x1080. Banner and logo checked as `<img>`.
+
+**Not done or not verified:**
+- The screenshots (TODO).
+- The Fox 8 page itself.
+- The story Lake Erie card still cites the Great Lakes Surf Rescue Project while the README now cites Fox 8; not changed here.

@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { IconWaves } from "./Icons";
+import LogoMark from "./LogoMark";
 import LiveClock from "./LiveClock";
 
 const LINKS = [
@@ -22,9 +22,7 @@ export default function TopBar() {
     >
       <div className="flex h-full items-center gap-10">
         <Link href="/" className="flex items-center gap-2.5 rounded-md">
-          <span className="grid h-8 w-8 place-items-center rounded-full border border-sea/40 bg-sea/10 text-sea">
-            <IconWaves size={18} />
-          </span>
+          <LogoMark size={32} />
           <span className="text-[17px] font-semibold tracking-[-0.01em]">RipWatch</span>
         </Link>
         <nav className="flex h-full items-center gap-1" aria-label="Main">

@@ -66,19 +66,10 @@
 
 /* Title card */
 .rw-story-mark {
-  display: grid;
-  place-items: center;
-  width: min(4.4cqw, 8cqh);
-  height: min(4.4cqw, 8cqh);
+  display: block;
+  width: min(5cqw, 9cqh);
+  height: min(5cqw, 9cqh);
   margin-bottom: 3.4cqh;
-  border: 1px solid rgba(79, 184, 172, 0.4);
-  border-radius: 9999px;
-  background: rgba(79, 184, 172, 0.1);
-  color: var(--sea);
-}
-.rw-story-mark svg {
-  width: 52%;
-  height: 52%;
 }
 .rw-story-title {
   font-size: min(10cqw, 20cqh);
