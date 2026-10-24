@@ -378,3 +378,10 @@ web/app/{globals.css, layout.tsx, page.tsx, compare/page.tsx, results/page.tsx, 
 - README training: "About 2.5 hours on 2x T4, including data download and preparation". `ml/results/train_s/results.csv` does not exist in the repo, so "epochs actually trained" stays a TODO with the file to count.
 
 **Open:** the `/story` Lake Erie card (`web/components/story/cards.ts`) still says source "Great Lakes Surf Rescue Project" and the subline "Rip currents are a recurring factor in Lake Erie drownings." The new source supports one incident, not "recurring". Not changed here (not asked); the script's TODO list flags it.
+
+## 2026-10-24 16:25 - /story Lake Erie card matches the Fox 8 (WJW) source (written from the ML teammate's laptop)
+**Note:** written from the ML teammate's laptop; same arrangement as before.
+
+**Changed:** card 5 in `web/components/story/cards.ts`: subline "Rip currents have taken lives on Lake Erie." (was "...a recurring factor in Lake Erie drownings."), source "Fox 8 Cleveland (WJW)" (was Great Lakes Surf Rescue Project). `docs/video-script.md`: card table row, card-5 note and the TODO item updated to match (TODO ticked).
+
+**Verified:** eslint, tsc and `next build` pass. At 1440x900 the card shows the new text with no off-screen or clipped text and no page scroll. No other card changed.

@@ -27,14 +27,14 @@ A full-screen, keyboard-driven sequence for recording the opening and close. It 
 | 2 | 300,000 estimated drowning deaths worldwide in 2021 (World Health Organization) | Problem, beat 1 |
 | 3 | 80%+ of rescues by US surf beach lifeguards involve rip currents (United States Lifesaving Association) | Problem, beat 2 |
 | 4 | 1 in 5 beachgoers could spot a real rip current in person (Muriwai Beach field study, *Natural Hazards and Earth System Sciences*, 2021) | Problem, beat 3 |
-| 5 | "Closer to home" / "Lake Erie has rip currents too." / "Rip currents are a recurring factor in Lake Erie drownings." (Great Lakes Surf Rescue Project). No number, no count-up | Problem, beat 4 |
+| 5 | "Closer to home" / "Lake Erie has rip currents too." / "Rip currents have taken lives on Lake Erie." (Fox 8 Cleveland (WJW)). No number, no count-up | Problem, beat 4 |
 | 6 | Bridge: "Rip currents look calm. That's what makes them deadly." | End of Problem |
 | 7 | Closing: "Rip currents are invisible. Now they don't have to be." + "RipWatch · HackOHI/O 2026" + team names | Close |
 
 **Notes:**
 - Only the three statistics above (cards 2-4) appear on the cards; card 5 has no number, with the sources listed under Sources. Say the same numbers in the voice-over. Card 4 says "1 in 5": **say "about 1 in 5"** (the study's figure is 22%).
 - Card 3 is "surf beach lifeguards", not all lifeguards. The USLA-based figure rests on voluntary lifeguard-agency reporting.
-- Card 5 is a statement, not a statistic, with no number. The voice-over cites Fox 8 Cleveland (WJW) for the 2013 incident, but the card itself still shows "Great Lakes Surf Rescue Project" and a "recurring factor" subline (`web/components/story/cards.ts`). Align the card's source line and subline with the Fox 8 story before recording, or keep the voice-over to the single incident.
+- Card 5 is a statement, not a statistic, with no number. Its source line is "Fox 8 Cleveland (WJW)", for the 2013 incident described in Sources; keep the "according to Fox 8 Cleveland" attribution in the voice-over.
 - Card 2 says "300,000" with the label "estimated drowning deaths", matching WHO's own "estimated 300,000" for 2021. Say "an estimated 300,000" in the voice-over.
 - Card 7 shows the placeholder `[Teammate name]` until `TEAMMATE_NAME` in `web/components/story/cards.ts` is filled in.
 - The word "deadly" on card 6 is the one red element (`.text-rip` in `StoryStage.tsx`).
@@ -154,7 +154,7 @@ A full-screen, keyboard-driven sequence for recording the opening and close. It 
 - [ ] Real clips (`clip1_obvious`, `clip2_sneaky`, `clip3_norip`) and real masks in `web/public/data/`
 - [x] Drowning and rescue figures with source (Problem)
 - [x] Share of people who cannot identify a rip, with source (Problem)
-- [ ] Lake Erie card: its source line and "recurring factor" subline still say Great Lakes Surf Rescue Project; align them with the Fox 8 Cleveland (WJW) story (Problem)
+- [x] Lake Erie card matches the Fox 8 Cleveland (WJW) story (Problem)
 - [ ] What the baseline does on the sneaky clip (Demo)
 - [x] RipVIS video, frame and country count, from the paper (How it works); `/pipeline` text still to be checked against it
 - [x] F2, precision, recall, held-out frame count from `ml/scripts/eval_compare.py` (How it works): filled with the image-level headline from `ml/results/comparison.md` (box level mentioned once at most)

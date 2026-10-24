@@ -46,8 +46,8 @@ export const CARDS: Card[] = [
     kind: "note",
     eyebrow: "Closer to home",
     headline: "Lake Erie has rip currents too.",
-    subline: "Rip currents are a recurring factor in Lake Erie drownings.",
-    source: "Great Lakes Surf Rescue Project",
+    subline: "Rip currents have taken lives on Lake Erie.",
+    source: "Fox 8 Cleveland (WJW)",
   },
   {
     kind: "bridge",
