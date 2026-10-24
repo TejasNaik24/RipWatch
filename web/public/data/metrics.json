@@ -1,0 +1,25 @@
+{
+  "fake": true,
+  "models": [
+    {
+      "name": "Zero-shot VLM",
+      "f2": 0.11,
+      "precision": 0.22,
+      "recall": 0.09
+    },
+    {
+      "name": "Baseline YOLO11s-seg",
+      "f2": 0.22,
+      "precision": 0.33,
+      "recall": 0.44
+    },
+    {
+      "name": "RipWatch YOLO11s-seg",
+      "f2": 0.99,
+      "precision": 0.99,
+      "recall": 0.99
+    }
+  ],
+  "heldOutFrames": 123,
+  "notes": "PLACEHOLDER NUMBERS - fake data, not real results"
+}

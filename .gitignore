@@ -1,0 +1,9 @@
+node_modules
+.next
+ml/data/
+*.pt
+*.onnx
+.env*
+__pycache__
+.DS_Store
+.remember/
