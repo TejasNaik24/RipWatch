@@ -62,20 +62,20 @@
 
   Film.run({
     beats: [
-      // 1. The four words rise in one by one while the line slowly zooms.
+      // 1. The four words rise in one by one (0.25 s each, 0.2 s apart) while the line slowly zooms. 1.0 s.
       () => {
         const tl = gsap.timeline();
-        tl.to(line, { scale: 1.05, duration: 3.6, ease: "sine.inOut" }, 0);
-        words.forEach((w, i) => tl.add(Film.rise(w, { duration: 0.95 }), 0.15 + i * 0.62));
+        tl.to(line, { scale: 1.05, duration: 1.0, ease: "sine.inOut" }, 0);
+        words.forEach((w, i) => tl.add(Film.rise(w, { duration: 0.25 }), 0.05 + i * 0.2));
         return tl;
       },
-      // 2. A cursor appears and blinks; the "?" types in; the cursor keeps blinking after it.
+      // 2. A cursor appears and blinks; the "?" types in at 1.6 s of the scene; the cursor keeps blinking. 1.6 s.
       () => {
         const tl = gsap.timeline();
         placeCursor(false);
         tl.set(cursor, { opacity: 1 }).call(() => cursor.classList.add("on"), null, 0);
-        tl.set(q, { opacity: 1 }, 1.5).call(() => placeCursor(true), null, 1.5);
-        tl.to(line, { scale: 1.07, duration: 2.2, ease: "sine.inOut" }, 0);
+        tl.set(q, { opacity: 1 }, 0.6).call(() => placeCursor(true), null, 0.6);
+        tl.to(line, { scale: 1.07, duration: 1.6, ease: "sine.inOut" }, 0);
         return tl;
       },
     ],

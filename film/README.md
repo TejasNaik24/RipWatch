@@ -12,7 +12,7 @@ Each scene is a fixed **1920×1080 stage scaled to fit the window** (letterbox b
 4. **R** restarts the scene (back to its empty first frame) if you need a retake.
 5. **P** pauses or resumes everything that is animating (beats and loops). **B** steps back one beat: the page reloads and replays the previous beat from its start (from beat 1 it goes back to the empty first frame). Neither shows anything on screen. Pressing Space while paused resumes first.
 
-Pressing a key while a beat is still playing finishes that beat; the next press starts the next beat. Held keys are ignored. Timings per beat are in [`TIMING.md`](TIMING.md). Open a scene with `?skip=N` (for example `03-definition.html?skip=2`) to start with the first N beats already played, to pick up a take mid-scene.
+Pressing a key while a beat is still playing finishes that beat; the next press starts the next beat. Held keys are ignored. Timings per beat are in [`TIMING.md`](TIMING.md). Add `?speed=N` to any scene's URL to play all its animation N times faster (default 1; `03-definition.html?speed=1.5`); it can be combined with `skip`, and R and B keep it. CSS-driven bits (the blinking cursor in 01) and the video in 02 are not sped up. If a change to `assets/stage.js` seems to have no effect, hard-reload the page (Chrome caches it). Open a scene with `?skip=N` (for example `03-definition.html?skip=2`) to start with the first N beats already played, to pick up a take mid-scene.
 
 Scenes 02 and 08 ignore Space until their media has loaded (`Film.hold` in `assets/stage.js`): 02 waits for the video's `canplaythrough`, 08 for all thumbnails, each for at most 6 s, after which 02 shows its placeholder and 08 uses whichever thumbnails loaded. If the first press seems dead, wait a moment.
 
@@ -22,8 +22,8 @@ Internet access is needed once per page load (GSAP is loaded from cdnjs, pinned 
 
 | File | Palette | Beats (one key press each) |
 |---|---|---|
-| `01-hook.html` | White | 1. "Where / would / you / swim" rise in one by one, slightly zooming. 2. A cursor blinks, "?" types in |
-| `02-ocean.html` | White → navy | 1. The ocean video fades in, "Perhaps the ocean?". 2. "But…" as the palette turns dark. Needs `media/ocean.mp4` |
+| `01-hook.html` | White | 1. "Where / would / you / swim" rise in one by one (0.25 s each), slightly zooming. 2. A cursor blinks, "?" types in. 2.6 s in all |
+| `02-ocean.html` | White → navy | 1. The ocean video fades in, "Perhaps the ocean?". 2. "But…" as the palette turns dark. Needs `media/ocean.mp4`. 4.0 s in all |
 | `03-definition.html` | Navy | 1. "What is a rip current?" with a drawn underline. 2. The definition slides up, source: National Weather Service. 3. Diagram: waves roll in, one channel flows out. 4. "How do you spot one?" (source: National Weather Service); the diagram dims behind it. 5-8. One clue per beat, each with a short label and a callout arrow: "A gap in the breaking waves", "Choppy, churning water", "Darker water", "Foam or debris drifting out to sea". 9. "These clues are subtle. Most people miss them." The clues are general NWS guidance, not a claim about which features RipWatch uses. About 7.4 s for beats 4-9 |
 | `04-stakes.html` | Navy | 1. 300,000 (WHO). 2. 80%+ (USLA). 3. 1 in 5 (Muriwai study, NHESS 2021). 4. Rip currents have taken lives on Lake Erie (Fox 8 Cleveland, WJW). Numbers count up |
 | `05-intro.html` | Navy | 1. The logo draws itself, the wordmark appears. 2. "A fine-tuned computer vision model that sees rip currents." |

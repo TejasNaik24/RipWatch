@@ -6,6 +6,7 @@
  * Space or Right Arrow: play the next beat. If a beat is still playing, the press finishes it
  * instead (so nothing double-plays); the next press starts the next beat. R: back to the start.
  * Held keys are ignored. `?skip=N` in the URL starts with the first N beats already played.
+ * ?speed=N plays all animation N times faster (R and B keep it).
  * Film.hold(promise) (before Film.run) keeps the first press from starting until media has loaded.
  * Recording aids (no on-screen UI): P pauses or resumes everything that is animating (GSAP's global
  * timeline, so beat timelines and endless loops alike). B steps back one beat: the page reloads with
@@ -34,6 +35,17 @@
     return;
   }
   gsap.defaults({ ease: "power2.inOut", duration: 1 });
+  // ?speed=N plays every GSAP animation N times faster (default 1). It scales the global timeline, so beats
+  // and loops alike; CSS animations (the blinking cursor) and the video in 02 run at normal speed.
+  const speed = parseFloat(new URLSearchParams(location.search).get("speed"));
+  if (speed > 0) gsap.globalTimeline.timeScale(speed);
+  /** This page's URL with the params to keep across reloads (R, B). */
+  const keep = (extra) => {
+    const p = new URLSearchParams(extra);
+    if (speed > 0) p.set("speed", String(speed));
+    const q = p.toString();
+    return location.pathname + (q ? "?" + q : "");
+  };
 
   const Film = (window.Film = {});
 
@@ -83,12 +95,12 @@
         e.preventDefault();
         next();
       } else if (e.key === "r" || e.key === "R") {
-        location.href = location.pathname;
+        location.href = keep("");
       } else if (e.key === "p" || e.key === "P") {
         gsap.globalTimeline.paused(!gsap.globalTimeline.paused());
       } else if (e.key === "b" || e.key === "B") {
         // Replay the previous beat: i is the beat that last started, so the previous one is i - 1.
-        location.href = state.i >= 1 ? `${location.pathname}?skip=${state.i - 1}&auto=1` : location.pathname;
+        location.href = state.i >= 1 ? keep(`skip=${state.i - 1}&auto=1`) : keep("");
       }
     });
 
